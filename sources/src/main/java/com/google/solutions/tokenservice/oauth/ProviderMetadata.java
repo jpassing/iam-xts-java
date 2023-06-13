@@ -21,16 +21,16 @@ import java.util.Collection;
  */
 public record ProviderMetadata(
   @JsonProperty("issuer")
-  URL issuerEndpoint,
+  String issuerEndpoint,
 
   @JsonProperty("authorization_endpoint")
-  URL authorizationEndpoint,
+  String authorizationEndpoint,
 
   @JsonProperty("token_endpoint")
-  URL tokenEndpoint,
+  String tokenEndpoint,
 
-  @JsonProperty("jwks_String")
-  URL jwksEndpoint,
+  @JsonProperty("jwks_uri")
+  String jwksEndpoint,
 
   @JsonProperty("response_types_supported")
   Collection<String> supportedResponseTypes,

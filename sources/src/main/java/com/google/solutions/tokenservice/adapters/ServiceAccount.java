@@ -37,12 +37,13 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 /**
- * Adapter for IAM Credentials API
+ * Service account.
  */
 @ApplicationScoped
-public class IamCredentialsAdapter {
+public class ServiceAccount {
   public static final String OAUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 
+  private final String email;
   private final GoogleCredentials credentials;
 
   private IAMCredentials createClient() throws IOException
@@ -50,9 +51,9 @@ public class IamCredentialsAdapter {
     try {
       return new IAMCredentials
         .Builder(
-        HttpTransport.newTransport(),
-        new GsonFactory(),
-        new HttpCredentialsAdapter(this.credentials))
+          HttpTransport.newTransport(),
+          new GsonFactory(),
+          new HttpCredentialsAdapter(this.credentials))
         .setApplicationName(ApplicationVersion.USER_AGENT)
         .build();
     }
@@ -61,9 +62,14 @@ public class IamCredentialsAdapter {
     }
   }
 
-  public IamCredentialsAdapter(GoogleCredentials credentials)  {
+  public ServiceAccount(
+    String email,
+    GoogleCredentials credentials
+  )  {
+    Preconditions.checkNotNull(email, "email");
     Preconditions.checkNotNull(credentials, "credentials");
 
+    this.email = email;
     this.credentials = credentials;
   }
 
@@ -71,10 +77,8 @@ public class IamCredentialsAdapter {
    * Sign a JWT using the Google-managed service account key.
    */
   public String signJwt(
-    UserId serviceAccount,
     JsonWebToken.Payload payload
   ) throws AccessException, IOException {
-    Preconditions.checkNotNull(serviceAccount, "serviceAccount");
     Preconditions.checkNotNull(payload, "payload");
 
     try
@@ -93,7 +97,7 @@ public class IamCredentialsAdapter {
         .projects()
         .serviceAccounts()
         .signJwt(
-          String.format("projects/-/serviceAccounts/%s", serviceAccount.email),
+          String.format("projects/-/serviceAccounts/%s", this.email),
           request)
         .execute()
         .getSignedJwt();
@@ -104,7 +108,7 @@ public class IamCredentialsAdapter {
           throw new NotAuthenticatedException("Not authenticated", e);
         case 403:
           throw new AccessDeniedException(
-            String.format("Denied access to service account '%s': %s", serviceAccount.email, e.getMessage()), e);
+            String.format("Denied access to service account '%s': %s", this.email, e.getMessage()), e);
         default:
           throw (GoogleJsonResponseException)e.fillInStackTrace();
       }
@@ -114,7 +118,9 @@ public class IamCredentialsAdapter {
   /**
    * Get JWKS location for service account key set.
    */
-  public static String getJwksUrl(UserId serviceAccount) {
-    return String.format("https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s", serviceAccount.email);
+  public String getJwksUrl() {
+    return String.format("https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s", this.email);
   }
+
+  // TODO: Move ADC logic here.
 }

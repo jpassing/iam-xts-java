@@ -33,7 +33,7 @@ import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.UserId;
-import com.google.solutions.tokenservice.adapters.IamCredentialsAdapter;
+import com.google.solutions.tokenservice.adapters.ServiceAccount;
 import com.google.solutions.tokenservice.adapters.LogAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -154,7 +154,7 @@ public class RuntimeEnvironment {
             impersonateServiceAccount,
             null,
             Stream.of(
-                IamCredentialsAdapter.OAUTH_SCOPE)
+                ServiceAccount.OAUTH_SCOPE)
               .distinct()
               .collect(Collectors.toList()),
             0);

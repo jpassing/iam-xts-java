@@ -21,12 +21,27 @@
 
 package com.google.solutions.tokenservice.oauth;
 
-import javax.ws.rs.core.MultivaluedMap;
-
+/**
+ * An OAuth authentication flow.
+ */
 public interface AuthenticationFlow {
-  String grantType();
-  String authenticationMethod();
+  /**
+   * @return Grant type supported by this flow.
+   */
+  String getGrantType();
+
+  /**
+   * @return Authentication method supported by this flow.
+   */
+  String getAuthenticationMethod();
+
+  /**
+   * Check if the flow is applicable to the given request.
+   */
   boolean isAvailable(TokenRequest request);
 
+  /**
+   * Authenticate user or client.
+   */
   TokenResponse authenticate(TokenRequest request);
 }

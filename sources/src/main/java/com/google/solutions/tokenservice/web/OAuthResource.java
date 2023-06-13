@@ -26,6 +26,7 @@ import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.Exceptions;
 import com.google.solutions.tokenservice.adapters.LogAdapter;
 import com.google.solutions.tokenservice.oauth.AuthenticationFlow;
+import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.oauth.ProviderMetadata;
 import com.google.solutions.tokenservice.oauth.TokenRequest;
 
@@ -38,7 +39,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +56,9 @@ public class OAuthResource {
 
   @Inject
   Instance<AuthenticationFlow> flows;
+
+  @Inject
+  TokenIssuer tokenIssuer;
 
   private URL createUrl(UriInfo uriInfo, String path) throws MalformedURLException {
     Preconditions.checkNotNull(uriInfo);
@@ -89,18 +92,17 @@ public class OAuthResource {
 
     var issuerUrl = createUrl(uriInfo, "/");
     var tokenUrl = createUrl(uriInfo, "/token");
-    var jwksUrl = createUrl(uriInfo, "/jwks");
 
     return new ProviderMetadata(
-      issuerUrl,
-      tokenUrl, // We don't have a real authorization endpoint
-      tokenUrl,
-      jwksUrl,
+      issuerUrl.toString(),
+      tokenUrl.toString(), // We don't have a real authorization endpoint
+      tokenUrl.toString(),
+      this.tokenIssuer.getServiceAccount().getJwksUrl(),
       List.of("none"),
-      this.flows.stream().map(f -> f.grantType()).collect(Collectors.toList()),
+      this.flows.stream().map(f -> f.getGrantType()).collect(Collectors.toList()),
       List.of("pairwise"),
       List.of("RS256"),
-      this.flows.stream().map(f -> f.authenticationMethod()).collect(Collectors.toList()));
+      this.flows.stream().map(f -> f.getAuthenticationMethod()).collect(Collectors.toList()));
   }
 
   @POST

@@ -36,12 +36,12 @@ public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
-  public String grantType() {
+  public String getGrantType() {
     return "client_credentials";
   }
 
   @Override
-  public String authenticationMethod() {
+  public String getAuthenticationMethod() {
     return "tls_client_auth";
   }
 
