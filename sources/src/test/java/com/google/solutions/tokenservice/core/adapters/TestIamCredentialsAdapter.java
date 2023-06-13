@@ -2,7 +2,6 @@ package com.google.solutions.tokenservice.core.adapters;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
-import com.google.solutions.tokenservice.core.AccessDeniedException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

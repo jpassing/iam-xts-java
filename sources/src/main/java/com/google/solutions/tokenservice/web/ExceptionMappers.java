@@ -21,8 +21,8 @@
 
 package com.google.solutions.tokenservice.web;
 
-import com.google.solutions.tokenservice.core.AccessDeniedException;
-import com.google.solutions.tokenservice.core.NotAuthenticatedException;
+import com.google.solutions.tokenservice.core.adapters.AccessDeniedException;
+import com.google.solutions.tokenservice.core.adapters.NotAuthenticatedException;
 import org.jboss.resteasy.spi.UnhandledException;
 
 import javax.ws.rs.ForbiddenException;

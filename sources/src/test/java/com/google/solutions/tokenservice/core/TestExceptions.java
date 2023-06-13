@@ -21,6 +21,7 @@
 
 package com.google.solutions.tokenservice.core;
 
+import com.google.solutions.tokenservice.core.adapters.AccessDeniedException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

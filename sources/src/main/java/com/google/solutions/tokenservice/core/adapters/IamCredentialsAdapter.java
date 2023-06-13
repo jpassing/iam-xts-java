@@ -29,10 +29,7 @@ import com.google.api.services.iamcredentials.v1.model.SignJwtRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.base.Preconditions;
-import com.google.solutions.tokenservice.core.AccessDeniedException;
-import com.google.solutions.tokenservice.core.AccessException;
 import com.google.solutions.tokenservice.core.ApplicationVersion;
-import com.google.solutions.tokenservice.core.NotAuthenticatedException;
 import com.google.solutions.tokenservice.core.UserId;
 
 import javax.enterprise.context.ApplicationScoped;

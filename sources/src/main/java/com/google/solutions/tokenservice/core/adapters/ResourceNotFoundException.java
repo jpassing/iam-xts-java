@@ -19,14 +19,14 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core;
+package com.google.solutions.tokenservice.core.adapters;
 
-public class AccessDeniedException extends AccessException {
-  public AccessDeniedException(String message) {
+public class ResourceNotFoundException extends AccessException {
+  public ResourceNotFoundException(String message) {
     super(message, null);
   }
 
-  public AccessDeniedException(String message, Exception inner) {
+  public ResourceNotFoundException(String message, Exception inner) {
     super(message, inner);
   }
 }
