@@ -24,7 +24,6 @@ package com.google.solutions.tokenservice.oauth;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.MultivaluedMap;
 
 @RequestScoped
 public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
@@ -37,19 +36,29 @@ public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
-  public String getGrantType() {
-    return null;
+  public boolean isAvailable(TokenRequest request) {
+    //
+    // Verify that the request came from a load balancer. If not,
+    // we can't trust any of the headers.
+    //
+    var address = this.request.connection().remoteAddress();
+
+    //
+    // Verify that the request contains mTLS headers.
+    //
+
+    return true;
   }
 
   @Override
-  public boolean isAvailable() {
-    return false;
-  }
-
-  @Override
-  public TokenResponse authenticate(MultivaluedMap<String, String> parameters) {
+  public TokenResponse authenticate(TokenRequest request) {
 
     // https://quarkus.io/guides/security-authentication-mechanisms-concept#mutual-tls
-    return null;
+    return new TokenResponse(
+      "at",
+      "Bearer",
+      1,
+      "scope",
+      "idt");
   }
 }

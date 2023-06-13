@@ -21,9 +21,11 @@
 
 package com.google.solutions.tokenservice.web;
 
+import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.core.Exceptions;
 import com.google.solutions.tokenservice.core.adapters.LogAdapter;
 import com.google.solutions.tokenservice.oauth.AuthenticationFlow;
+import com.google.solutions.tokenservice.oauth.TokenRequest;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
@@ -65,20 +67,33 @@ public class TokenResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
     @Context HttpHeaders headers,
+    @FormParam("grant_type") String grantType,
     MultivaluedMap<String, String> parameters
   ) throws Exception {
+    if (Strings.isNullOrEmpty(grantType))
+    {
+      throw new IllegalArgumentException("A grant type is required");
+    }
+
+    //
+    // Find a suitable flow for this set of parameters.
+    //
+    var request = new TokenRequest(grantType, parameters);
     var flow = this.flows
       .stream()
-      .filter(f -> f.isAvailable())
+      .filter(f -> f.isAvailable(request))
       .findFirst();
 
     if (!flow.isPresent()) {
-      throw new IllegalArgumentException("The parameters are incomplete");
+      throw new IllegalArgumentException("The parameters are incomplete for this grant type");
     }
 
+    //
+    // Authenticate.
+    //
     try {
       return Response
-        .ok(flow.get().authenticate(parameters))
+        .ok(flow.get().authenticate(request))
         .build();
     }
     catch (Exception e)

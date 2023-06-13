@@ -23,61 +23,29 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** OAuth token response.
+/**
+ * Token response as defined in RFC6749.
  *
- * @param accessToken
- * @param tokenType
- * @param expiresIn
- * @param scope
- * @param idToken
+ * @param accessToken REQUIRED. The access token issued by the authorization server.
+ * @param tokenType REQUIRED. The type of the token issued, case-insensitive.
+ * @param expiresIn REQUIRED. The lifetime in seconds of the access token.
+ * @param scope Scope of the issued security token.
+ * @param idToken ID Token.
  */
 public record TokenResponse(
+  @JsonProperty("access_token")
   String accessToken,
+
+  @JsonProperty("token_type")
   String tokenType,
+
+  @JsonProperty("expires_in")
   int expiresIn,
+
+  @JsonProperty("scope")
   String scope,
+
+  @JsonProperty("id_token")
   String idToken
 ) {
-  /**
-   * REQUIRED. The access token issued by the authorization server.
-   */
-  @JsonProperty("access_token") // TODO: Merge into ctor?
-  public String getAccessToken() {
-    return this.accessToken;
-  }
-
-  /**
-   * REQUIRED. The type of the token issued, case-insensitive.
-   */
-  @JsonProperty("token_type")
-  public String getTokenType() {
-    return this.tokenType;
-  }
-
-  /**
-   * RECOMMENDED. The lifetime in seconds of the access token.  For
-   * example, the value "3600" denotes that the access token will
-   * expire in one hour from the time the response was generated.
-   */
-  @JsonProperty("expires_in")
-  public int getExpiresIn() {
-    return this.expiresIn;
-  }
-
-  /**
-   * OPTIONAL. Scope of the issued security token. REQUIRED if
-   * the scope is not identical to the scope requested by the client.
-   */
-  @JsonProperty("scope")
-  public String getScope() {
-    return this.scope;
-  }
-
-  /**
-   * OPTIONAL. ID Token value associated with the authenticated
-   */
-  @JsonProperty("id_token")
-  public String getIdToken() {
-    return this.idToken;
-  }
 }
