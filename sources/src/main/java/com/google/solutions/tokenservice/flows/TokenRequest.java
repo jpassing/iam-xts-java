@@ -21,24 +21,11 @@
 
 package com.google.solutions.tokenservice.flows;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
 
-public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
-  public static final String NAME = "xlb-mtls";
-
-  private final HttpServletRequest request;
-
-  public XlbMtlsClientCredentialsFlow(HttpServletRequest request) {
-    this.request = request;
-  }
-
-  @Override
-  public String getGrantType() {
-    return null;
-  }
-
-  @Override
-  public TokenResponse authenticate(TokenRequest request) {
-    return null;
-  }
+public record TokenRequest(
+  HttpHeaders headers,
+  MultivaluedMap<String, String> parameters
+) {
 }

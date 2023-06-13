@@ -22,21 +22,18 @@
 package com.google.solutions.tokenservice.web;
 
 import com.google.solutions.tokenservice.core.adapters.LogAdapter;
+import com.google.solutions.tokenservice.flows.TokenRequest;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 
 /**
  * REST API controller.
  */
 @Dependent
-@Path("/api/")
+@Path("/token")
 public class ApiResource {
   @Inject
   RuntimeEnvironment runtimeEnvironment;
@@ -50,24 +47,24 @@ public class ApiResource {
 
   /**
    */
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("test")
-  public TestResponse getPolicy(
-    @Context SecurityContext securityContext
+//  @GET
+//  @Produces(MediaType.APPLICATION_JSON)
+//  @Path("test")
+//  public TestResponse getPolicy(
+//    @Context SecurityContext securityContext
+//  ) {
+//    return new TestResponse("Test");
+//  }
+
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  public void post(
+    @Context HttpHeaders headers,
+    MultivaluedMap<String, String> formParams
   ) {
-    return new TestResponse("Test");
-  }
+    var grantType = formParams.getFirst("grant_type");
 
-  // -------------------------------------------------------------------------
-  // Request/response classes.
-  // -------------------------------------------------------------------------
+    var request = new TokenRequest(headers, formParams);
 
-  public static class TestResponse {
-    public final String message;
-
-    public TestResponse(String message) {
-      this.message = message;
-    }
   }
 }
