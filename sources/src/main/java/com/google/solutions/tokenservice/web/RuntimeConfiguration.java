@@ -21,16 +21,17 @@
 
 package com.google.solutions.tokenservice.web;
 
+import com.google.solutions.tokenservice.flows.XlbMtlsClientCredentialsFlow;
+
 import java.time.Duration;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class RuntimeConfiguration {
   private final Function<String, String> readSetting;
+
+  private final StringSetting authenticationFlows;
 
   public RuntimeConfiguration(Map<String, String> settings) {
     this(key -> settings.get(key));
@@ -39,9 +40,9 @@ public class RuntimeConfiguration {
   public RuntimeConfiguration(Function<String, String> readSetting) {
     this.readSetting = readSetting;
 
-    this.testSetting = new StringSetting(
-      List.of("RESOURCE_SCOPE"),
-      String.format("projects/%s", this.readSetting.apply("GOOGLE_CLOUD_PROJECT")));
+    this.authenticationFlows = new StringSetting(
+      List.of("AUTH_FLOWS"),
+      XlbMtlsClientCredentialsFlow.NAME);
   }
 
   // -------------------------------------------------------------------------
@@ -49,9 +50,16 @@ public class RuntimeConfiguration {
   // -------------------------------------------------------------------------
 
   /**
-   * TODO.
+   * List of enabled authentication flows.
    */
-  public final StringSetting testSetting;
+  public Collection<String> getAuthenticationFlows()
+  {
+    return Arrays.stream(this.authenticationFlows.getValue()
+      .split(","))
+      .filter(s -> !s.isEmpty())
+      .map(s -> s.trim())
+      .collect(Collectors.toList());
+  }
 
   // -------------------------------------------------------------------------
   // Inner classes.
@@ -139,17 +147,6 @@ public class RuntimeConfiguration {
     @Override
     protected Duration parse(String value) {
       return Duration.ofMinutes(Integer.parseInt(value));
-    }
-  }
-
-  public class ZoneIdSetting extends Setting<ZoneId> {
-    public ZoneIdSetting(Collection<String> keys) {
-      super(keys, ZoneOffset.UTC);
-    }
-
-    @Override
-    protected ZoneId parse(String value) {
-      return ZoneId.of(value);
     }
   }
 }

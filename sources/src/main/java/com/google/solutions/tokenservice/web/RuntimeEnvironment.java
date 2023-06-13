@@ -22,7 +22,6 @@
 package com.google.solutions.tokenservice.web;
 
 import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonObjectParser;
@@ -51,8 +50,8 @@ import java.util.stream.Stream;
  */
 @ApplicationScoped
 public class RuntimeEnvironment {
-  private static final String CONFIG_IMPERSONATE_SA = "jitaccess.impersonateServiceAccount";
-  private static final String CONFIG_DEBUG_MODE = "jitaccess.debug";
+  private static final String CONFIG_IMPERSONATE_SA = "tokenservice.impersonateServiceAccount";
+  private static final String CONFIG_DEBUG_MODE = "tokenservice.debug";
 
   private final String projectId;
   private final String projectNumber;
@@ -69,8 +68,8 @@ public class RuntimeEnvironment {
   // -------------------------------------------------------------------------
 
   private static HttpResponse getMetadata(String path) throws IOException {
-    GenericUrl genericUrl = new GenericUrl(ComputeEngineCredentials.getMetadataServerUrl() + path);
-    HttpRequest request = new NetHttpTransport().createRequestFactory().buildGetRequest(genericUrl);
+    var genericUrl = new GenericUrl(ComputeEngineCredentials.getMetadataServerUrl() + path);
+    var request = new NetHttpTransport().createRequestFactory().buildGetRequest(genericUrl);
 
     request.setParser(new JsonObjectParser(GsonFactory.getDefaultInstance()));
     request.getHeaders().set("Metadata-Flavor", "Google");
@@ -84,10 +83,6 @@ public class RuntimeEnvironment {
         "Cannot find the metadata server. This is likely because code is not running on Google Cloud.",
         exception);
     }
-  }
-
-  public boolean isRunningOnAppEngine() {
-    return System.getenv().containsKey("GAE_SERVICE");
   }
 
   public boolean isRunningOnCloudRun() {
@@ -105,7 +100,7 @@ public class RuntimeEnvironment {
     //
     var logAdapter = new LogAdapter();
 
-    if (isRunningOnAppEngine() || isRunningOnCloudRun()) {
+    if (isRunningOnCloudRun()) {
       //
       // Initialize using service account attached to AppEngine or Cloud Run.
       //
@@ -135,7 +130,7 @@ public class RuntimeEnvironment {
             LogEvents.RUNTIME_STARTUP,
             "Failed to lookup instance metadata", e)
           .write();
-        throw new RuntimeException("Failed to initialize runtime environment", e);
+        throw new RuntimeException("The runtime environment failed to initialize ", e);
       }
     }
     else if (isDebugModeEnabled()) {
@@ -203,7 +198,7 @@ public class RuntimeEnvironment {
     }
     else {
       throw new RuntimeException(
-        "Application is not running on AppEngine or Cloud Run, and debug mode is disabled. Aborting startup");
+        "Application is not running on Cloud Run and debug mode is disabled. Aborting startup");
     }
   }
 
@@ -214,19 +209,7 @@ public class RuntimeEnvironment {
   public UriBuilder createAbsoluteUriBuilder(UriInfo uriInfo) {
     return uriInfo
       .getBaseUriBuilder()
-      .scheme(isRunningOnAppEngine() || isRunningOnCloudRun() ? "https" : "http");
-  }
-
-  public String getProjectId() {
-    return projectId;
-  }
-
-  public String getProjectNumber() {
-    return projectNumber;
-  }
-
-  public UserId getApplicationPrincipal() {
-    return applicationPrincipal;
+      .scheme(isRunningOnCloudRun() ? "https" : "http");
   }
 
   // -------------------------------------------------------------------------

@@ -35,8 +35,7 @@ public class TestLogAdapter {
 
     assertEquals(
       "{\"severity\":\"INFO\",\"message\":\"message-1\",\"logging.googleapis.com/labels\":" +
-        "{\"device_id\":\"device-id\",\"user_id\":\"id\",\"event\":\"event-1\",\"user\":" +
-        "\"email\",\"device_access_levels\":\"\"},\"logging.googleapis.com/trace\":\"trace-1\"}\n",
+        "{\"event\":\"event-1\"},\"logging.googleapis.com/trace\":\"trace-1\"}\n",
       buffer.toString());
   }
 
@@ -49,9 +48,7 @@ public class TestLogAdapter {
 
     assertEquals(
       "{\"severity\":\"INFO\",\"message\":\"message-1\",\"logging.googleapis.com/labels\":" +
-        "{\"device_id\":\"device-id\",\"user_id\":\"id\",\"event\":\"event-1\",\"user\":" +
-        "\"email\",\"device_access_levels\":\"level-1, level-2\"}," +
-        "\"logging.googleapis.com/trace\":\"trace-1\"}\n",
+        "{\"event\":\"event-1\"},\"logging.googleapis.com/trace\":\"trace-1\"}\n",
       buffer.toString());
   }
 

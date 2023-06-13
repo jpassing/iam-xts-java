@@ -21,39 +21,36 @@
 
 package com.google.solutions.tokenservice.web;
 
+import com.google.solutions.tokenservice.flows.XlbMtlsClientCredentialsFlow;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestRuntimeConfiguration {
-  @Test
-  public void whenNotSet_ThenScopeSetToDefault() {
-    var settings = Map.of("GOOGLE_CLOUD_PROJECT", "project-1");
-    var configuration = new RuntimeConfiguration(settings);
-
-    assertEquals("projects/project-1", configuration.testSetting.getValue());
-  }
 
   // -------------------------------------------------------------------------
-  // .
+  // AuthenticationFlows.
   // -------------------------------------------------------------------------
 
   @Test
-  public void whenNotSet_ThenActivationTimeoutSetToDefault() {
+  public void whenNotSet_ThenAuthenticationFlowsReturnsDefault() {
     var configuration = new RuntimeConfiguration(Map.of());
 
-    assertEquals(Duration.ofHours(2), configuration.testSetting.getValue());
+    var flows = configuration.getAuthenticationFlows();
+    assertEquals(Arrays.asList(XlbMtlsClientCredentialsFlow.NAME), flows);
   }
 
   @Test
-  public void whenSet_ThenScopeReturnsSetting() {
-    var settings = Map.of("RESOURCE_SCOPE", "folders/123");
+  public void whenSet_ThenAuthenticationFlowsReturnsCollection() {
+    var settings = Map.of("AUTH_FLOWS", " flow1,,  flow2 ,");
     var configuration = new RuntimeConfiguration(settings);
 
-    assertEquals("folders/123", configuration.testSetting.getValue());
+    var flows = configuration.getAuthenticationFlows();
+    assertEquals(2, flows.size());
+    assertEquals(Arrays.asList("flow1", "flow2"), flows);
   }
-
 }
