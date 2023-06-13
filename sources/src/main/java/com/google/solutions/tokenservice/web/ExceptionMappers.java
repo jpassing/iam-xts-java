@@ -23,6 +23,7 @@ package com.google.solutions.tokenservice.web;
 
 import com.google.solutions.tokenservice.core.adapters.AccessDeniedException;
 import com.google.solutions.tokenservice.core.adapters.NotAuthenticatedException;
+import com.google.solutions.tokenservice.oauth.TokenError;
 import org.jboss.resteasy.spi.UnhandledException;
 
 import javax.ws.rs.ForbiddenException;
@@ -56,7 +57,7 @@ public class ExceptionMappers {
     public Response toResponse(NotAuthenticatedException exception) {
       return Response
         .status(Response.Status.UNAUTHORIZED)
-        .entity(new ErrorEntity(exception)).build();
+        .entity(new TokenError(TokenError.UNAUTHORIZED_CLIENT, exception)).build();
     }
   }
 
@@ -67,7 +68,7 @@ public class ExceptionMappers {
     public Response toResponse(AccessDeniedException exception) {
       return Response
         .status(Response.Status.FORBIDDEN)
-        .entity(new ErrorEntity(exception)).build();
+        .entity(new TokenError(TokenError.ACCESS_DENIED, exception)).build();
     }
   }
 
@@ -77,7 +78,7 @@ public class ExceptionMappers {
     public Response toResponse(ForbiddenException exception) {
       return Response
         .status(Response.Status.FORBIDDEN)
-        .entity(new ErrorEntity(exception)).build();
+        .entity(new TokenError(TokenError.ACCESS_DENIED, exception)).build();
     }
   }
 
@@ -87,7 +88,7 @@ public class ExceptionMappers {
     public Response toResponse(IllegalArgumentException exception) {
       return Response
         .status(Response.Status.BAD_REQUEST)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.INVALID_REQUEST, exception))
         .build();
     }
   }
@@ -98,7 +99,7 @@ public class ExceptionMappers {
     public Response toResponse(IllegalStateException exception) {
       return Response
         .status(Response.Status.INTERNAL_SERVER_ERROR)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.SERVER_ERROR, exception))
         .build();
     }
   }
@@ -109,7 +110,7 @@ public class ExceptionMappers {
     public Response toResponse(NullPointerException exception) {
       return Response
         .status(Response.Status.BAD_REQUEST)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.SERVER_ERROR, exception))
         .build();
     }
   }
@@ -120,7 +121,7 @@ public class ExceptionMappers {
     public Response toResponse(IOException exception) {
       return Response
         .status(Response.Status.BAD_GATEWAY)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.TEMPORARILY_UNAVAILABLE, exception))
         .build();
     }
   }
@@ -131,7 +132,7 @@ public class ExceptionMappers {
     public Response toResponse(NotAllowedException exception) {
       return Response
         .status(Response.Status.METHOD_NOT_ALLOWED)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.INVALID_REQUEST, exception))
         .build();
     }
   }
@@ -142,7 +143,7 @@ public class ExceptionMappers {
     public Response toResponse(NotAcceptableException exception) {
       return Response
         .status(Response.Status.NOT_ACCEPTABLE)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.INVALID_REQUEST, exception))
         .build();
     }
   }
@@ -153,7 +154,7 @@ public class ExceptionMappers {
     public Response toResponse(NotFoundException exception) {
       return Response
         .status(Response.Status.NOT_FOUND)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.INVALID_REQUEST, exception))
         .build();
     }
   }
@@ -164,20 +165,8 @@ public class ExceptionMappers {
     public Response toResponse(UnhandledException exception) {
       return Response
         .status(Response.Status.INTERNAL_SERVER_ERROR)
-        .entity(new ErrorEntity(exception))
+        .entity(new TokenError(TokenError.SERVER_ERROR, exception))
         .build();
-    }
-  }
-
-  public static class ErrorEntity {
-    private final String message;
-
-    public ErrorEntity(Exception exception) {
-      this.message = exception.getMessage();
-    }
-
-    public String getMessage() {
-      return message;
     }
   }
 }

@@ -21,10 +21,9 @@
 
 package com.google.solutions.tokenservice.web;
 
-import com.google.solutions.tokenservice.flows.XlbMtlsClientCredentialsFlow;
+import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Map;
 

@@ -23,9 +23,7 @@ package com.google.solutions.tokenservice.web;
 
 import com.google.solutions.tokenservice.core.Exceptions;
 import com.google.solutions.tokenservice.core.adapters.LogAdapter;
-import com.google.solutions.tokenservice.flows.AuthenticationFlow;
-import com.google.solutions.tokenservice.flows.TokenError;
-import com.google.solutions.tokenservice.flows.TokenResponse;
+import com.google.solutions.tokenservice.oauth.AuthenticationFlow;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
@@ -68,37 +66,30 @@ public class TokenResource {
   public Response post(
     @Context HttpHeaders headers,
     MultivaluedMap<String, String> parameters
-  ) {
+  ) throws Exception {
     var flow = this.flows
       .stream()
       .filter(f -> f.isAvailable())
       .findFirst();
 
-    if (flow.isPresent()) {
-      try {
-        return Response
-          .ok(flow.get().authenticate(parameters))
-          .build();
-      }
-      catch (Exception e)
-      {
-        this.logAdapter
-          .newErrorEntry(
-            LogEvents.API_TOKEN,
-            String.format("Authentication failed: %s", Exceptions.getFullMessage(e)))
-          .write();
-
-        return Response
-          .status(403)
-          .entity(new TokenError(TokenError.ACCESS_DENIED, "Access denied"))
-          .build();
-      }
+    if (!flow.isPresent()) {
+      throw new IllegalArgumentException("The parameters are incomplete");
     }
-    else {
+
+    try {
       return Response
-        .status(403)
-        .entity(new TokenError(TokenError.INVALID_REQUEST, "Invalid request"))
+        .ok(flow.get().authenticate(parameters))
         .build();
+    }
+    catch (Exception e)
+    {
+      this.logAdapter
+        .newErrorEntry(
+          LogEvents.API_TOKEN,
+          String.format("Authentication failed: %s", Exceptions.getFullMessage(e)))
+        .write();
+
+      throw (Exception) e.fillInStackTrace();
     }
   }
 }

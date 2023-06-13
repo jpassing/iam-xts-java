@@ -21,7 +21,7 @@
 
 package com.google.solutions.tokenservice.web;
 
-import com.google.solutions.tokenservice.flows.XlbMtlsClientCredentialsFlow;
+import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 
 import java.time.Duration;
 import java.util.*;

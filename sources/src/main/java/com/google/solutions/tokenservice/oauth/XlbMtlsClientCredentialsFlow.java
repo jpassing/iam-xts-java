@@ -19,12 +19,11 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.flows;
+package com.google.solutions.tokenservice.oauth;
 
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.RequestScoped;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 
 @RequestScoped
@@ -44,7 +43,7 @@ public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
 
   @Override
   public boolean isAvailable() {
-    return true;
+    return false;
   }
 
   @Override

@@ -23,6 +23,7 @@ package com.google.solutions.tokenservice.web;
 
 import com.google.solutions.tokenservice.core.adapters.LogAdapter;
 import com.google.solutions.tokenservice.core.UserId;
+import com.google.solutions.tokenservice.oauth.TokenError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -66,7 +67,7 @@ public class TestApiResource {
   @Test
   public void whenPathNotMapped_ThenGetReturnsError() throws Exception {
     var response = new RestDispatcher<>(this.resource, SAMPLE_USER)
-      .get("/api/unknown", ExceptionMappers.ErrorEntity.class);
+      .get("/api/unknown", TokenError.class);
 
     assertEquals(404, response.getStatus());
   }

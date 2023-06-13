@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.flows;
+package com.google.solutions.tokenservice.oauth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
