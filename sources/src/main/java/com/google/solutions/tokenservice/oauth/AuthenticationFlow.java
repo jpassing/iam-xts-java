@@ -28,12 +28,12 @@ public interface AuthenticationFlow {
   /**
    * @return Grant type supported by this flow.
    */
-  String getGrantType();
+  String grantType();
 
   /**
    * @return Authentication method supported by this flow.
    */
-  String getAuthenticationMethod();
+  String authenticationMethod();
 
   /**
    * Check if the flow is applicable to the given request.

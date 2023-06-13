@@ -21,50 +21,9 @@ package com.google.solutions.tokenservice;
 // under the License.
 //
 
-import com.google.common.base.Preconditions;
-
-import java.util.Objects;
-
-public class UserId {
-  public final transient String id;
-  public final String email;
-
-  public UserId(String id, String email) {
-    Preconditions.checkNotNull(email, "email");
-
-    this.id = id;
-    this.email = email;
-  }
-
-  public UserId(String email) {
-    this(null, email);
-  }
-
+public record UserId(String email) {
   @Override
   public String toString() {
     return this.email;
-  }
-
-  // -------------------------------------------------------------------------
-  // Equality.
-  // -------------------------------------------------------------------------
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    UserId userId = (UserId) o;
-    return email.equals(userId.email);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(email);
   }
 }

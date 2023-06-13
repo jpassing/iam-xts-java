@@ -21,8 +21,8 @@
 
 package com.google.solutions.tokenservice.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.solutions.tokenservice.UserId;
 import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.core.SynchronousExecutionContext;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
@@ -31,13 +31,15 @@ import org.jboss.resteasy.mock.MockHttpResponse;
 import org.jboss.resteasy.spi.Dispatcher;
 
 import javax.ws.rs.core.MediaType;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.Map;
 
 public class RestDispatcher<TResource> {
   private final Dispatcher dispatcher;
 
-  public RestDispatcher(TResource resource, final UserId userId) {
+  public RestDispatcher(TResource resource) {
     dispatcher = MockDispatcherFactory.createDispatcher();
     dispatcher.getRegistry().addSingletonResource(resource);
 
@@ -91,6 +93,26 @@ public class RestDispatcher<TResource> {
     return invoke(mockRequest, responseType);
   }
 
+  public <TRequest, TResponse> Response<TResponse> postForm(
+    String path,
+    Map<String, String> parameters,
+    Class<TResponse> responseType
+  ) throws URISyntaxException {
+    var body = parameters
+      .entrySet()
+      .stream()
+      .map(p -> URLEncoder.encode(p.getKey()) + "=" + URLEncoder.encode(p.getValue()))
+      .reduce((p1, p2) -> p1 + "&" + p2)
+      .orElse("");
+
+    var mockRequest = MockHttpRequest.post(path)
+      .accept(MediaType.APPLICATION_JSON_TYPE)
+      .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+      .content(body.getBytes());
+
+    return invoke(mockRequest, responseType);
+  }
+
   public static class Response<T> {
     private final MockHttpResponse mockResponse;
     private final Class<T> responseType;
@@ -104,8 +126,14 @@ public class RestDispatcher<TResource> {
       return this.mockResponse.getStatus();
     }
 
-    public T getBody() throws UnsupportedEncodingException {
-      return new Gson().fromJson(this.mockResponse.getContentAsString(), responseType);
+    public T getBody() throws IOException {
+      //
+      // NB. GSON ignores JsonProperty annotations on records. Use
+      // Jackson instead.
+      //
+      return new ObjectMapper()
+        .reader()
+        .readValue(this.mockResponse.getContentAsString(), responseType);
     }
   }
 }

@@ -97,12 +97,12 @@ public class OAuthResource {
       issuerUrl.toString(),
       tokenUrl.toString(), // We don't have a real authorization endpoint
       tokenUrl.toString(),
-      this.tokenIssuer.getServiceAccount().getJwksUrl(),
+      this.tokenIssuer.getServiceAccount().jwksUrl(),
       List.of("none"),
-      this.flows.stream().map(f -> f.getGrantType()).collect(Collectors.toList()),
+      this.flows.stream().map(f -> f.grantType()).collect(Collectors.toList()),
       List.of("pairwise"),
       List.of("RS256"),
-      this.flows.stream().map(f -> f.getAuthenticationMethod()).collect(Collectors.toList()));
+      this.flows.stream().map(f -> f.authenticationMethod()).collect(Collectors.toList()));
   }
 
   @POST
@@ -125,7 +125,7 @@ public class OAuthResource {
     var request = new TokenRequest(grantType, parameters);
     var flow = this.flows
       .stream()
-      .filter(f -> f.isAvailable(request))
+      .filter(f -> f.grantType().equals(grantType) && f.isAvailable(request))
       .findFirst();
 
     if (!flow.isPresent()) {

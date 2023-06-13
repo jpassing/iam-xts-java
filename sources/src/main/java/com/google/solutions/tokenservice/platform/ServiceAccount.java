@@ -118,11 +118,11 @@ public class ServiceAccount {
   /**
    * Get JWKS location for service account key set.
    */
-  public String getJwksUrl() {
+  public String jwksUrl() {
     return String.format("https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s", this.id);
   }
 
-  public UserId getId() {
+  public UserId id() {
     return id;
   }
 

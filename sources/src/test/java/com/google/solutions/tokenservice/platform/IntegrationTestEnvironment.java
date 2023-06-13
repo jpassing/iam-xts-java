@@ -48,7 +48,7 @@ public class IntegrationTestEnvironment {
 
   public static final ProjectId PROJECT_ID;
 
-  public static final GoogleCredentials APPLICATION_CREDENTIALS;
+  public static ServiceAccount SERVICE_ACCOUNT;
 
   static {
     //
@@ -65,7 +65,9 @@ public class IntegrationTestEnvironment {
       settings.load(in);
 
       PROJECT_ID = new ProjectId(getMandatory(settings, "test.project"));
-      APPLICATION_CREDENTIALS = GoogleCredentials.getApplicationDefault();
+      SERVICE_ACCOUNT = new ServiceAccount(
+        new UserId(getMandatory(settings, "test.serviceaccount")),
+        GoogleCredentials.getApplicationDefault());
     }
     catch (IOException e) {
       throw new RuntimeException("Failed to load test settings", e);
