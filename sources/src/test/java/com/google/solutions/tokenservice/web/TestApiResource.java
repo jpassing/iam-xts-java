@@ -47,11 +47,11 @@ public class TestApiResource {
   private static final String DEFAULT_HINT = "hint";
   private static final Duration DEFAULT_ACTIVATION_DURATION = Duration.ofMinutes(5);
 
-  private ApiResource resource;
+  private TokenResource resource;
 
   @BeforeEach
   public void before() {
-    this.resource = new ApiResource();
+    this.resource = new TokenResource();
     this.resource.logAdapter = new LogAdapter();
     this.resource.runtimeEnvironment = Mockito.mock(RuntimeEnvironment.class);
 

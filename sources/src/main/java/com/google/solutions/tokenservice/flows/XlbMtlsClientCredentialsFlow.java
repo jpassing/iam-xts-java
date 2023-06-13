@@ -21,14 +21,19 @@
 
 package com.google.solutions.tokenservice.flows;
 
-import javax.servlet.http.HttpServletRequest;
+import io.vertx.core.http.HttpServerRequest;
 
+import javax.enterprise.context.RequestScoped;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MultivaluedMap;
+
+@RequestScoped
 public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
   public static final String NAME = "xlb-mtls";
 
-  private final HttpServletRequest request;
+  private final HttpServerRequest request;
 
-  public XlbMtlsClientCredentialsFlow(HttpServletRequest request) {
+  public XlbMtlsClientCredentialsFlow(HttpServerRequest request) {
     this.request = request;
   }
 
@@ -38,7 +43,14 @@ public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
-  public TokenResponse authenticate(TokenRequest request) {
+  public boolean isAvailable() {
+    return true;
+  }
+
+  @Override
+  public TokenResponse authenticate(MultivaluedMap<String, String> parameters) {
+
+    // https://quarkus.io/guides/security-authentication-mechanisms-concept#mutual-tls
     return null;
   }
 }

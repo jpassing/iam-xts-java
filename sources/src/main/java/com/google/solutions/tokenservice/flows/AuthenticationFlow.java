@@ -29,5 +29,7 @@ public interface AuthenticationFlow {
    */
   String getGrantType();
 
-  TokenResponse authenticate(TokenRequest request);
+  boolean isAvailable();
+
+  TokenResponse authenticate(MultivaluedMap<String, String> parameters);
 }

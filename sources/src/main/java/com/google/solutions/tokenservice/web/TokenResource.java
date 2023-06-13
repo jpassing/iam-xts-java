@@ -21,10 +21,14 @@
 
 package com.google.solutions.tokenservice.web;
 
+import com.google.solutions.tokenservice.core.Exceptions;
 import com.google.solutions.tokenservice.core.adapters.LogAdapter;
-import com.google.solutions.tokenservice.flows.TokenRequest;
+import com.google.solutions.tokenservice.flows.AuthenticationFlow;
+import com.google.solutions.tokenservice.flows.TokenError;
+import com.google.solutions.tokenservice.flows.TokenResponse;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -34,12 +38,15 @@ import javax.ws.rs.core.*;
  */
 @Dependent
 @Path("/token")
-public class ApiResource {
+public class TokenResource {
   @Inject
   RuntimeEnvironment runtimeEnvironment;
 
   @Inject
   LogAdapter logAdapter;
+
+  @Inject
+  Instance<AuthenticationFlow> flows;
 
   // -------------------------------------------------------------------------
   // REST resources.
@@ -58,13 +65,40 @@ public class ApiResource {
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public void post(
+  public Response post(
     @Context HttpHeaders headers,
-    MultivaluedMap<String, String> formParams
+    MultivaluedMap<String, String> parameters
   ) {
-    var grantType = formParams.getFirst("grant_type");
+    var flow = this.flows
+      .stream()
+      .filter(f -> f.isAvailable())
+      .findFirst();
 
-    var request = new TokenRequest(headers, formParams);
+    if (flow.isPresent()) {
+      try {
+        return Response
+          .ok(flow.get().authenticate(parameters))
+          .build();
+      }
+      catch (Exception e)
+      {
+        this.logAdapter
+          .newErrorEntry(
+            LogEvents.API_TOKEN,
+            String.format("Authentication failed: %s", Exceptions.getFullMessage(e)))
+          .write();
 
+        return Response
+          .status(403)
+          .entity(new TokenError(TokenError.ACCESS_DENIED, "Access denied"))
+          .build();
+      }
+    }
+    else {
+      return Response
+        .status(403)
+        .entity(new TokenError(TokenError.INVALID_REQUEST, "Invalid request"))
+        .build();
+    }
   }
 }

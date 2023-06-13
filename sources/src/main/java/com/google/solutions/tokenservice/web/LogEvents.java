@@ -24,7 +24,7 @@ package com.google.solutions.tokenservice.web;
 public class LogEvents {
 
   public static final String RUNTIME_STARTUP = "runtime.startup";
-
+  public static final String API_TOKEN = "api.token";
   private LogEvents() {
   }
 }
