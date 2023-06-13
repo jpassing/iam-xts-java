@@ -24,6 +24,8 @@ package com.google.solutions.tokenservice.oauth;
 import javax.ws.rs.core.MultivaluedMap;
 
 public interface AuthenticationFlow {
+  String grantType();
+  String authenticationMethod();
   boolean isAvailable(TokenRequest request);
 
   TokenResponse authenticate(TokenRequest request);

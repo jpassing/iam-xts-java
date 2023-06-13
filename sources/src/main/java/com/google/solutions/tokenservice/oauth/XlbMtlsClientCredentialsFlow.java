@@ -36,6 +36,16 @@ public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
+  public String grantType() {
+    return "client_credentials";
+  }
+
+  @Override
+  public String authenticationMethod() {
+    return "tls_client_auth";
+  }
+
+  @Override
   public boolean isAvailable(TokenRequest request) {
     //
     // Verify that the request came from a load balancer. If not,
