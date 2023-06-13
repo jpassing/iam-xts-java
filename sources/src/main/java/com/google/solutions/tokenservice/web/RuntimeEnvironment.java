@@ -33,8 +33,8 @@ import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.UserId;
-import com.google.solutions.tokenservice.adapters.ServiceAccount;
-import com.google.solutions.tokenservice.adapters.LogAdapter;
+import com.google.solutions.tokenservice.platform.ServiceAccount;
+import com.google.solutions.tokenservice.platform.LogAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -55,8 +55,7 @@ public class RuntimeEnvironment {
 
   private final String projectId;
   private final String projectNumber;
-  private final UserId applicationPrincipal;
-  private final GoogleCredentials applicationCredentials;
+  private final ServiceAccount serviceAccount;
 
   /**
    * Configuration, based on app.yaml environment variables.
@@ -111,8 +110,11 @@ public class RuntimeEnvironment {
         this.projectId = (String) projectMetadata.get("projectId");
         this.projectNumber = projectMetadata.get("numericProjectId").toString();
 
-        this.applicationCredentials = GoogleCredentials.getApplicationDefault();
-        this.applicationPrincipal = new UserId(((ComputeEngineCredentials) this.applicationCredentials).getAccount());
+        var applicationCredentials = GoogleCredentials.getApplicationDefault();
+
+        this.serviceAccount = new ServiceAccount(
+          new UserId(((ComputeEngineCredentials) applicationCredentials).getAccount()),
+          applicationCredentials);
 
         logAdapter
           .newInfoEntry(
@@ -120,7 +122,7 @@ public class RuntimeEnvironment {
             String.format("Running in project %s (%s) as %s, version %s",
               this.projectId,
               this.projectNumber,
-              this.applicationPrincipal,
+              this.serviceAccount,
               ApplicationVersion.VERSION_STRING))
           .write();
       }
@@ -149,12 +151,11 @@ public class RuntimeEnvironment {
           // Use the application default credentials (ADC) to impersonate a
           // service account. This can be used when using user credentials as ADC.
           //
-          this.applicationCredentials = ImpersonatedCredentials.create(
+          var impersonatedCredentials = ImpersonatedCredentials.create(
             defaultCredentials,
             impersonateServiceAccount,
             null,
-            Stream.of(
-                ServiceAccount.OAUTH_SCOPE)
+            Stream.of(ServiceAccount.OAUTH_SCOPE)
               .distinct()
               .collect(Collectors.toList()),
             0);
@@ -167,16 +168,19 @@ public class RuntimeEnvironment {
           // To prevent this from happening, force a refresh here. If the
           // refresh fails, fail application startup.
           //
-          this.applicationCredentials.refresh();
-          this.applicationPrincipal = new UserId(impersonateServiceAccount);
+          impersonatedCredentials.refresh();
+
+          this.serviceAccount = new ServiceAccount(
+            new UserId(impersonateServiceAccount),
+            impersonatedCredentials);
         }
         else if (defaultCredentials instanceof ServiceAccountCredentials) {
           //
           // Use ADC as-is.
           //
-          this.applicationCredentials = defaultCredentials;
-          this.applicationPrincipal = new UserId(
-              ((ServiceAccountCredentials) this.applicationCredentials).getServiceAccountUser());
+          this.serviceAccount = new ServiceAccount(
+            new UserId(((ServiceAccountCredentials) defaultCredentials).getServiceAccountUser()),
+            defaultCredentials);
         }
         else {
           throw new RuntimeException(String.format(
@@ -193,7 +197,7 @@ public class RuntimeEnvironment {
       logAdapter
         .newWarningEntry(
           LogEvents.RUNTIME_STARTUP,
-          String.format("Running in development mode as %s", this.applicationPrincipal))
+          String.format("Running in development mode as %s", this.serviceAccount))
         .write();
     }
     else {
@@ -217,7 +221,7 @@ public class RuntimeEnvironment {
   // -------------------------------------------------------------------------
 
   @Produces
-  public GoogleCredentials getApplicationCredentials() {
-    return applicationCredentials;
+  public ServiceAccount getServiceAccount() {
+    return this.serviceAccount;
   }
 }

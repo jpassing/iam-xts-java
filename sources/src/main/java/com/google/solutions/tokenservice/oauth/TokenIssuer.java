@@ -1,7 +1,7 @@
 package com.google.solutions.tokenservice.oauth;
 
 import com.google.common.base.Preconditions;
-import com.google.solutions.tokenservice.adapters.ServiceAccount;
+import com.google.solutions.tokenservice.platform.ServiceAccount;
 
 import javax.enterprise.context.ApplicationScoped;
 

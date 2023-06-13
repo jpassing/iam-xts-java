@@ -19,14 +19,10 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.adapters;
+package com.google.solutions.tokenservice.platform;
 
-public class AccessDeniedException extends AccessException {
-  public AccessDeniedException(String message) {
-    super(message, null);
-  }
-
-  public AccessDeniedException(String message, Exception inner) {
+public abstract class AccessException extends Exception {
+  public AccessException(String message, Exception inner) {
     super(message, inner);
   }
 }

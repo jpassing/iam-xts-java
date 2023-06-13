@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.adapters;
+package com.google.solutions.tokenservice.platform;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.gson.GsonFactory;
@@ -43,7 +43,7 @@ import java.security.GeneralSecurityException;
 public class ServiceAccount {
   public static final String OAUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 
-  private final String email;
+  private final UserId id;
   private final GoogleCredentials credentials;
 
   private IAMCredentials createClient() throws IOException
@@ -63,13 +63,13 @@ public class ServiceAccount {
   }
 
   public ServiceAccount(
-    String email,
+    UserId id,
     GoogleCredentials credentials
   )  {
-    Preconditions.checkNotNull(email, "email");
+    Preconditions.checkNotNull(id, "email");
     Preconditions.checkNotNull(credentials, "credentials");
 
-    this.email = email;
+    this.id = id;
     this.credentials = credentials;
   }
 
@@ -97,7 +97,7 @@ public class ServiceAccount {
         .projects()
         .serviceAccounts()
         .signJwt(
-          String.format("projects/-/serviceAccounts/%s", this.email),
+          String.format("projects/-/serviceAccounts/%s", this.id),
           request)
         .execute()
         .getSignedJwt();
@@ -108,7 +108,7 @@ public class ServiceAccount {
           throw new NotAuthenticatedException("Not authenticated", e);
         case 403:
           throw new AccessDeniedException(
-            String.format("Denied access to service account '%s': %s", this.email, e.getMessage()), e);
+            String.format("Denied access to service account '%s': %s", this.id, e.getMessage()), e);
         default:
           throw (GoogleJsonResponseException)e.fillInStackTrace();
       }
@@ -119,8 +119,15 @@ public class ServiceAccount {
    * Get JWKS location for service account key set.
    */
   public String getJwksUrl() {
-    return String.format("https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s", this.email);
+    return String.format("https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s", this.id);
   }
 
-  // TODO: Move ADC logic here.
+  public UserId getId() {
+    return id;
+  }
+
+  @Override
+  public String toString() {
+    return this.id.toString();
+  }
 }

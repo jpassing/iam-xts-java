@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.adapters;
+package com.google.solutions.tokenservice.platform;
 
 public class NotAuthenticatedException extends AccessException {
   public NotAuthenticatedException(String message, Exception inner) {

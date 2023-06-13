@@ -24,7 +24,7 @@ package com.google.solutions.tokenservice.web;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.Exceptions;
-import com.google.solutions.tokenservice.adapters.LogAdapter;
+import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.oauth.AuthenticationFlow;
 import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.oauth.ProviderMetadata;

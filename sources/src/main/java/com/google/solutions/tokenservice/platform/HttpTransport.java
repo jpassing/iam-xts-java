@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.adapters;
+package com.google.solutions.tokenservice.platform;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;

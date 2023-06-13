@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.adapters;
+package com.google.solutions.tokenservice.platform;
 
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -49,11 +49,6 @@ public class IntegrationTestEnvironment {
   public static final ProjectId PROJECT_ID;
 
   public static final GoogleCredentials APPLICATION_CREDENTIALS;
-  public static final GoogleCredentials NO_ACCESS_CREDENTIALS;
-  public static final GoogleCredentials TEMPORARY_ACCESS_CREDENTIALS;
-
-  public static final UserId TEMPORARY_ACCESS_USER;
-  public static final UserId NO_ACCESS_USER;
 
   static {
     //
@@ -69,25 +64,8 @@ public class IntegrationTestEnvironment {
       Properties settings = new Properties();
       settings.load(in);
 
-      PROJECT_ID = new ProjectId( getMandatory(settings, "test.project"));
-
-      //
-      // Service account that doesn't have access to anything.
-      //
-      NO_ACCESS_USER = new UserId(
-        "no-access",
-        String.format("%s@%s.iam.gserviceaccount.com", "no-access", PROJECT_ID));
-
-      //
-      // Service account that can be granted temporary access.
-      //
-      TEMPORARY_ACCESS_USER = new UserId(
-        "temporary-access",
-        String.format("%s@%s.iam.gserviceaccount.com", "temporary-access", PROJECT_ID));
-
+      PROJECT_ID = new ProjectId(getMandatory(settings, "test.project"));
       APPLICATION_CREDENTIALS = GoogleCredentials.getApplicationDefault();
-      NO_ACCESS_CREDENTIALS = impersonate(APPLICATION_CREDENTIALS, NO_ACCESS_USER.email);
-      TEMPORARY_ACCESS_CREDENTIALS = impersonate(APPLICATION_CREDENTIALS, TEMPORARY_ACCESS_USER.email);
     }
     catch (IOException e) {
       throw new RuntimeException("Failed to load test settings", e);

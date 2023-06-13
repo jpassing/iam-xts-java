@@ -22,7 +22,7 @@
 package com.google.solutions.tokenservice.web;
 
 import com.google.common.base.Preconditions;
-import com.google.solutions.tokenservice.adapters.LogAdapter;
+import com.google.solutions.tokenservice.platform.LogAdapter;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;

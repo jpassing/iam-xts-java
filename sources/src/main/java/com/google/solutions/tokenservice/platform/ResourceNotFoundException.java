@@ -19,10 +19,14 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.adapters;
+package com.google.solutions.tokenservice.platform;
 
-public abstract class AccessException extends Exception {
-  public AccessException(String message, Exception inner) {
+public class ResourceNotFoundException extends AccessException {
+  public ResourceNotFoundException(String message) {
+    super(message, null);
+  }
+
+  public ResourceNotFoundException(String message, Exception inner) {
     super(message, inner);
   }
 }

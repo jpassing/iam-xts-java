@@ -21,8 +21,8 @@
 
 package com.google.solutions.tokenservice.web;
 
-import com.google.solutions.tokenservice.adapters.AccessDeniedException;
-import com.google.solutions.tokenservice.adapters.NotAuthenticatedException;
+import com.google.solutions.tokenservice.platform.AccessDeniedException;
+import com.google.solutions.tokenservice.platform.NotAuthenticatedException;
 import com.google.solutions.tokenservice.oauth.TokenError;
 import org.jboss.resteasy.spi.UnhandledException;
 
