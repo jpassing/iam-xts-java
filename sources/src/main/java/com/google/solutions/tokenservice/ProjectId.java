@@ -18,7 +18,7 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-package com.google.solutions.tokenservice.core;
+package com.google.solutions.tokenservice;
 
 import com.google.common.base.Preconditions;
 

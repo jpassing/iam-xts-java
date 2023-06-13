@@ -19,9 +19,10 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core;
+package com.google.solutions.tokenservice;
 
-import com.google.solutions.tokenservice.core.adapters.AccessDeniedException;
+import com.google.solutions.tokenservice.Exceptions;
+import com.google.solutions.tokenservice.adapters.AccessDeniedException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

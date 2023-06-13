@@ -19,10 +19,29 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core.adapters;
+package com.google.solutions.tokenservice;
 
-public abstract class AccessException extends Exception {
-  public AccessException(String message, Exception inner) {
-    super(message, inner);
+public class Exceptions {
+  private Exceptions() {}
+
+  public static String getFullMessage(Throwable e) {
+    var buffer = new StringBuilder();
+
+    for (var exception = e; e != null; e = e.getCause()) {
+      if (buffer.length() > 0) {
+        buffer.append(", caused by ");
+        buffer.append(e.getClass().getSimpleName());
+
+        if (e.getMessage() != null) {
+          buffer.append(": ");
+          buffer.append(e.getMessage());
+        }
+      }
+      else {
+        buffer.append(e.getMessage());
+      }
+    }
+
+    return buffer.toString();
   }
 }

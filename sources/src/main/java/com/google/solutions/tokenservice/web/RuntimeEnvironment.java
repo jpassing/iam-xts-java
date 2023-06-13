@@ -31,10 +31,10 @@ import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.solutions.tokenservice.core.ApplicationVersion;
-import com.google.solutions.tokenservice.core.UserId;
-import com.google.solutions.tokenservice.core.adapters.IamCredentialsAdapter;
-import com.google.solutions.tokenservice.core.adapters.LogAdapter;
+import com.google.solutions.tokenservice.ApplicationVersion;
+import com.google.solutions.tokenservice.UserId;
+import com.google.solutions.tokenservice.adapters.IamCredentialsAdapter;
+import com.google.solutions.tokenservice.adapters.LogAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;

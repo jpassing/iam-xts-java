@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core.adapters;
+package com.google.solutions.tokenservice.adapters;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.gson.GsonFactory;
@@ -29,8 +29,8 @@ import com.google.api.services.iamcredentials.v1.model.SignJwtRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.base.Preconditions;
-import com.google.solutions.tokenservice.core.ApplicationVersion;
-import com.google.solutions.tokenservice.core.UserId;
+import com.google.solutions.tokenservice.ApplicationVersion;
+import com.google.solutions.tokenservice.UserId;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;

@@ -22,7 +22,7 @@
 package com.google.solutions.tokenservice.web;
 
 import com.google.gson.Gson;
-import com.google.solutions.tokenservice.core.UserId;
+import com.google.solutions.tokenservice.UserId;
 import org.jboss.resteasy.core.SynchronousDispatcher;
 import org.jboss.resteasy.core.SynchronousExecutionContext;
 import org.jboss.resteasy.mock.MockDispatcherFactory;

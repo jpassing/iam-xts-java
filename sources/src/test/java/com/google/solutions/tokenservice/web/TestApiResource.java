@@ -21,8 +21,8 @@
 
 package com.google.solutions.tokenservice.web;
 
-import com.google.solutions.tokenservice.core.adapters.LogAdapter;
-import com.google.solutions.tokenservice.core.UserId;
+import com.google.solutions.tokenservice.adapters.LogAdapter;
+import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.TokenError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

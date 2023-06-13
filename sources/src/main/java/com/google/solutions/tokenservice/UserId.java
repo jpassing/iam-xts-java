@@ -1,4 +1,4 @@
-package com.google.solutions.tokenservice.core;
+package com.google.solutions.tokenservice;
 
 //
 // Copyright 2023 Google LLC

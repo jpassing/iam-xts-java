@@ -19,14 +19,17 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core.adapters;
+package com.google.solutions.tokenservice;
 
-public class AccessDeniedException extends AccessException {
-  public AccessDeniedException(String message) {
-    super(message, null);
-  }
+import com.google.solutions.tokenservice.ApplicationVersion;
+import org.junit.jupiter.api.Test;
 
-  public AccessDeniedException(String message, Exception inner) {
-    super(message, inner);
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestApplicationVersion {
+
+  @Test
+  public void VersionStringIsNotEmpty() {
+    assertNotNull(ApplicationVersion.VERSION_STRING);
   }
 }

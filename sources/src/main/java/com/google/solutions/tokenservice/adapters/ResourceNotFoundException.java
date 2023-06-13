@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core.adapters;
+package com.google.solutions.tokenservice.adapters;
 
 public class ResourceNotFoundException extends AccessException {
   public ResourceNotFoundException(String message) {

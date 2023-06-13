@@ -19,13 +19,13 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core.adapters;
+package com.google.solutions.tokenservice.adapters;
 
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
-import com.google.solutions.tokenservice.core.ProjectId;
-import com.google.solutions.tokenservice.core.UserId;
+import com.google.solutions.tokenservice.ProjectId;
+import com.google.solutions.tokenservice.UserId;
 
 import java.io.File;
 import java.io.FileInputStream;

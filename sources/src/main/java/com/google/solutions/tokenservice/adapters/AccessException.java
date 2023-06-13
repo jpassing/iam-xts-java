@@ -19,10 +19,10 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core.adapters;
+package com.google.solutions.tokenservice.adapters;
 
-public class NotAuthenticatedException extends AccessException {
-  public NotAuthenticatedException(String message, Exception inner) {
+public abstract class AccessException extends Exception {
+  public AccessException(String message, Exception inner) {
     super(message, inner);
   }
 }

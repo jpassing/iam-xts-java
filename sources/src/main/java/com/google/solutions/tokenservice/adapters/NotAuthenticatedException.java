@@ -19,29 +19,10 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.core;
+package com.google.solutions.tokenservice.adapters;
 
-public class Exceptions {
-  private Exceptions() {}
-
-  public static String getFullMessage(Throwable e) {
-    var buffer = new StringBuilder();
-
-    for (var exception = e; e != null; e = e.getCause()) {
-      if (buffer.length() > 0) {
-        buffer.append(", caused by ");
-        buffer.append(e.getClass().getSimpleName());
-
-        if (e.getMessage() != null) {
-          buffer.append(": ");
-          buffer.append(e.getMessage());
-        }
-      }
-      else {
-        buffer.append(e.getMessage());
-      }
-    }
-
-    return buffer.toString();
+public class NotAuthenticatedException extends AccessException {
+  public NotAuthenticatedException(String message, Exception inner) {
+    super(message, inner);
   }
 }
