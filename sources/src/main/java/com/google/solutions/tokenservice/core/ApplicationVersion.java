@@ -59,6 +59,6 @@ public class ApplicationVersion {
 
   static {
     VERSION_STRING = loadVersion();
-    USER_AGENT = "JIT-Access/" + VERSION_STRING;
+    USER_AGENT = "Token-Service/" + VERSION_STRING;
   }
 }

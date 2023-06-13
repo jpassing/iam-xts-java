@@ -105,14 +105,6 @@ public class RuntimeEnvironment {
     //
     var logAdapter = new LogAdapter();
 
-    if (!this.configuration.isSmtpConfigured()) {
-      logAdapter
-        .newWarningEntry(
-          LogEvents.RUNTIME_STARTUP,
-          "The SMTP configuration is incomplete")
-        .write();
-    }
-
     if (isRunningOnAppEngine() || isRunningOnCloudRun()) {
       //
       // Initialize using service account attached to AppEngine or Cloud Run.

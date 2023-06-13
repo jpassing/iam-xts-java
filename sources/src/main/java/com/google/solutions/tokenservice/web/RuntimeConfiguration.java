@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,54 +39,9 @@ public class RuntimeConfiguration {
   public RuntimeConfiguration(Function<String, String> readSetting) {
     this.readSetting = readSetting;
 
-    this.scope = new StringSetting(
+    this.testSetting = new StringSetting(
       List.of("RESOURCE_SCOPE"),
       String.format("projects/%s", this.readSetting.apply("GOOGLE_CLOUD_PROJECT")));
-
-    //
-    // Activation settings.
-    //
-    this.activationTimeout = new DurationSetting(
-      List.of("ELEVATION_DURATION", "ACTIVATION_TIMEOUT"),
-      Duration.ofHours(2));
-    this.activationRequestTimeout = new DurationSetting(
-      List.of("ACTIVATION_REQUEST_TIMEOUT"),
-      Duration.ofHours(1));
-    this.justificationPattern = new StringSetting(
-      List.of("JUSTIFICATION_PATTERN"),
-      ".*");
-    this.justificationHint = new StringSetting(
-      List.of("JUSTIFICATION_HINT"),
-      "Bug or case number");
-    this.minNumberOfReviewersPerActivationRequest = new IntSetting(
-      List.of("ACTIVATION_REQUEST_MIN_REVIEWERS"),
-      1);
-    this.maxNumberOfReviewersPerActivationRequest = new IntSetting(
-      List.of("ACTIVATION_REQUEST_MAX_REVIEWERS"),
-      10);
-    
-    //
-    // Backend service id (Cloud Run only).
-    //
-    this.backendServiceId = new StringSetting(List.of("IAP_BACKEND_SERVICE_ID"), null);
-
-    //
-    // Notification settings.
-    //
-    this.timeZoneForNotifications = new ZoneIdSetting(List.of("NOTIFICATION_TIMEZONE"));
-
-    //
-    // SMTP settings.
-    //
-    this.smtpHost = new StringSetting(List.of("SMTP_HOST"), "smtp.gmail.com");
-    this.smtpPort = new IntSetting(List.of("SMTP_PORT"), 587);
-    this.smtpEnableStartTls = new BooleanSetting(List.of("SMTP_ENABLE_STARTTLS"), true);
-    this.smtpSenderName = new StringSetting(List.of("SMTP_SENDER_NAME"), "JIT Access");
-    this.smtpSenderAddress = new StringSetting(List.of("SMTP_SENDER_ADDRESS"), null);
-    this.smtpUsername = new StringSetting(List.of("SMTP_USERNAME"), null);
-    this.smtpPassword = new StringSetting(List.of("SMTP_PASSWORD"), null);
-    this.smtpSecret = new StringSetting(List.of("SMTP_SECRET"), null);
-    this.smtpExtraOptions = new StringSetting(List.of("SMTP_OPTIONS"), null);
   }
 
   // -------------------------------------------------------------------------
@@ -95,124 +49,9 @@ public class RuntimeConfiguration {
   // -------------------------------------------------------------------------
 
   /**
-   * Scope (within the resource hierarchy) that this application manages
-   * access for.
+   * TODO.
    */
-  public final StringSetting scope;
-
-  /**
-   * Duration for which an activated role remains activated.
-   */
-  public final DurationSetting activationTimeout;
-
-  /**
-   * Time allotted for reviewers to approve an activation request.
-   */
-  public final DurationSetting activationRequestTimeout;
-
-  /**
-   * Regular expression that justifications must satisfy.
-   */
-  public final StringSetting justificationPattern;
-
-  /**
-   * Hint (or description) for users indicating what kind of justification they
-   * need to supply.
-   */
-  public final StringSetting justificationHint;
-
-  /**
-   * Zone to apply to dates when sending notifications.
-   */
-  public final ZoneIdSetting timeZoneForNotifications;
-
-  /**
-   * SMTP server for sending notifications.
-    */
-  public final StringSetting smtpHost;
-
-  /**
-   * SMTP port for sending notifications.
-   */
-  public final IntSetting smtpPort;
-
-  /**
-   * Enable StartTLS.
-   */
-  public final BooleanSetting smtpEnableStartTls;
-
-  /**
-   * Human-readable sender name used for notifications.
-   */
-  public final StringSetting smtpSenderName;
-
-  /**
-   * Email address used for notifications.
-   */
-  public final StringSetting smtpSenderAddress;
-
-  /**
-   * SMTP username.
-   */
-  public final StringSetting smtpUsername;
-
-  /**
-   * SMTP password. For Gmail, this should be an application-specific password.
-   */
-  public final StringSetting smtpPassword;
-
-  /**
-   * Path to a SecretManager secret that contains the SMTP password.
-   * For Gmail, this should be an application-specific password.
-   *
-   * The path must be in the format projects/x/secrets/y/versions/z.
-   */
-  public final StringSetting smtpSecret;
-
-  /**
-   * Extra JavaMail options.
-   */
-  public final StringSetting smtpExtraOptions;
-
-  /**
-   * Backend Service Id for token validation
-   */
-  public final StringSetting backendServiceId;
-
-  /**
-   * Minimum number of reviewers foa an activation request.
-   */
-  public final IntSetting minNumberOfReviewersPerActivationRequest;
-
-  /**
-   * Maximum number of reviewers foa an activation request.
-   */
-  public final IntSetting maxNumberOfReviewersPerActivationRequest;
-
-  public boolean isSmtpConfigured() {
-    var requiredSettings = List.of(smtpHost, smtpPort, smtpSenderName, smtpSenderAddress);
-    return requiredSettings.stream().allMatch(s -> s.isValid());
-  }
-
-  public boolean isSmtpAuthenticationConfigured() {
-    return this.smtpUsername.isValid() &&
-      (this.smtpPassword.isValid() || this.smtpSecret.isValid());
-  }
-
-  public Map<String, String> getSmtpExtraOptionsMap() {
-    var map = new HashMap<String, String>();
-
-    if (this.smtpExtraOptions.isValid()) {
-      for (var kvp : this.smtpExtraOptions.getValue().split(",")) {
-        var parts = kvp.split("=");
-        if (parts.length == 2) {
-          map.put(parts[0].trim(), parts[1].trim());
-        }
-      }
-    }
-
-    return map;
-  }
+  public final StringSetting testSetting;
 
   // -------------------------------------------------------------------------
   // Inner classes.

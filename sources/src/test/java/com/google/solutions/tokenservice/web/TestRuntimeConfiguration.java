@@ -34,18 +34,18 @@ public class TestRuntimeConfiguration {
     var settings = Map.of("GOOGLE_CLOUD_PROJECT", "project-1");
     var configuration = new RuntimeConfiguration(settings);
 
-    assertEquals("projects/project-1", configuration.scope.getValue());
+    assertEquals("projects/project-1", configuration.testSetting.getValue());
   }
 
   // -------------------------------------------------------------------------
-  // Scope settings.
+  // .
   // -------------------------------------------------------------------------
 
   @Test
   public void whenNotSet_ThenActivationTimeoutSetToDefault() {
     var configuration = new RuntimeConfiguration(Map.of());
 
-    assertEquals(Duration.ofHours(2), configuration.activationTimeout.getValue());
+    assertEquals(Duration.ofHours(2), configuration.testSetting.getValue());
   }
 
   @Test
@@ -53,39 +53,7 @@ public class TestRuntimeConfiguration {
     var settings = Map.of("RESOURCE_SCOPE", "folders/123");
     var configuration = new RuntimeConfiguration(settings);
 
-    assertEquals("folders/123", configuration.scope.getValue());
+    assertEquals("folders/123", configuration.testSetting.getValue());
   }
 
-  // -------------------------------------------------------------------------
-  // Activation settings.
-  // -------------------------------------------------------------------------
-
-  @Test
-  public void whenNotSet_ThenActivationRequestTimeoutSetToDefault() {
-    var configuration = new RuntimeConfiguration(Map.of());
-
-    assertEquals(Duration.ofHours(1), configuration.activationRequestTimeout.getValue());
-  }
-
-  @Test
-  public void whenNotSet_ThenJustificationPatternSetToDefault() {
-    var configuration = new RuntimeConfiguration(Map.of());
-
-    assertNotNull(configuration.justificationPattern.getValue());
-  }
-
-  @Test
-  public void whenNotSet_ThenJustificationHintSetToDefault() {
-    var configuration = new RuntimeConfiguration(Map.of());
-
-    assertNotNull(configuration.justificationHint.getValue());
-  }
-
-  @Test
-  public void whenSet_ThenActivationTimeoutReturnsSetting() {
-    var settings = Map.of("ELEVATION_DURATION", "30");
-    var configuration = new RuntimeConfiguration(settings);
-
-    assertEquals(Duration.ofMinutes(30), configuration.activationTimeout.getValue());
-  }
 }
