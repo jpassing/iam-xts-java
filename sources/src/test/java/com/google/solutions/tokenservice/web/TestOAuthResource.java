@@ -93,7 +93,7 @@ public class TestOAuthResource {
       .postForm("/token", Map.ofEntries(), TokenError.class);
 
     assertEquals(400, response.getStatus());
-    assertEquals("todo", response.getBody().error());
+    assertEquals("invalid_request", response.getBody().error());
   }
 
   @Test
@@ -102,7 +102,7 @@ public class TestOAuthResource {
       .postForm("/token", Map.ofEntries(), TokenError.class);
 
     assertEquals(400, response.getStatus());
-    assertEquals("todo", response.getBody().error());
+    assertEquals("invalid_request", response.getBody().error());
   }
 
   @Test

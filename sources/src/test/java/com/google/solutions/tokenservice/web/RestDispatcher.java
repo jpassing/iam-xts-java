@@ -28,6 +28,8 @@ import org.jboss.resteasy.core.SynchronousExecutionContext;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
+import org.jboss.resteasy.plugins.providers.JaxrsServerFormUrlEncodedProvider;
+import org.jboss.resteasy.plugins.providers.ServerFormUrlEncodedProvider;
 import org.jboss.resteasy.spi.Dispatcher;
 
 import javax.ws.rs.core.MediaType;
@@ -49,6 +51,12 @@ public class RestDispatcher<TResource> {
     for (var mapper : ExceptionMappers.ALL) {
       dispatcher.getProviderFactory().registerProvider(mapper);
     }
+
+    //
+    // Add support for serializing MultivaluedMaps.
+    //
+    dispatcher.getProviderFactory().registerProviderInstance(
+      new ServerFormUrlEncodedProvider(true));
   }
 
   private <TResponse> Response<TResponse> invoke(
