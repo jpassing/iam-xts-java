@@ -221,7 +221,14 @@ public class RuntimeEnvironment {
   // -------------------------------------------------------------------------
 
   @Produces
+  @ApplicationScoped
   public ServiceAccount getServiceAccount() {
     return this.serviceAccount;
+  }
+
+  @Produces
+  @ApplicationScoped
+  public RuntimeConfiguration getConfiguration() {
+    return this.configuration;
   }
 }

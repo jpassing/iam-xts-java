@@ -39,7 +39,6 @@ import java.security.GeneralSecurityException;
 /**
  * Service account.
  */
-@ApplicationScoped
 public class ServiceAccount {
   public static final String OAUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 

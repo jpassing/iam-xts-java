@@ -138,19 +138,23 @@ public class OAuthResource {
     var request = new TokenRequest(grantType, parameters);
     var flow = this.flows
       .stream()
-      //.filter(f -> f.isEnabled())
+      .filter(f -> this.configuration.getAuthenticationFlows().contains(f.name()))
       .filter(f -> f.grantType().equals(grantType) && f.canAuthenticate(request))
       .findFirst();
 
     if (!flow.isPresent()) {
-      var message = String.format("No suitable flow found for grant type %s", grantType);
       this.logAdapter
         .newWarningEntry(
           LogEvents.API_TOKEN,
-          message)
+          String.format(
+            "No suitable flow found for grant type '%s' (enabled flows: %s)",
+            grantType,
+            String.join(", ", this.configuration.getAuthenticationFlows())))
         .write();
 
-      throw new IllegalArgumentException(message);
+      throw new IllegalArgumentException(
+        String.format("No suitable flow found for grant type '%s'", grantType)
+      );
     }
 
     //
