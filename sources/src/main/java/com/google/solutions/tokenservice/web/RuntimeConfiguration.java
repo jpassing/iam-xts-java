@@ -52,13 +52,13 @@ public class RuntimeConfiguration {
   /**
    * List of enabled authentication flows.
    */
-  public Collection<String> getAuthenticationFlows()
+  public Set<String> getAuthenticationFlows()
   {
     return Arrays.stream(this.authenticationFlows.getValue()
       .split(","))
       .filter(s -> !s.isEmpty())
       .map(s -> s.trim())
-      .collect(Collectors.toList());
+      .collect(Collectors.toSet());
   }
 
   // -------------------------------------------------------------------------

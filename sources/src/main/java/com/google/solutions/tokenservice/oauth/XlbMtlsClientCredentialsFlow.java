@@ -36,6 +36,11 @@ public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
+  public String name() {
+    return "xlb-mtls";
+  }
+
+  @Override
   public String grantType() {
     return "client_credentials";
   }
@@ -46,7 +51,7 @@ public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
-  public boolean isAvailable(TokenRequest request) {
+  public boolean canAuthenticate(TokenRequest request) {
     //
     // Verify that the request came from a load balancer. If not,
     // we can't trust any of the headers.

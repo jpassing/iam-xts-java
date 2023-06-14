@@ -52,6 +52,9 @@ public class OAuthResource {
   RuntimeEnvironment runtimeEnvironment;
 
   @Inject
+  RuntimeConfiguration configuration;
+
+  @Inject
   LogAdapter logAdapter;
 
   @Inject
@@ -75,6 +78,7 @@ public class OAuthResource {
   // -------------------------------------------------------------------------
 
   /**
+   * Root endpoint, redirect to OIDC metadata.
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -84,6 +88,9 @@ public class OAuthResource {
       .build();
   }
 
+  /**
+   * OIDC provider metadata.
+   */
   @GET
   @Path(".well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
@@ -105,6 +112,9 @@ public class OAuthResource {
       this.flows.stream().map(f -> f.authenticationMethod()).collect(Collectors.toList()));
   }
 
+  /**
+   * OAuth token endpoint.
+   */
   @POST
   @Path("token")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -120,20 +130,31 @@ public class OAuthResource {
     }
 
     //
-    // Find a suitable flow for this set of parameters.
+    // Find a flow that:
+    // - is enabled (based on the configuration)
+    // - supports the requested grant type
+    // - supports the presented set of request parameters
     //
     var request = new TokenRequest(grantType, parameters);
     var flow = this.flows
       .stream()
-      .filter(f -> f.grantType().equals(grantType) && f.isAvailable(request))
+      //.filter(f -> f.isEnabled())
+      .filter(f -> f.grantType().equals(grantType) && f.canAuthenticate(request))
       .findFirst();
 
     if (!flow.isPresent()) {
-      throw new IllegalArgumentException("The parameters are incomplete for this grant type");
+      var message = String.format("No suitable flow found for grant type %s", grantType);
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          message)
+        .write();
+
+      throw new IllegalArgumentException(message);
     }
 
     //
-    // Authenticate.
+    // Run flow to authenticate.
     //
     try {
       return Response
@@ -145,7 +166,7 @@ public class OAuthResource {
       this.logAdapter
         .newErrorEntry(
           LogEvents.API_TOKEN,
-          String.format("Authentication failed: %s", Exceptions.getFullMessage(e)))
+          String.format("Authentication flow failed: %s", Exceptions.getFullMessage(e)))
         .write();
 
       throw (Exception) e.fillInStackTrace();

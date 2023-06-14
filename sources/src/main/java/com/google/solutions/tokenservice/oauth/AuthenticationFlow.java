@@ -26,6 +26,11 @@ package com.google.solutions.tokenservice.oauth;
  */
 public interface AuthenticationFlow {
   /**
+   * @return Unique name of this flow.
+   */
+  String name();
+
+  /**
    * @return Grant type supported by this flow.
    */
   String grantType();
@@ -38,7 +43,7 @@ public interface AuthenticationFlow {
   /**
    * Check if the flow is applicable to the given request.
    */
-  boolean isAvailable(TokenRequest request);
+  boolean canAuthenticate(TokenRequest request);
 
   /**
    * Authenticate user or client.
