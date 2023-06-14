@@ -31,7 +31,45 @@ import java.util.stream.Collectors;
 public class RuntimeConfiguration {
   private final Function<String, String> readSetting;
 
-  private final StringSetting authenticationFlows;
+  private final StringSetting authenticationFlows = new StringSetting(
+    List.of("AUTH_FLOWS"),
+    XlbMtlsClientCredentialsFlow.NAME);
+
+  //
+  // Names of mTLS headers. The header names are configurable, cf.
+  // https://cloud.google.com/load-balancing/docs/https/setting-up-mtls-global-ext-https#add-custom-header
+  //
+
+  public final StringSetting mtlsClientCertPresentHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_PRESENT"),
+    "X-Client-Cert-Present");
+  public final StringSetting mtlsClientCertChainVerifiedHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_CHAIN_VERIFIED"),
+    "X-Client-Cert-Chain-Verified");
+  public final StringSetting mtlsClientCertErrorHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_ERROR"),
+    "X-Client-Cert-Error");
+  public final StringSetting mtlsClientCertHashHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_SHA256_FINGERPRINT"),
+    "X-Client-Cert-Hash");
+  public final StringSetting mtlsClientCertSpiffeIdHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_SPIFFE_ID"),
+    "X-Client-Cert-Spiffe");
+  public final StringSetting mtlsClientCertUriSansHeader = new StringSetting(
+    List.of("MTLS_HEADER_client_cert_uri_sans"),
+    "X-Client-Cert-URI-SANs");
+  public final StringSetting mtlsClientCertDnsSansHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_DNSNAME_SANS"),
+    "X-Client-Cert-DNSName-SANs");
+  public final StringSetting mtlsClientCertSerialNumberHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_SERIAL_NUMBER"),
+    "X-Client-Cert-Serial-Number");
+  public final StringSetting mtlsClientCertNotBeforeHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_VALID_NOT_BEFORE"),
+    "X-Client-Cert-Valid-Not-Before");
+  public final StringSetting mtlsClientCertNotAfterHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_CERT_VALID_NOT_AFTER"),
+    "X-Client-Cert-Valid-Not-After");
 
   public RuntimeConfiguration(Map<String, String> settings) {
     this(key -> settings.get(key));
@@ -39,10 +77,6 @@ public class RuntimeConfiguration {
 
   public RuntimeConfiguration(Function<String, String> readSetting) {
     this.readSetting = readSetting;
-
-    this.authenticationFlows = new StringSetting(
-      List.of("AUTH_FLOWS"),
-      XlbMtlsClientCredentialsFlow.NAME);
   }
 
   // -------------------------------------------------------------------------

@@ -131,7 +131,7 @@ public class OAuthResource {
 
     //
     // Find a flow that:
-    // - is enabled (based on the configuration)
+    // - is enabled (in the configuration)
     // - supports the requested grant type
     // - supports the presented set of request parameters
     //
@@ -161,8 +161,16 @@ public class OAuthResource {
     // Run flow to authenticate.
     //
     try {
+      var response = flow.get().authenticate(request);
+
+      this.logAdapter
+        .newInfoEntry(
+          LogEvents.API_TOKEN,
+          String.format("Issued token for client '%s'", response.client().clientId()))
+        .write();
+
       return Response
-        .ok(flow.get().authenticate(request))
+        .ok(response)
         .build();
     }
     catch (Exception e)

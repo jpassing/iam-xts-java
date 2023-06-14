@@ -34,6 +34,7 @@ import javax.enterprise.inject.Instance;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +49,9 @@ public class TestOAuthResource {
     this.resource = new OAuthResource();
     this.resource.logAdapter = new LogAdapter();
     this.resource.runtimeEnvironment = Mockito.mock(RuntimeEnvironment.class);
-    this.resource.tokenIssuer = new TokenIssuer(IntegrationTestEnvironment.SERVICE_ACCOUNT);
+    this.resource.tokenIssuer = new TokenIssuer(
+      new TokenIssuer.Options(Duration.ofMinutes(5)),
+      IntegrationTestEnvironment.SERVICE_ACCOUNT);
     this.resource.flows = Mockito.mock(Instance.class);
 
     when(this.resource.runtimeEnvironment.createAbsoluteUriBuilder(any(UriInfo.class)))

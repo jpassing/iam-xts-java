@@ -21,59 +21,97 @@
 
 package com.google.solutions.tokenservice.oauth;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.solutions.tokenservice.oauth.client.ClientRepository;
+import com.google.solutions.tokenservice.web.RuntimeConfiguration;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.ForbiddenException;
+import java.time.OffsetDateTime;
 
+/**
+ * Flow that authenticates clients using mTLS, terminated
+ * by an external Google Cloud load balancer (XLB).
+ *
+ * The XLB verifies the certificate chain against a trusted CA,
+ * which corresponds to the "PKI Mutual-TLS Method" described in
+ * RFC8705.
+ */
 @RequestScoped
-public class XlbMtlsClientCredentialsFlow implements AuthenticationFlow {
+public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   public static final String NAME = "xlb-mtls";
 
+  private final RuntimeConfiguration configuration;
   private final HttpServerRequest request;
 
-  public XlbMtlsClientCredentialsFlow(HttpServerRequest request) {
-    this.request = request;
+  private static OffsetDateTime parseIfNotNull(String date) {
+    if (!Strings.isNullOrEmpty(date)) {
+      return OffsetDateTime.parse(date);
+    }
+    else {
+      return null;
+    }
   }
+
+  public XlbMtlsClientCredentialsFlow(
+    ClientRepository clientRepository,
+    TokenIssuer issuer,
+    HttpServerRequest request,
+    RuntimeConfiguration configuration
+  ) {
+    super(clientRepository, issuer);
+    this.request = request;
+    this.configuration = configuration;
+  }
+
+  //---------------------------------------------------------------------------
+  // Overrides.
+  //---------------------------------------------------------------------------
 
   @Override
   public String name() {
-    return "xlb-mtls";
+    return NAME;
   }
 
-  @Override
-  public String grantType() {
-    return "client_credentials";
-  }
-
-  @Override
-  public String authenticationMethod() {
-    return "tls_client_auth";
-  }
-
-  @Override
-  public boolean canAuthenticate(TokenRequest request) {
+  protected MtlsClientAttributes verifyRequest(TokenRequest request)
+  {
     //
     // Verify that the request came from a load balancer. If not,
     // we can't trust any of the headers.
     //
     var address = this.request.connection().remoteAddress();
+    // TODO: Check XLB address
 
     //
-    // Verify that the request contains mTLS headers.
+    // Verify that the client certificate was verified.
     //
+    var headers = this.request.headers();
+    if (!"true".equals(headers.get(this.configuration.mtlsClientCertPresentHeader.getValue())))
+    {
+      throw new ForbiddenException("The client did not present a client certificate");
+    }
 
-    return true;
-  }
+    if (!"true".equals(headers.get(this.configuration.mtlsClientCertChainVerifiedHeader.getValue())))
+    {
+      throw new ForbiddenException(
+        String.format(
+          "The client certificate did not pass verification: %s",
+          headers.get(this.configuration.mtlsClientCertErrorHeader.getValue())));
+    }
 
-  @Override
-  public TokenResponse authenticate(TokenRequest request) {
-
-    // https://quarkus.io/guides/security-authentication-mechanisms-concept#mutual-tls
-    return new TokenResponse(
-      "at",
-      "Bearer",
-      1,
-      "scope",
-      "idt");
+    //
+    // Return all attributes from HTTP headers. Note that some
+    // attributes might be missing or empty.
+    //
+    return new MtlsClientAttributes(
+      headers.get(this.configuration.mtlsClientCertSpiffeIdHeader.getValue()),
+      headers.get(this.configuration.mtlsClientCertDnsSansHeader.getValue()),
+      headers.get(this.configuration.mtlsClientCertUriSansHeader.getValue()),
+      headers.get(this.configuration.mtlsClientCertHashHeader.getValue()),
+      headers.get(this.configuration.mtlsClientCertSerialNumberHeader.getValue()),
+      parseIfNotNull(headers.get(this.configuration.mtlsClientCertNotBeforeHeader.getValue())),
+      parseIfNotNull(headers.get(this.configuration.mtlsClientCertNotAfterHeader.getValue())));
   }
 }

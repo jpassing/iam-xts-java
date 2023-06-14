@@ -21,11 +21,14 @@
 
 package com.google.solutions.tokenservice.oauth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 
 /**
  * Token response as defined in RFC6749.
  *
+ * @param client OAuth client for which the token is being issued
  * @param accessToken REQUIRED. The access token issued by the authorization server.
  * @param tokenType REQUIRED. The type of the token issued, case-insensitive.
  * @param expiresIn REQUIRED. The lifetime in seconds of the access token.
@@ -33,6 +36,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param idToken ID Token.
  */
 public record TokenResponse(
+  @JsonIgnore
+  AuthenticatedClient client,
+
   @JsonProperty("access_token")
   String accessToken,
 
@@ -40,7 +46,7 @@ public record TokenResponse(
   String tokenType,
 
   @JsonProperty("expires_in")
-  int expiresIn,
+  long expiresIn,
 
   @JsonProperty("scope")
   String scope,
