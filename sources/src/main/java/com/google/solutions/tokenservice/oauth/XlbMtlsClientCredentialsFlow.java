@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
 import io.vertx.core.http.HttpServerRequest;
 
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.ForbiddenException;
 import java.time.OffsetDateTime;
@@ -37,7 +38,7 @@ import java.time.OffsetDateTime;
  * which corresponds to the "PKI Mutual-TLS Method" described in
  * RFC8705.
  */
-@RequestScoped
+@Dependent
 public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   public static final String NAME = "xlb-mtls";
 

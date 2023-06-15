@@ -40,6 +40,7 @@ import com.google.solutions.tokenservice.platform.LogAdapter;
 import org.checkerframework.checker.units.qual.A;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.ws.rs.core.UriBuilder;
@@ -237,7 +238,7 @@ public class RuntimeEnvironment {
   }
 
   @Produces
-  @ApplicationScoped
+  @Dependent
   public XlbMtlsClientCredentialsFlow.Options getXlbMtlsClientCredentialsFlowOptions() {
     return new XlbMtlsClientCredentialsFlow.Options(
       this.configuration.mtlsClientCertPresentHeader.getValue(),
@@ -253,7 +254,7 @@ public class RuntimeEnvironment {
   }
 
   @Produces
-  @ApplicationScoped
+  @Dependent
   public TokenIssuer.Options getTokenIssuerOptions() {
     return new TokenIssuer.Options(this.configuration.tokenValidity.getValue());
   }
