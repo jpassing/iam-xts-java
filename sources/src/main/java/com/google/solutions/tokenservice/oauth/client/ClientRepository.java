@@ -15,6 +15,9 @@ import java.util.HashMap;
  */
 @ApplicationScoped
 public class ClientRepository {
+  public ClientRepository() {
+  }
+
   /**
    * Authenticate a client.
    *

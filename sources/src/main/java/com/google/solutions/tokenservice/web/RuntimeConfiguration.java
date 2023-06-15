@@ -35,39 +35,43 @@ public class RuntimeConfiguration {
     List.of("AUTH_FLOWS"),
     XlbMtlsClientCredentialsFlow.NAME);
 
+  protected final DurationSetting tokenValidity = new DurationSetting(
+    List.of("TOKEN_VALIDITY"),
+    Duration.ofMinutes(5));
+
   //
   // Names of mTLS headers. The header names are configurable, cf.
   // https://cloud.google.com/load-balancing/docs/https/setting-up-mtls-global-ext-https#add-custom-header
   //
 
-  public final StringSetting mtlsClientCertPresentHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertPresentHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_PRESENT"),
     "X-Client-Cert-Present");
-  public final StringSetting mtlsClientCertChainVerifiedHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertChainVerifiedHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_CHAIN_VERIFIED"),
     "X-Client-Cert-Chain-Verified");
-  public final StringSetting mtlsClientCertErrorHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertErrorHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_ERROR"),
     "X-Client-Cert-Error");
-  public final StringSetting mtlsClientCertHashHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertHashHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_SHA256_FINGERPRINT"),
     "X-Client-Cert-Hash");
-  public final StringSetting mtlsClientCertSpiffeIdHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertSpiffeIdHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_SPIFFE_ID"),
     "X-Client-Cert-Spiffe");
-  public final StringSetting mtlsClientCertUriSansHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertUriSansHeader = new StringSetting(
     List.of("MTLS_HEADER_client_cert_uri_sans"),
     "X-Client-Cert-URI-SANs");
-  public final StringSetting mtlsClientCertDnsSansHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertDnsSansHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_DNSNAME_SANS"),
     "X-Client-Cert-DNSName-SANs");
-  public final StringSetting mtlsClientCertSerialNumberHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertSerialNumberHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_SERIAL_NUMBER"),
     "X-Client-Cert-Serial-Number");
-  public final StringSetting mtlsClientCertNotBeforeHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertNotBeforeHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_VALID_NOT_BEFORE"),
     "X-Client-Cert-Valid-Not-Before");
-  public final StringSetting mtlsClientCertNotAfterHeader = new StringSetting(
+  protected final StringSetting mtlsClientCertNotAfterHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_VALID_NOT_AFTER"),
     "X-Client-Cert-Valid-Not-After");
 

@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,7 +41,7 @@ public class TestRuntimeConfiguration {
     var configuration = new RuntimeConfiguration(Map.of());
 
     var flows = configuration.getAuthenticationFlows();
-    assertEquals(Arrays.asList(XlbMtlsClientCredentialsFlow.NAME), flows);
+    assertEquals(Set.of(XlbMtlsClientCredentialsFlow.NAME), flows);
   }
 
   @Test
@@ -50,6 +51,6 @@ public class TestRuntimeConfiguration {
 
     var flows = configuration.getAuthenticationFlows();
     assertEquals(2, flows.size());
-    assertEquals(Arrays.asList("flow1", "flow2"), flows);
+    assertEquals(Set.of("flow1", "flow2"), flows);
   }
 }

@@ -33,10 +33,14 @@ import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.UserId;
+import com.google.solutions.tokenservice.oauth.TokenIssuer;
+import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.ServiceAccount;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -230,5 +234,27 @@ public class RuntimeEnvironment {
   @ApplicationScoped
   public RuntimeConfiguration getConfiguration() {
     return this.configuration;
+  }
+
+  @Produces
+  @ApplicationScoped
+  public XlbMtlsClientCredentialsFlow.Options getXlbMtlsClientCredentialsFlowOptions() {
+    return new XlbMtlsClientCredentialsFlow.Options(
+      this.configuration.mtlsClientCertPresentHeader.getValue(),
+      this.configuration.mtlsClientCertChainVerifiedHeader.getValue(),
+      this.configuration.mtlsClientCertErrorHeader.getValue(),
+      this.configuration.mtlsClientCertSpiffeIdHeader.getValue(),
+      this.configuration.mtlsClientCertDnsSansHeader.getValue(),
+      this.configuration.mtlsClientCertUriSansHeader.getValue(),
+      this.configuration.mtlsClientCertHashHeader.getValue(),
+      this.configuration.mtlsClientCertSerialNumberHeader.getValue(),
+      this.configuration.mtlsClientCertNotBeforeHeader.getValue(),
+      this.configuration.mtlsClientCertNotAfterHeader.getValue());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public TokenIssuer.Options getTokenIssuerOptions() {
+    return new TokenIssuer.Options(this.configuration.tokenValidity.getValue());
   }
 }
