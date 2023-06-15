@@ -21,7 +21,6 @@
 
 package com.google.solutions.tokenservice;
 
-import com.google.solutions.tokenservice.ApplicationVersion;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

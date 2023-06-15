@@ -24,11 +24,10 @@ package com.google.solutions.tokenservice.web;
 import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestRuntimeConfiguration {
 

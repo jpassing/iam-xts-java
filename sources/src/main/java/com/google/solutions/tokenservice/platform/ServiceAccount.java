@@ -32,7 +32,6 @@ import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.UserId;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 

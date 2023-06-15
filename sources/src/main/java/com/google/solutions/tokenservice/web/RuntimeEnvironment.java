@@ -35,13 +35,11 @@ import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
-import com.google.solutions.tokenservice.platform.ServiceAccount;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import org.checkerframework.checker.units.qual.A;
+import com.google.solutions.tokenservice.platform.ServiceAccount;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;

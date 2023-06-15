@@ -26,7 +26,6 @@ import com.google.solutions.tokenservice.oauth.client.ClientRepository;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.ForbiddenException;
 import java.time.OffsetDateTime;
 

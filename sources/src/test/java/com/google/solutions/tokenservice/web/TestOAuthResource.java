@@ -22,10 +22,10 @@
 package com.google.solutions.tokenservice.web;
 
 import com.google.solutions.tokenservice.oauth.ProviderMetadata;
+import com.google.solutions.tokenservice.oauth.TokenError;
 import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.oauth.TokenError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,13 +33,12 @@ import org.mockito.Mockito;
 import javax.enterprise.inject.Instance;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-
 import java.time.Duration;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class TestOAuthResource {
   private OAuthResource resource;

@@ -28,7 +28,6 @@ import org.jboss.resteasy.core.SynchronousExecutionContext;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
-import org.jboss.resteasy.plugins.providers.JaxrsServerFormUrlEncodedProvider;
 import org.jboss.resteasy.plugins.providers.ServerFormUrlEncodedProvider;
 import org.jboss.resteasy.spi.Dispatcher;
 
