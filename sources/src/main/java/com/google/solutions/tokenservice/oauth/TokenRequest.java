@@ -3,7 +3,7 @@ package com.google.solutions.tokenservice.oauth;
 import javax.ws.rs.core.MultivaluedMap;
 
 public record TokenRequest(
-  String grantTypes,
+  String grantType,
   MultivaluedMap<String, String> parameters) {
 
 }

@@ -43,7 +43,7 @@ import java.time.OffsetDateTime;
 public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   public static final String NAME = "xlb-mtls";
 
-  private final RuntimeConfiguration configuration;
+  private final Options options;
   private final HttpServerRequest request;
 
   private static OffsetDateTime parseIfNotNull(String date) {
@@ -56,14 +56,14 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   }
 
   public XlbMtlsClientCredentialsFlow(
+    Options options,
     ClientRepository clientRepository,
     TokenIssuer issuer,
-    HttpServerRequest request,
-    RuntimeConfiguration configuration
+    HttpServerRequest request
   ) {
     super(clientRepository, issuer);
     this.request = request;
-    this.configuration = configuration;
+    this.options = options;
   }
 
   //---------------------------------------------------------------------------
@@ -75,30 +75,41 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     return NAME;
   }
 
-  protected MtlsClientAttributes verifyRequest(TokenRequest request)
+  @Override
+  public boolean canAuthenticate(TokenRequest request) {
+    var headers = this.request.headers();
+    if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertPresentHeaderName)))
+    {
+      return false;
+    }
+
+    return super.canAuthenticate(request);
+  }
+
+  public MtlsClientAttributes verifyRequest(TokenRequest request)
   {
     //
     // Verify that the request came from a load balancer. If not,
     // we can't trust any of the headers.
     //
-    var address = this.request.connection().remoteAddress();
+    //var address = this.request.connection().remoteAddress();
     // TODO: Check XLB address
 
     //
     // Verify that the client certificate was verified.
     //
     var headers = this.request.headers();
-    if (!"true".equals(headers.get(this.configuration.mtlsClientCertPresentHeader.getValue())))
+    if (!canAuthenticate(request))
     {
       throw new ForbiddenException("The client did not present a client certificate");
     }
 
-    if (!"true".equals(headers.get(this.configuration.mtlsClientCertChainVerifiedHeader.getValue())))
+    if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertChainVerifiedHeaderName)))
     {
       throw new ForbiddenException(
         String.format(
           "The client certificate did not pass verification: %s",
-          headers.get(this.configuration.mtlsClientCertErrorHeader.getValue())));
+          headers.get(this.options.clientCertErrorHeaderName)));
     }
 
     //
@@ -106,12 +117,29 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     // attributes might be missing or empty.
     //
     return new MtlsClientAttributes(
-      headers.get(this.configuration.mtlsClientCertSpiffeIdHeader.getValue()),
-      headers.get(this.configuration.mtlsClientCertDnsSansHeader.getValue()),
-      headers.get(this.configuration.mtlsClientCertUriSansHeader.getValue()),
-      headers.get(this.configuration.mtlsClientCertHashHeader.getValue()),
-      headers.get(this.configuration.mtlsClientCertSerialNumberHeader.getValue()),
-      parseIfNotNull(headers.get(this.configuration.mtlsClientCertNotBeforeHeader.getValue())),
-      parseIfNotNull(headers.get(this.configuration.mtlsClientCertNotAfterHeader.getValue())));
+      headers.get(this.options.clientCertSpiffeIdHeaderName),
+      headers.get(this.options.clientCertDnsSansHeaderName),
+      headers.get(this.options.clientCertUriSansHeaderName),
+      headers.get(this.options.clientCertHashHeaderName),
+      headers.get(this.options.clientCertSerialNumberHeaderName),
+      parseIfNotNull(headers.get(this.options.clientCertNotBeforeHeaderName)),
+      parseIfNotNull(headers.get(this.options.clientCertNotAfterHeaderName)));
   }
+
+  // -------------------------------------------------------------------------
+  // Inner classes.
+  // -------------------------------------------------------------------------
+
+  public record Options(
+    String clientCertPresentHeaderName,
+    String clientCertChainVerifiedHeaderName,
+    String clientCertErrorHeaderName,
+    String clientCertSpiffeIdHeaderName,
+    String clientCertDnsSansHeaderName,
+    String clientCertUriSansHeaderName,
+    String clientCertHashHeaderName,
+    String clientCertSerialNumberHeaderName,
+    String clientCertNotBeforeHeaderName,
+    String clientCertNotAfterHeaderName
+  ) {}
 }

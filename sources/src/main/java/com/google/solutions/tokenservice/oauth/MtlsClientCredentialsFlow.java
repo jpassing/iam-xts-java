@@ -3,9 +3,11 @@ package com.google.solutions.tokenservice.oauth;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
 import com.google.solutions.tokenservice.platform.AccessException;
 
+import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.UUID;
@@ -51,7 +53,7 @@ public abstract class MtlsClientCredentialsFlow implements AuthenticationFlow {
 
   @Override
   public boolean canAuthenticate(TokenRequest request) {
-    return request.parameters().containsKey("client_id");
+    return !Strings.isNullOrEmpty(request.parameters().getFirst("client_id"));
   }
 
   @Override
@@ -60,13 +62,21 @@ public abstract class MtlsClientCredentialsFlow implements AuthenticationFlow {
   ) throws AccessException, IOException {
     var clientId = request.parameters().getFirst("client_id");
 
-    Preconditions.checkArgument(Strings.isNullOrEmpty(clientId), "client_id is required");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(clientId), "client_id is required");
 
     //
     // Authenticate the client based on the attributes we've gathered.
     //
     var clientAttributes = verifyRequest(request);
-    var client = this.clientRepository.authenticateClient(clientId, clientAttributes);
+    AuthenticatedClient client;
+    try
+    {
+      client = this.clientRepository.authenticateClient(clientId, clientAttributes);
+    }
+    catch (Exception e) {
+      throw new ForbiddenException(
+        String.format("The client ID '%s' or its credentials are invalid", clientId), e);
+    }
 
     //
     // Issue a token.
