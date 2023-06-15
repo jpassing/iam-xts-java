@@ -21,10 +21,8 @@
 
 package com.google.solutions.tokenservice.oauth;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
-import com.google.solutions.tokenservice.web.RuntimeConfiguration;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.RequestScoped;
@@ -86,7 +84,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     return super.canAuthenticate(request);
   }
 
-  public MtlsClientAttributes verifyRequest(TokenRequest request)
+  public MtlsClientCertificate verifyClientCertificate(TokenRequest request)
   {
     //
     // Verify that the request came from a load balancer. If not,
@@ -116,7 +114,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     // Return all attributes from HTTP headers. Note that some
     // attributes might be missing or empty.
     //
-    return new MtlsClientAttributes(
+    return new MtlsClientCertificate(
       headers.get(this.options.clientCertSpiffeIdHeaderName),
       headers.get(this.options.clientCertDnsSansHeaderName),
       headers.get(this.options.clientCertUriSansHeaderName),

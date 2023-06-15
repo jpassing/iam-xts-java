@@ -3,10 +3,7 @@ package com.google.solutions.tokenservice.oauth;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.impl.headers.HeadersMultiMap;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import javax.ws.rs.ForbiddenException;
@@ -34,8 +31,8 @@ public class TestMtlsClientCredentialsFlow {
     }
 
     @Override
-    protected MtlsClientAttributes verifyRequest(TokenRequest request) {
-      return new MtlsClientAttributes(null, null, null, null, null, null, null);
+    protected MtlsClientCertificate verifyClientCertificate(TokenRequest request) {
+      return new MtlsClientCertificate(null, null, null, null, null, null, null);
     }
   }
 

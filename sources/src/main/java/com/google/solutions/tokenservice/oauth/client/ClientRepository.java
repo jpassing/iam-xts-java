@@ -1,7 +1,6 @@
 package com.google.solutions.tokenservice.oauth.client;
 
-import com.google.common.base.Strings;
-import com.google.solutions.tokenservice.oauth.MtlsClientAttributes;
+import com.google.solutions.tokenservice.oauth.MtlsClientCertificate;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.Instant;
@@ -26,7 +25,7 @@ public class ClientRepository {
    */
   public AuthenticatedClient authenticateClient(
     String clientId,
-    MtlsClientAttributes attributes
+    MtlsClientCertificate attributes
   )
   {
     //

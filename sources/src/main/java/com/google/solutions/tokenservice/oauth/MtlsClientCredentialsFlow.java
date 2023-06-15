@@ -1,16 +1,10 @@
 package com.google.solutions.tokenservice.oauth;
 
-import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
-import com.google.solutions.tokenservice.platform.AccessException;
 
-import javax.ws.rs.ForbiddenException;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.UUID;
 
 // https://quarkus.io/guides/security-authentication-mechanisms-concept#mutual-tls
 
@@ -20,31 +14,27 @@ import java.util.UUID;
  * Based on RFC8705 (OAuth 2.0 Mutual-TLS Client Authentication
  * and Certificate-Bound Access Tokens).
  */
-public abstract class MtlsClientCredentialsFlow implements AuthenticationFlow {
+public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
   private final ClientRepository clientRepository;
-  private final TokenIssuer issuer;
 
   public MtlsClientCredentialsFlow(
     ClientRepository clientRepository,
     TokenIssuer issuer
   ) {
+    super(issuer);
     this.clientRepository = clientRepository;
-    this.issuer = issuer;
   }
 
   /**
-   * Extract mTLS attributes from HTTP headers, and verify their authenticity.
+   * Extract mTLS client certificate information, and verify its authenticity.
    */
-  protected abstract MtlsClientAttributes verifyRequest(TokenRequest request);
+  protected abstract MtlsClientCertificate verifyClientCertificate(
+    TokenRequest request
+  );
 
   //---------------------------------------------------------------------------
-  // AuthenticationFlow.
+  // Overrides.
   //---------------------------------------------------------------------------
-
-  @Override
-  public String grantType() {
-    return "client_credentials";
-  }
 
   @Override
   public String authenticationMethod() {
@@ -52,14 +42,7 @@ public abstract class MtlsClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
-  public boolean canAuthenticate(TokenRequest request) {
-    return !Strings.isNullOrEmpty(request.parameters().getFirst("client_id"));
-  }
-
-  @Override
-  public TokenResponse authenticate(
-    TokenRequest request
-  ) throws AccessException, IOException {
+  protected AuthenticatedClient authenticateClient(TokenRequest request) {
     var clientId = request.parameters().getFirst("client_id");
 
     Preconditions.checkArgument(!Strings.isNullOrEmpty(clientId), "client_id is required");
@@ -67,36 +50,7 @@ public abstract class MtlsClientCredentialsFlow implements AuthenticationFlow {
     //
     // Authenticate the client based on the attributes we've gathered.
     //
-    var clientAttributes = verifyRequest(request);
-    AuthenticatedClient client;
-    try
-    {
-      client = this.clientRepository.authenticateClient(clientId, clientAttributes);
-    }
-    catch (Exception e) {
-      throw new ForbiddenException(
-        String.format("The client ID '%s' or its credentials are invalid", clientId), e);
-    }
-
-    //
-    // Issue a token.
-    //
-
-    // TODO: Other claims? RFC?
-
-    var tokenPayload = new JsonWebToken.Payload();
-    tokenPayload.putAll(client.additionalClaims());
-    tokenPayload
-      .setJwtId(UUID.randomUUID().toString())
-      .setIssuedAtTimeSeconds(client.authenticationTime().getEpochSecond());
-
-    var signedToken = this.issuer.issueToken(tokenPayload);
-    return new TokenResponse(
-      client,
-      signedToken.token(),
-      "Bearer",
-      signedToken.expiryTime().getEpochSecond() - Instant.now().getEpochSecond(),
-      null,
-      null);
+    var clientAttributes = verifyClientCertificate(request);
+    return this.clientRepository.authenticateClient(clientId, clientAttributes);
   }
 }

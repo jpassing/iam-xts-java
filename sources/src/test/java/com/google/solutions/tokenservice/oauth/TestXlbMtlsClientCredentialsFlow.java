@@ -4,7 +4,6 @@ import com.google.solutions.tokenservice.oauth.client.ClientRepository;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import javax.ws.rs.ForbiddenException;
@@ -144,7 +143,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     assertThrows(
       ForbiddenException.class,
-      () -> flow.verifyRequest(request));
+      () -> flow.verifyClientCertificate(request));
   }
 
   @Test
@@ -167,7 +166,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var request = createRequest("client-1");
 
-    var attributes = flow.verifyRequest(request);
+    var attributes = flow.verifyClientCertificate(request);
 
     assertNotNull(attributes);
     assertEquals("spiffe-1", attributes.spiffeId());

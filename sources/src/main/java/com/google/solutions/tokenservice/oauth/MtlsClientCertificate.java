@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
  * @param notBefore timestamp before which the client certificate is not valid.
  * @param notAfter timestamp after which the client certificate is not valid.
  */
-public record MtlsClientAttributes(
+public record MtlsClientCertificate(
   String spiffeId,
   String sanDns,
   String sanUri,
