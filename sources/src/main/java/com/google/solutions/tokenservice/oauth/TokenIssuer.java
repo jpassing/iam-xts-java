@@ -47,6 +47,8 @@ public class TokenIssuer {
       .setIssuedAtTimeSeconds(iat.getEpochSecond())
       .setExpirationTimeSeconds(expiryTime.getEpochSecond());
 
+    // TODO: Add flow, pairwise-sub?
+
     return new TokenWithExpiry(
       this.serviceAccount.signJwt(jwtPayload),
       expiryTime);

@@ -106,10 +106,16 @@ public class OAuthResource {
       tokenUrl.toString(),
       this.tokenIssuer.getServiceAccount().jwksUrl(),
       List.of("none"),
-      this.flows.stream().map(f -> f.grantType()).collect(Collectors.toList()),
+      this.flows.stream()
+        .map(f -> f.grantType())
+        .distinct()
+        .collect(Collectors.toList()),
       List.of("pairwise"),
       List.of("RS256"),
-      this.flows.stream().map(f -> f.authenticationMethod()).collect(Collectors.toList()));
+      this.flows.stream()
+        .map(f -> f.authenticationMethod())
+        .distinct()
+        .collect(Collectors.toList()));
   }
 
   /**

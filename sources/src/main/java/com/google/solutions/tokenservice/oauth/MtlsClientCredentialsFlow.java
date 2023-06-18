@@ -5,9 +5,6 @@ import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
 
-
-// https://quarkus.io/guides/security-authentication-mechanisms-concept#mutual-tls
-
 /**
  * Flow that authenticates clients using mTLS.
  *
