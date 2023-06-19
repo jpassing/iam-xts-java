@@ -22,6 +22,7 @@
 package com.google.solutions.tokenservice.oauth;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
+import com.google.api.client.util.GenericData;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
@@ -103,11 +104,6 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     var payload = new JsonWebToken.Payload();
 
     //
-    // Add all claims provided by the subclass first.
-    //
-    payload.putAll(client.additionalClaims());
-
-    //
     // Add claims for a client-credentials flow, based on
     // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
     //
@@ -120,6 +116,14 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     //
 
     payload.set("amr", name().toLowerCase());
+    payload.set("client_id", client.clientId());
+
+    //
+    // Add extra claims for the client.
+    //
+    var clientClaims = new GenericData();
+    clientClaims.putAll(client.additionalClaims());
+    payload.put("client", clientClaims);
 
     var signedToken = this.issuer.issueToken(
       client.clientId(),

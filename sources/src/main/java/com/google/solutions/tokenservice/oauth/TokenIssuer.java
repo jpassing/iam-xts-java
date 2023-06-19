@@ -81,7 +81,7 @@ public class TokenIssuer {
     var jwtPayload = payload
       .setIssuer(this.options.id().toString())
       .setAudience(audience)
-      .setNotBeforeTimeSeconds(now.getEpochSecond())
+      .setNotBeforeTimeSeconds(now.getEpochSecond()) // TODO: Add 5min slack
       .setExpirationTimeSeconds(expiryTime.getEpochSecond())
       .setJwtId(UUID.randomUUID().toString());
 

@@ -90,6 +90,8 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
             "The header %s is missing, verify that mTLS is enabled for the load balancer backend",
             this.options.clientCertPresentHeaderName))
         .write();
+
+      return false;
     }
     else if (!"true".equalsIgnoreCase(certPresent))
     {
@@ -132,9 +134,11 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
         .newErrorEntry(
           LogEvents.API_TOKEN,
           String.format(
-              "The client certificate did not pass verification: %s (certificate hash: %s)",
-              headers.get(this.options.clientCertErrorHeaderName),
-              headers.get(this.options.clientCertHashHeaderName)))
+            "The client certificate did not pass verification: (%s: %s, %s: %s [sha256])",
+            this.options.clientCertErrorHeaderName,
+            headers.get(this.options.clientCertErrorHeaderName),
+            this.options.clientCertHashHeaderName,
+            headers.get(this.options.clientCertHashHeaderName)))
         .write();
 
       throw new ForbiddenException("The client certificate did not pass verification");
