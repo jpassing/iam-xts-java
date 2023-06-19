@@ -39,7 +39,7 @@ import java.time.OffsetDateTime;
  */
 @Dependent
 public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
-  public static final String NAME = "xlb-mtls";
+  public static final String NAME = "xlb-mtls-client-credentials";
 
   private final Options options;
   private final HttpServerRequest request;

@@ -33,7 +33,7 @@ public class RuntimeConfiguration {
 
   private final StringSetting authenticationFlows = new StringSetting(
     List.of("AUTH_FLOWS"),
-    XlbMtlsClientCredentialsFlow.NAME);
+    XlbMtlsClientCredentialsFlow.NAME); //TODO: Disable all flows by default.
 
   protected final DurationSetting tokenValidity = new DurationSetting(
     List.of("TOKEN_VALIDITY"),
