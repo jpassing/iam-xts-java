@@ -1,6 +1,7 @@
 package com.google.solutions.tokenservice.oauth;
 
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
+import com.google.solutions.tokenservice.platform.LogAdapter;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,8 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientRepository.class),
       Mockito.mock(TokenIssuer.class),
-      httpRequest);
+      httpRequest,
+      new LogAdapter());
 
     var request = createRequest("client-1");
     assertFalse(flow.canAuthenticate(request));
@@ -74,7 +76,8 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientRepository.class),
       Mockito.mock(TokenIssuer.class),
-      httpRequest);
+      httpRequest,
+      new LogAdapter());
 
     var request = createRequest("client-1");
     assertFalse(flow.canAuthenticate(request));
@@ -93,7 +96,8 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientRepository.class),
       Mockito.mock(TokenIssuer.class),
-      httpRequest);
+      httpRequest,
+      new LogAdapter());
 
     var request = createRequest("client-1");
     assertTrue(flow.canAuthenticate(request));
@@ -112,7 +116,8 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientRepository.class),
       Mockito.mock(TokenIssuer.class),
-      httpRequest);
+      httpRequest,
+      new LogAdapter());
 
     var request = createRequest("");
     assertFalse(flow.canAuthenticate(request));
@@ -137,7 +142,8 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientRepository.class),
       Mockito.mock(TokenIssuer.class),
-      httpRequest);
+      httpRequest,
+      new LogAdapter());
 
     var request = createRequest("client-1");
 
@@ -162,7 +168,8 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientRepository.class),
       Mockito.mock(TokenIssuer.class),
-      httpRequest);
+      httpRequest,
+      new LogAdapter());
 
     var request = createRequest("client-1");
 

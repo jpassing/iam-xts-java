@@ -25,6 +25,8 @@ import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
+import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.web.LogEvents;
 
 import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
@@ -36,9 +38,14 @@ import java.time.Instant;
 public abstract class ClientCredentialsFlow implements AuthenticationFlow {
 
   private final TokenIssuer issuer;
+  protected final LogAdapter logAdapter;
 
-  public ClientCredentialsFlow(TokenIssuer issuer) {
+  public ClientCredentialsFlow(
+    TokenIssuer issuer,
+    LogAdapter logAdapter
+  ) {
     this.issuer = issuer;
+    this.logAdapter = logAdapter;
   }
 
   /**
@@ -57,7 +64,16 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
 
   @Override
   public boolean canAuthenticate(TokenRequest request) {
-    return !Strings.isNullOrEmpty(request.parameters().getFirst("client_id"));
+    if (Strings.isNullOrEmpty(request.parameters().getFirst("client_id"))) {
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          "The request lacks a required parameter: client_id")
+        .write();
+      return false;
+    }
+
+    return true;
   }
 
   @Override

@@ -23,6 +23,8 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
+import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.web.LogEvents;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.Dependent;
@@ -57,9 +59,10 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     Options options,
     ClientRepository clientRepository,
     TokenIssuer issuer,
-    HttpServerRequest request
+    HttpServerRequest request,
+    LogAdapter logAdapter
   ) {
-    super(clientRepository, issuer);
+    super(clientRepository, issuer, logAdapter);
     this.request = request;
     this.options = options;
   }
@@ -78,6 +81,14 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     var headers = this.request.headers();
     if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertPresentHeaderName)))
     {
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          String.format(
+            "The request did not include a client certificate (according to header %s)",
+            this.options.clientCertPresentHeaderName))
+        .write();
+
       return false;
     }
 
@@ -99,15 +110,21 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     var headers = this.request.headers();
     if (!canAuthenticate(request))
     {
-      throw new ForbiddenException("The client did not present a client certificate");
+      throw new IllegalStateException("Flow is not applicable");
     }
 
     if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertChainVerifiedHeaderName)))
     {
-      throw new ForbiddenException(
-        String.format(
-          "The client certificate did not pass verification: %s",
-          headers.get(this.options.clientCertErrorHeaderName)));
+      this.logAdapter
+        .newErrorEntry(
+          LogEvents.API_TOKEN,
+          String.format(
+              "The client certificate did not pass verification: %s (certificate hash: %s)",
+              headers.get(this.options.clientCertErrorHeaderName),
+              headers.get(this.options.clientCertHashHeaderName)))
+        .write();
+
+      throw new ForbiddenException("The client certificate did not pass verification");
     }
 
     //
