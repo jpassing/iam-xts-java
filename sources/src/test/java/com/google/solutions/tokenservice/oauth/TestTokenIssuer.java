@@ -23,13 +23,15 @@ public class TestTokenIssuer {
     var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
 
     var issuer = new TokenIssuer(
-      new TokenIssuer.Options(Duration.ofMinutes(1)),
+      new TokenIssuer.Options("issuer-1", Duration.ofMinutes(1)),
       serviceAccount);
 
     var payload = new JsonWebToken.Payload()
       .set("test", "value");
 
-    var token = issuer.issueToken(payload);
+    var token = issuer.issueToken(
+      "audience-1",
+      payload);
 
     var verifiedPayload = TokenVerifier
       .newBuilder()
@@ -40,8 +42,8 @@ public class TestTokenIssuer {
       .verify(token.token())
       .getPayload();
 
-    assertEquals(serviceAccount.id().email(), verifiedPayload.getIssuer());
-    assertEquals(serviceAccount.id().email(), verifiedPayload.getAudience());
+    assertEquals("issuer-1", verifiedPayload.getIssuer());
+    assertEquals("audience-1", verifiedPayload.getAudience());
     assertNotNull(verifiedPayload.getIssuedAtTimeSeconds());
     assertNotNull(verifiedPayload.getExpirationTimeSeconds());
     assertTrue(token.expiryTime().isAfter(Instant.now()));

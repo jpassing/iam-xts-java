@@ -106,7 +106,7 @@ public class TestMtlsClientCredentialsFlow {
     var flow = new Flow(
       clientRepository,
       new TokenIssuer(
-        new TokenIssuer.Options(Duration.ofMinutes(1)),
+        new TokenIssuer.Options("issuer-1", Duration.ofMinutes(1)),
         IntegrationTestEnvironment.SERVICE_ACCOUNT));
 
     var response = flow.authenticate(createRequest("client-1"));

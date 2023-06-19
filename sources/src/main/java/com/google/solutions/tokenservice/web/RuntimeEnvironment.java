@@ -254,6 +254,9 @@ public class RuntimeEnvironment {
   @Produces
   @Dependent
   public TokenIssuer.Options getTokenIssuerOptions() {
-    return new TokenIssuer.Options(this.configuration.tokenValidity.getValue());
+    return new TokenIssuer.Options(
+      "todo", // TODO: use base URL
+      this.configuration.tokenValidity.getValue()
+    );
   }
 }

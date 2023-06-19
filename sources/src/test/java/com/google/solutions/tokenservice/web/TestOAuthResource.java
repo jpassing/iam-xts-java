@@ -49,7 +49,7 @@ public class TestOAuthResource {
     this.resource.logAdapter = new LogAdapter();
     this.resource.runtimeEnvironment = Mockito.mock(RuntimeEnvironment.class);
     this.resource.tokenIssuer = new TokenIssuer(
-      new TokenIssuer.Options(Duration.ofMinutes(5)),
+      new TokenIssuer.Options("issuer-1",Duration.ofMinutes(5)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
     this.resource.flows = Mockito.mock(Instance.class);
 

@@ -62,17 +62,33 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     // Issue a token.
     //
 
-    // TODO: Other claims? RFC?
-
     // TODO: consider response type
 
-    var tokenPayload = new JsonWebToken.Payload();
-    tokenPayload.putAll(client.additionalClaims());
-    tokenPayload
-      .setJwtId(UUID.randomUUID().toString())
-      .setIssuedAtTimeSeconds(client.authenticationTime().getEpochSecond());
+    var payload = new JsonWebToken.Payload();
 
-    var signedToken = this.issuer.issueToken(tokenPayload);
+    //
+    // Add all claims provided by the subclass first.
+    //
+    payload.putAll(client.additionalClaims());
+
+    //
+    // Add claims for a client-credentials flow, based on
+    // https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+    //
+    // - amr: the name of the flow.
+    // - aud: audience(s) that this ID Token is intended for. It MUST contain the
+    //        OAuth 2.0 client_id of the relying party as an audience value.
+    //
+    // NB. Because this is a client-credentials flow, we don't set a 'sub' claim.
+    // NB. We don't allow subclasses to override any of these claims.
+    //
+
+    payload.set("amr", name().toLowerCase());
+
+    var signedToken = this.issuer.issueToken(
+      client.clientId(),
+      payload);
+
     return new TokenResponse(
       client,
       signedToken.token(),

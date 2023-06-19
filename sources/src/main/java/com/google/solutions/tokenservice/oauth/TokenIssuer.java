@@ -9,6 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 @ApplicationScoped
 public class TokenIssuer {
@@ -32,22 +33,31 @@ public class TokenIssuer {
   }
 
   public TokenWithExpiry issueToken(
+    String audience,
     JsonWebToken.Payload payload
   ) throws AccessException, IOException {
     Preconditions.checkNotNull(payload, "payload");
 
     //
-    // Add obligatory claims.
+    // Add standard set of JWT claims based on
+    // https://datatracker.ietf.org/doc/html/rfc7519#section-4
     //
-    var iat = Instant.now();
-    var expiryTime = iat.plus(this.options.tokenExiry);
-    var jwtPayload = payload
-      .setAudience(this.serviceAccount.id().toString())
-      .setIssuer(this.serviceAccount.id().toString())
-      .setIssuedAtTimeSeconds(iat.getEpochSecond())
-      .setExpirationTimeSeconds(expiryTime.getEpochSecond());
+    // - iss: identifies the principal that issued the JWT.
+    // - aud: identifies the recipients that the JWT is intended for.
+    // - nbf: identifies the time before which the JWT MUST NOT be accepted for processing.
+    // - exp: identifies the expiration time on or after which the JWT
+    //        MUST NOT be accepted for processing.
+    // - jti: a unique identifier for the JWT.
+    //
+    var now = Instant.now();
+    var expiryTime = now.plus(this.options.tokenExiry);
 
-    // TODO: Add flow, pairwise-sub?
+    var jwtPayload = payload
+      .setIssuer(this.options.issuerId())
+      .setAudience(audience)
+      .setNotBeforeTimeSeconds(now.getEpochSecond())
+      .setExpirationTimeSeconds(expiryTime.getEpochSecond())
+      .setJwtId(UUID.randomUUID().toString());
 
     return new TokenWithExpiry(
       this.serviceAccount.signJwt(jwtPayload),
@@ -64,6 +74,7 @@ public class TokenIssuer {
   ) {}
 
   public record Options(
+    String issuerId,
     Duration tokenExiry
   ) {}
 }
