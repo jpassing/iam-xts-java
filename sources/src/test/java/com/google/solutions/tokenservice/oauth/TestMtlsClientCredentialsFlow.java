@@ -1,5 +1,6 @@
 package com.google.solutions.tokenservice.oauth;
 
+import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
@@ -8,6 +9,7 @@ import org.mockito.Mockito;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.MultivaluedHashMap;
+import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -18,6 +20,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class TestMtlsClientCredentialsFlow {
+  private static final URL ISSUER_ID = URLHelper.fromString("http://example.com/");
+
   private class Flow extends  MtlsClientCredentialsFlow
   {
     public Flow(ClientRepository clientRepository, TokenIssuer issuer) {
@@ -106,7 +110,7 @@ public class TestMtlsClientCredentialsFlow {
     var flow = new Flow(
       clientRepository,
       new TokenIssuer(
-        new TokenIssuer.Options("issuer-1", Duration.ofMinutes(1)),
+        new TokenIssuer.Options(ISSUER_ID, Duration.ofMinutes(1)),
         IntegrationTestEnvironment.SERVICE_ACCOUNT));
 
     var response = flow.authenticate(createRequest("client-1"));

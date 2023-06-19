@@ -37,6 +37,7 @@ import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.platform.ServiceAccount;
+import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
@@ -44,6 +45,9 @@ import javax.enterprise.inject.Produces;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -253,9 +257,16 @@ public class RuntimeEnvironment {
 
   @Produces
   @Dependent
-  public TokenIssuer.Options getTokenIssuerOptions() {
+  public TokenIssuer.Options getTokenIssuerOptions(
+    HttpServerRequest request
+  ) throws MalformedURLException {
+    //
+    // Use the base URL as issuer ID.
+    //
+    var baseUri = new URL(new URL(request.absoluteURI()), "/");
+
     return new TokenIssuer.Options(
-      "todo", // TODO: use base URL
+      baseUri,
       this.configuration.tokenValidity.getValue()
     );
   }

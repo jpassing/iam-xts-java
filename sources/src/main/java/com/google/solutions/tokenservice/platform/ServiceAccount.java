@@ -30,9 +30,11 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.ApplicationVersion;
+import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
 
 import java.io.IOException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 
 /**
@@ -116,8 +118,9 @@ public class ServiceAccount {
   /**
    * Get JWKS location for service account key set.
    */
-  public String jwksUrl() {
-    return String.format("https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s", this.id);
+  public URL jwksUrl() {
+    return URLHelper.fromString(
+      String.format("https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s", this.id));
   }
 
   public UserId id() {

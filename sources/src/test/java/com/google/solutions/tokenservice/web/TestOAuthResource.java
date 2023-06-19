@@ -21,6 +21,7 @@
 
 package com.google.solutions.tokenservice.web;
 
+import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.oauth.ProviderMetadata;
 import com.google.solutions.tokenservice.oauth.TokenError;
 import com.google.solutions.tokenservice.oauth.TokenIssuer;
@@ -33,6 +34,7 @@ import org.mockito.Mockito;
 import javax.enterprise.inject.Instance;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Map;
 
@@ -41,6 +43,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class TestOAuthResource {
+
+  private static final URL ISSUER_ID = URLHelper.fromString("http://example.com/");
+
   private OAuthResource resource;
 
   @BeforeEach
@@ -49,7 +54,7 @@ public class TestOAuthResource {
     this.resource.logAdapter = new LogAdapter();
     this.resource.runtimeEnvironment = Mockito.mock(RuntimeEnvironment.class);
     this.resource.tokenIssuer = new TokenIssuer(
-      new TokenIssuer.Options("issuer-1",Duration.ofMinutes(5)),
+      new TokenIssuer.Options(ISSUER_ID,Duration.ofMinutes(5)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
     this.resource.flows = Mockito.mock(Instance.class);
 
@@ -80,9 +85,9 @@ public class TestOAuthResource {
 
     assertEquals(200, response.getStatus());
 
-    assertEquals("https://localhost/", response.getBody().issuerEndpoint());
-    assertEquals("https://localhost/token", response.getBody().tokenEndpoint());
-    assertEquals("https://localhost/token", response.getBody().authorizationEndpoint());
+    assertEquals(ISSUER_ID, response.getBody().issuerEndpoint());
+    assertEquals(new URL(ISSUER_ID, "/token"), response.getBody().tokenEndpoint());
+    assertEquals(new URL(ISSUER_ID, "/token"), response.getBody().authorizationEndpoint());
   }
 
   // -------------------------------------------------------------------------

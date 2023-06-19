@@ -44,7 +44,7 @@ public class TestServiceAccount {
 
     TokenVerifier
       .newBuilder()
-      .setCertificatesLocation(serviceAccount.jwksUrl())
+      .setCertificatesLocation(serviceAccount.jwksUrl().toString())
       .setIssuer(SampleUser.email())
       .setAudience(SampleUser.email())
       .build()
@@ -63,7 +63,7 @@ public class TestServiceAccount {
       String.format(
         "https://www.googleapis.com/service_accounts/v1/metadata/jwk/%s",
         serviceAccount.id().email()),
-      serviceAccount.jwksUrl());
+      serviceAccount.jwksUrl().toString());
   }
 
   // -------------------------------------------------------------------------

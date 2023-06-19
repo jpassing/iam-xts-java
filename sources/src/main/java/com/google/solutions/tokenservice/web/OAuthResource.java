@@ -97,14 +97,13 @@ public class OAuthResource {
   public ProviderMetadata getMetadata(
     @Context UriInfo uriInfo) throws MalformedURLException {
 
-    var issuerUrl = createUrl(uriInfo, "/");
-    var tokenUrl = createUrl(uriInfo, "/token");
+    var tokenUrl = new URL(this.tokenIssuer.id(), "/token");
 
     return new ProviderMetadata(
-      issuerUrl.toString(),
-      tokenUrl.toString(), // We don't have a real authorization endpoint
-      tokenUrl.toString(),
-      this.tokenIssuer.getServiceAccount().jwksUrl(),
+      this.tokenIssuer.id(),
+      tokenUrl, // We don't have a real authorization endpoint
+      tokenUrl,
+      this.tokenIssuer.jwksUrl(),
       List.of("none"),
       this.flows.stream()
         .map(f -> f.grantType())

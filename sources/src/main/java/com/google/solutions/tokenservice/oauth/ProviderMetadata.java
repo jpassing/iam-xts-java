@@ -2,6 +2,7 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.net.URL;
 import java.util.Collection;
 
 /*
@@ -21,16 +22,16 @@ import java.util.Collection;
  */
 public record ProviderMetadata(
   @JsonProperty("issuer")
-  String issuerEndpoint,
+  URL issuerEndpoint,
 
   @JsonProperty("authorization_endpoint")
-  String authorizationEndpoint,
+  URL authorizationEndpoint,
 
   @JsonProperty("token_endpoint")
-  String tokenEndpoint,
+  URL tokenEndpoint,
 
   @JsonProperty("jwks_uri")
-  String jwksEndpoint,
+  URL jwksEndpoint,
 
   @JsonProperty("response_types_supported")
   Collection<String> supportedResponseTypes,

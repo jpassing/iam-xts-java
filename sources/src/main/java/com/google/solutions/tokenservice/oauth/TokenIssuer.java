@@ -7,6 +7,7 @@ import com.google.solutions.tokenservice.platform.ServiceAccount;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
+import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
@@ -28,8 +29,12 @@ public class TokenIssuer {
     this.serviceAccount = serviceAccount;
   }
 
-  public ServiceAccount getServiceAccount() {
-    return serviceAccount;
+  public URL jwksUrl() {
+    return serviceAccount.jwksUrl();
+  }
+
+  public URL id() {
+    return this.options.id();
   }
 
   public TokenWithExpiry issueToken(
@@ -53,7 +58,7 @@ public class TokenIssuer {
     var expiryTime = now.plus(this.options.tokenExiry);
 
     var jwtPayload = payload
-      .setIssuer(this.options.issuerId())
+      .setIssuer(this.options.id().toString())
       .setAudience(audience)
       .setNotBeforeTimeSeconds(now.getEpochSecond())
       .setExpirationTimeSeconds(expiryTime.getEpochSecond())
@@ -74,7 +79,7 @@ public class TokenIssuer {
   ) {}
 
   public record Options(
-    String issuerId,
+    URL id,
     Duration tokenExiry
   ) {}
 }
