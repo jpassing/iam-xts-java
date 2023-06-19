@@ -65,11 +65,11 @@ public class ClientRepository {
     //
 
     var claims = new HashMap<String, String>();
-    claims.put("spiffe", attributes.spiffeId());
-    claims.put("san_dns", attributes.sanDns());
-    claims.put("san_uri", attributes.sanUri());
-    claims.put("fingerprint", attributes.fingerprint());
-    claims.put("serial", attributes.serialNumber());
+    claims.put("x5_spiffe", attributes.spiffeId());
+    claims.put("x5_dnssan", attributes.sanDns());
+    claims.put("x5_urisan", attributes.sanUri());
+    claims.put("x5_sha256", attributes.sha256fingerprint());
+    claims.put("x5_serial", attributes.serialNumber());
 
     return new AuthenticatedClient(
       clientId,

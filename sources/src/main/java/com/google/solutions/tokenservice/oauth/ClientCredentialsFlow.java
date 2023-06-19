@@ -99,7 +99,6 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     // Issue a token.
     //
 
-    // TODO: consider response type
 
     var payload = new JsonWebToken.Payload();
 
@@ -129,6 +128,8 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
       client.clientId(),
       payload);
 
+    //TODO: Return as ID token
+    // TODO: consider response type, then populate access token
     return new TokenResponse(
       client,
       signedToken.token(),

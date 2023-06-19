@@ -29,7 +29,7 @@ import java.time.OffsetDateTime;
  * @param spiffeId SPIFFE ID of the certificate
  * @param sanDns dNSName SAN entry in the certificate
  * @param sanUri uniformResourceIdentifier SAN entry in the certificate
- * @param fingerprint SHA-256 fingerprint of the client certificate
+ * @param sha256fingerprint SHA-256 sha256fingerprint of the client certificate
  * @param serialNumber  serial number of the client certificate
  * @param notBefore timestamp before which the client certificate is not valid.
  * @param notAfter timestamp after which the client certificate is not valid.
@@ -38,7 +38,7 @@ public record MtlsClientCertificate(
   String spiffeId,
   String sanDns,
   String sanUri,
-  String fingerprint,
+  String sha256fingerprint,
   String serialNumber,
   OffsetDateTime notBefore,
   OffsetDateTime notAfter
