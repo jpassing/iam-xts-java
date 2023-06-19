@@ -1,5 +1,6 @@
 package com.google.solutions.tokenservice.oauth;
 
+import com.google.auth.oauth2.TokenVerifier;
 import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientRepository;
@@ -107,15 +108,27 @@ public class TestMtlsClientCredentialsFlow {
     when(clientRepository.authenticateClient(eq("client-1"), any()))
       .thenReturn(client);
 
+    var issuer = new TokenIssuer(
+      new TokenIssuer.Options(ISSUER_ID, Duration.ofMinutes(1)),
+      IntegrationTestEnvironment.SERVICE_ACCOUNT);
+
     var flow = new Flow(
       clientRepository,
-      new TokenIssuer(
-        new TokenIssuer.Options(ISSUER_ID, Duration.ofMinutes(1)),
-        IntegrationTestEnvironment.SERVICE_ACCOUNT));
+      issuer);
 
     var response = flow.authenticate(createRequest("client-1"));
     assertSame(client, response.client());
     assertEquals("Bearer", response.tokenType());
     assertNotNull(response.accessToken());
+
+    var verifiedPayload = TokenVerifier
+      .newBuilder()
+      .setCertificatesLocation(issuer.jwksUrl().toString())
+      .setIssuer(issuer.id().toString())
+      .setAudience("client-1")
+      .build()
+      .verify(response.accessToken())
+      .getPayload();
+    assertEquals(flow.name().toLowerCase(), verifiedPayload.get("amr"));
   }
 }

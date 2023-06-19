@@ -123,7 +123,7 @@ public class TestXlbMtlsClientCredentialsFlow {
   // -------------------------------------------------------------------------
 
   @Test
-  public void whenMtlsCertChainVerifiedHeaderIsFalse_thenVerifyRequestThrowsException()
+  public void whenMtlsCertChainVerifiedHeaderIsFalse_thenVerifyClientCertificateThrowsException()
   {
     var headers = new HeadersMultiMap();
     headers.add(OPTIONS.clientCertPresentHeaderName(), "TRuE");
@@ -147,7 +147,7 @@ public class TestXlbMtlsClientCredentialsFlow {
   }
 
   @Test
-  public void whenMtlsCertChainVerifiedHeaderIsTrue_thenVerifyRequestReturnsAttributes()
+  public void whenMtlsCertChainVerifiedHeaderIsTrue_thenVerifyClientCertificateReturnsAttributes()
   {
     var headers = new HeadersMultiMap();
     headers.add(OPTIONS.clientCertPresentHeaderName(), "TRuE");

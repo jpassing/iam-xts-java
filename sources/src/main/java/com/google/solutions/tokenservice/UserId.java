@@ -1,5 +1,3 @@
-package com.google.solutions.tokenservice;
-
 //
 // Copyright 2023 Google LLC
 //
@@ -20,6 +18,8 @@ package com.google.solutions.tokenservice;
 // specific language governing permissions and limitations
 // under the License.
 //
+
+package com.google.solutions.tokenservice;
 
 public record UserId(String email) {
   @Override
