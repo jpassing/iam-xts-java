@@ -79,14 +79,27 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   @Override
   public boolean canAuthenticate(TokenRequest request) {
     var headers = this.request.headers();
-    if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertPresentHeaderName)))
+
+    var certPresent = headers.get(this.options.clientCertPresentHeaderName);
+    if (Strings.isNullOrEmpty(certPresent))
     {
       this.logAdapter
         .newWarningEntry(
           LogEvents.API_TOKEN,
           String.format(
-            "The request did not include a client certificate (according to header %s)",
+            "The header %s is missing, verify that mTLS is enabled for the load balancer backend",
             this.options.clientCertPresentHeaderName))
+        .write();
+    }
+    else if (!"true".equalsIgnoreCase(certPresent))
+    {
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          String.format(
+            "The request did not include a client certificate (%s: %s)",
+            this.options.clientCertPresentHeaderName,
+            certPresent))
         .write();
 
       return false;
