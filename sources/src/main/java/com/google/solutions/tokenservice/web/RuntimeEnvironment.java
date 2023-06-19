@@ -217,12 +217,6 @@ public class RuntimeEnvironment {
     return Boolean.getBoolean(CONFIG_DEBUG_MODE);
   }
 
-  public UriBuilder createAbsoluteUriBuilder(UriInfo uriInfo) {
-    return uriInfo
-      .getBaseUriBuilder()
-      .scheme(isRunningOnCloudRun() ? "https" : "http");
-  }
-
   // -------------------------------------------------------------------------
   // Producer methods.
   // -------------------------------------------------------------------------

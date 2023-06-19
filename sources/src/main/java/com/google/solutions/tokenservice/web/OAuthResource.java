@@ -63,16 +63,6 @@ public class OAuthResource {
   @Inject
   TokenIssuer tokenIssuer;
 
-  private URL createUrl(UriInfo uriInfo, String path) throws MalformedURLException {
-    Preconditions.checkNotNull(uriInfo);
-
-    return this.runtimeEnvironment
-      .createAbsoluteUriBuilder(uriInfo)
-      .path(path)
-      .build()
-      .toURL();
-  }
-
   // -------------------------------------------------------------------------
   // REST resources.
   // -------------------------------------------------------------------------

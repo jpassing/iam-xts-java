@@ -57,9 +57,6 @@ public class TestOAuthResource {
       new TokenIssuer.Options(ISSUER_ID,Duration.ofMinutes(5)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
     this.resource.flows = Mockito.mock(Instance.class);
-
-    when(this.resource.runtimeEnvironment.createAbsoluteUriBuilder(any(UriInfo.class)))
-      .thenReturn(UriBuilder.fromUri("https://localhost/"));
   }
 
   // -------------------------------------------------------------------------
