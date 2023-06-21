@@ -95,7 +95,6 @@ public class TokenIssuer {
   // Inner classes.
   // -------------------------------------------------------------------------
 
-
   public record Options(
     URL id,
     Duration tokenExiry

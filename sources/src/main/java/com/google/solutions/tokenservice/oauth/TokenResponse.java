@@ -23,7 +23,7 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
+import com.google.solutions.tokenservice.oauth.client.AuthorizedClient;
 
 /**
  * Token response as defined in RFC6749.
@@ -37,7 +37,7 @@ import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
  */
 public record TokenResponse(
   @JsonIgnore
-  AuthenticatedClient client,
+  AuthorizedClient client,
 
   @JsonProperty("id_token")
   String idToken,
@@ -55,7 +55,7 @@ public record TokenResponse(
   String accessTokenScope
 ) {
   public TokenResponse(
-    AuthenticatedClient client,
+    AuthorizedClient client,
     IdToken idToken,
     AccessToken accessToken) {
     this(
@@ -68,7 +68,7 @@ public record TokenResponse(
   }
 
   public TokenResponse(
-    AuthenticatedClient client,
+    AuthorizedClient client,
     IdToken idToken) {
     this(
       client,

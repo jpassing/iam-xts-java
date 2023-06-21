@@ -41,38 +41,33 @@ public class ClientPolicy {
   }
 
   /**
-   * Authenticate a client.
+   * Authorize a client that has previously authenticated using mTLS.
    *
    * @param clientId clientId conveyed in request.
-   * @param attributes attributes conveyed in client certificate, verified
-   * @return Client if successful
-   * @throws if the client is unknown of the attributes are invalid
+   * @param attributes attributes conveyed in client certificate.
+   * @return Client if successful.
+   * @throws if the client is unknown of the attributes are invalid.
    */
-  public AuthenticatedClient authenticateMtlsClient(
+  public AuthorizedClient authorizeClient(
     String clientId,
     MtlsClientCertificate attributes
   )
   {
     //
-    // In a real-world scenario, we'd use an inventory database to check
-    // if the client ID exists and whether the presented attributes match
-    // what we're expecting.
+    // The client has successfully authenticated by presenting a trusted
+    // mTLS client certificate. In this example implementation, we consider
+    // that sufficient, and simply use the certificate attributes as
+    // client claims.
     //
-    // Optionally, we could look up additional client metadata in the inventory
-    // and return it as additional claims.
+    // In a real-world scenario, we could perform additional checks here,
+    // such as:
     //
-    // In this sample implementation, we consider any client valid and simply
-    // echo the input claims.
+    // - check the certificate hash against an allow-list of device registry
+    // - require specific attributes (such as Spiffe ID) to be provided
     //
-
-    if (!clientId.equals(attributes.spiffeId()) &&
-        !clientId.equals(attributes.sanDns()) &&
-        !clientId.equals(attributes.sanUri())) {
-      //
-      // The client ID must match one of these attributes.
-      //
-      throw new ForbiddenException("The client ID is unknown");
-    }
+    // Also, we could transform or enrich the set of claims, for example by
+    // looking up additional client/device information in a database.
+    //
 
     var claims = new HashMap<String, String>();
     claims.put("x5_spiffe", attributes.spiffeId());
@@ -81,7 +76,7 @@ public class ClientPolicy {
     claims.put("x5_sha256", attributes.sha256fingerprint());
     claims.put("x5_serial", attributes.serialNumber());
 
-    return new AuthenticatedClient(
+    return new AuthorizedClient(
       clientId,
       Instant.now(),
       claims);

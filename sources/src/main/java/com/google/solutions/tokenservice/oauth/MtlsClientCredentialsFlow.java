@@ -23,7 +23,7 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
+import com.google.solutions.tokenservice.oauth.client.AuthorizedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 
@@ -61,7 +61,7 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
   }
 
   @Override
-  protected AuthenticatedClient authenticateClient(TokenRequest request) {
+  protected AuthorizedClient authenticateClient(TokenRequest request) {
     var clientId = request.parameters().getFirst("client_id");
 
     Preconditions.checkArgument(!Strings.isNullOrEmpty(clientId), "client_id is required");
@@ -70,6 +70,6 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
     // Authenticate the client based on the attributes we've gathered.
     //
     var clientAttributes = verifyClientCertificate(request);
-    return this.clientPolicy.authenticateMtlsClient(clientId, clientAttributes);
+    return this.clientPolicy.authorizeClient(clientId, clientAttributes);
   }
 }

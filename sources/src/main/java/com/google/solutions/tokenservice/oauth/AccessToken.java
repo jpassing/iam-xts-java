@@ -26,10 +26,10 @@ import java.time.Instant;
 /**
  * An OAuth access token.
  *
- * @param token encoded token value
- * @param scope scope of token
- * @param issueTime time of issuance
- * @param expiryTime time of expiry
+ * @param token encoded token value.
+ * @param scope scope of token.
+ * @param issueTime time of issuance.
+ * @param expiryTime time of expiry.
  */
 public record AccessToken(
   String token,

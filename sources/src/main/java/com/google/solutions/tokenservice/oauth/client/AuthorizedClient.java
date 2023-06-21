@@ -25,13 +25,13 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * An authenticated client.
+ * An client that has been authorized to receive a token.
  *
- * @param clientId OAuth client ID
- * @param authenticationTime time of authentication
- * @param additionalClaims claims about this client
+ * @param clientId OAuth client ID.
+ * @param authenticationTime time of authentication.
+ * @param additionalClaims claims about this client.
  */
-public record AuthenticatedClient(
+public record AuthorizedClient(
   String clientId,
   Instant authenticationTime,
   Map<String, String> additionalClaims

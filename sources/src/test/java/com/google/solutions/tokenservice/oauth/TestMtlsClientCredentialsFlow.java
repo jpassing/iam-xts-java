@@ -2,7 +2,7 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.auth.oauth2.TokenVerifier;
 import com.google.solutions.tokenservice.URLHelper;
-import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
+import com.google.solutions.tokenservice.oauth.client.AuthorizedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
@@ -86,7 +86,7 @@ public class TestMtlsClientCredentialsFlow {
   @Test
   public void whenClientRepositoryFailsToAuthenticate_thenAuthenticateThrowsException() {
     var clientRepository = Mockito.mock(ClientPolicy.class);
-    when(clientRepository.authenticateMtlsClient(eq("client-1"), any()))
+    when(clientRepository.authorizeClient(eq("client-1"), any()))
       .thenThrow(new RuntimeException("mock"));
 
     var flow = new Flow(
@@ -100,13 +100,13 @@ public class TestMtlsClientCredentialsFlow {
 
   @Test
   public void whenClientRepositoryAuthenticatesClient_thenAuthenticateReturnsToken() throws Exception {
-    var client = new AuthenticatedClient(
+    var client = new AuthorizedClient(
       "client-1",
       Instant.ofEpochSecond(1000),
       new HashMap<>());
 
     var clientRepository = Mockito.mock(ClientPolicy.class);
-    when(clientRepository.authenticateMtlsClient(eq("client-1"), any()))
+    when(clientRepository.authorizeClient(eq("client-1"), any()))
       .thenReturn(client);
 
     var issuer = new TokenIssuer(

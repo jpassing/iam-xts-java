@@ -25,7 +25,7 @@ import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.api.client.util.GenericData;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
+import com.google.solutions.tokenservice.oauth.client.AuthorizedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
@@ -58,7 +58,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   /**
    * Identify and authenticate the client.
    */
-  protected abstract AuthenticatedClient authenticateClient(
+  protected abstract AuthorizedClient authenticateClient(
     TokenRequest request
   );
 
@@ -66,7 +66,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
    * Issue an ID token for an authenticated client.
    */
   protected IdToken issueIdToken(
-    AuthenticatedClient client
+    AuthorizedClient client
   ) throws AccessException, IOException {
     Preconditions.checkNotNull(client, "client");
 
@@ -101,7 +101,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
    */
   protected AccessToken issueAccessToken(
     TokenRequest request,
-    AuthenticatedClient client,
+    AuthorizedClient client,
     IdToken idToken
   ) {
     Preconditions.checkNotNull(request, "request");
@@ -181,7 +181,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     //
     // Authenticate the client.
     //
-    AuthenticatedClient client;
+    AuthorizedClient client;
     try
     {
       client = authenticateClient(request);

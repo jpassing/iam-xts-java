@@ -37,7 +37,7 @@ import java.util.Collection;
  * @param supportedResponseTypes REQUIRED. List of the OAuth 2.0 response_type values
  * @param supportedGrantTypes OPTIONAL. List of the OAuth 2.0 Grant Type values that this OP supports.
  * @param supportedSubjectTypes REQUIRED. List of the Subject Identifier types that this OP supports.
- * @param supportedIdTokenSigningAlgorithms REQUIRED. List of the JWS signing algorithms (alg values) supported
+ * @param supportedIdTokenSigningAlgorithms REQUIRED. List of the JWS signing algorithms (alg values) supported.
  * @param supportedTokenEndpointAuthenticationMethods OPTIONAL. List of Client Authentication methods
  * supported by this Token Endpoint.
  */
