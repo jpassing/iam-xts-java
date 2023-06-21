@@ -24,19 +24,20 @@ package com.google.solutions.tokenservice.oauth.client;
 import com.google.solutions.tokenservice.oauth.MtlsClientCertificate;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.ForbiddenException;
 import java.time.Instant;
 import java.util.HashMap;
 
 /**
- * Repository for known clients.
+ * Policy that defines which clients are allowed to authenticate.
  *
  * This is an example implementation. A real implementation might use
  * an inventory database or configuration file to authenticate clients.
  *
  */
 @ApplicationScoped
-public class ClientRepository {
-  public ClientRepository() {
+public class ClientPolicy {
+  public ClientPolicy() {
   }
 
   /**
@@ -63,6 +64,15 @@ public class ClientRepository {
     // In this sample implementation, we consider any client valid and simply
     // echo the input claims.
     //
+
+    if (!clientId.equals(attributes.spiffeId()) &&
+        !clientId.equals(attributes.sanDns()) &&
+        !clientId.equals(attributes.sanUri())) {
+      //
+      // The client ID must match one of these attributes.
+      //
+      throw new ForbiddenException("The client ID is unknown");
+    }
 
     var claims = new HashMap<String, String>();
     claims.put("x5_spiffe", attributes.spiffeId());

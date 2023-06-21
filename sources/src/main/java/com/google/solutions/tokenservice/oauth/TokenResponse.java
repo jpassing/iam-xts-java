@@ -30,28 +30,53 @@ import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
  *
  * @param client OAuth client for which the token is being issued
  * @param accessToken REQUIRED. The access token issued by the authorization server.
- * @param tokenType REQUIRED. The type of the token issued, case-insensitive.
- * @param expiresIn REQUIRED. The lifetime in seconds of the access token.
- * @param scope Scope of the issued security token.
+ * @param accessTokenType REQUIRED. The type of the token issued, case-insensitive.
+ * @param accessTokenExpiryInSeconds REQUIRED. The lifetime in seconds of the access token.
+ * @param accessTokenScope Scope of the issued security token.
  * @param idToken ID Token.
  */
 public record TokenResponse(
   @JsonIgnore
   AuthenticatedClient client,
 
+  @JsonProperty("id_token")
+  String idToken,
+
   @JsonProperty("access_token")
   String accessToken,
 
   @JsonProperty("token_type")
-  String tokenType,
+  String accessTokenType,
 
   @JsonProperty("expires_in")
-  long expiresIn,
+  Long accessTokenExpiryInSeconds,
 
   @JsonProperty("scope")
-  String scope,
-
-  @JsonProperty("id_token")
-  String idToken
+  String accessTokenScope
 ) {
+  public TokenResponse(
+    AuthenticatedClient client,
+    BearerToken idToken,
+    BearerToken accessToken,
+    String accessTokenScope) {
+    this(
+      client,
+      idToken.token(),
+      accessToken.token(),
+      "Bearer",
+      accessToken.expiryTime().getEpochSecond() - accessToken.issueTime().getEpochSecond(),
+      accessTokenScope);
+  }
+
+  public TokenResponse(
+    AuthenticatedClient client,
+    BearerToken idToken) {
+    this(
+      client,
+      idToken.token(),
+      null,
+      "Bearer",
+      null,
+      null);
+  }
 }

@@ -1,6 +1,6 @@
 package com.google.solutions.tokenservice.oauth;
 
-import com.google.solutions.tokenservice.oauth.client.ClientRepository;
+import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
@@ -54,7 +54,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
       httpRequest,
       new LogAdapter());
@@ -74,7 +74,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
       httpRequest,
       new LogAdapter());
@@ -94,7 +94,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
       httpRequest,
       new LogAdapter());
@@ -114,7 +114,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
       httpRequest,
       new LogAdapter());
@@ -140,7 +140,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
       httpRequest,
       new LogAdapter());
@@ -166,7 +166,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
       httpRequest,
       new LogAdapter());

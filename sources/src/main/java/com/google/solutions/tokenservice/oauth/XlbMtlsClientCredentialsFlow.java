@@ -22,7 +22,7 @@
 package com.google.solutions.tokenservice.oauth;
 
 import com.google.common.base.Strings;
-import com.google.solutions.tokenservice.oauth.client.ClientRepository;
+import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.web.LogEvents;
 import io.vertx.core.http.HttpServerRequest;
@@ -57,7 +57,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
 
   public XlbMtlsClientCredentialsFlow(
     Options options,
-    ClientRepository clientRepository,
+    ClientPolicy clientRepository,
     TokenIssuer issuer,
     HttpServerRequest request,
     LogAdapter logAdapter
@@ -113,19 +113,14 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   public MtlsClientCertificate verifyClientCertificate(TokenRequest request)
   {
     //
-    // Verify that the request came from a load balancer. If not,
-    // we can't trust any of the headers.
-    //
-    //var address = this.request.connection().remoteAddress();
-    // TODO: Check XLB address
-
-    //
-    // Verify that the client certificate was verified.
+    // Verify that the client presented a certificate and that the
+    // load balancer verified the certificate.
     //
     var headers = this.request.headers();
     if (!canAuthenticate(request))
     {
-      throw new IllegalStateException("Flow is not applicable");
+      throw new ForbiddenException(
+        "The request did not include a client certificate");
     }
 
     if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertChainVerifiedHeaderName)))
@@ -145,8 +140,16 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     }
 
     //
+    // NB. There's no way for us to check that the "Verified" header was
+    // added by the load balancer (as opposed to a MITM or the client),
+    // and that the header is authentic. But if the app is deployed correctly
+    // (with the correct ingress settings), then bypassing or MITM-ing the
+    // load balancer should not be possible.
+    //
+
+    //
     // Return all attributes from HTTP headers. Note that some
-    // attributes might be missing or empty.
+    // attributes might be empty.
     //
     return new MtlsClientCertificate(
       headers.get(this.options.clientCertSpiffeIdHeaderName),

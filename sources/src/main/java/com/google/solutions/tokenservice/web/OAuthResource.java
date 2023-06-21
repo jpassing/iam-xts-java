@@ -153,7 +153,7 @@ public class OAuthResource {
     }
 
     //
-    // Run flow to authenticate.
+    // Run flow to authenticate the user or client.
     //
     try {
       var response = flow.get().authenticate(request);

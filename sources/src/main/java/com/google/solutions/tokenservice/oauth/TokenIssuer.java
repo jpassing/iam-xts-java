@@ -58,7 +58,7 @@ public class TokenIssuer {
     return this.options.id();
   }
 
-  public TokenWithExpiry issueToken(
+  public BearerToken issueToken(
     String audience,
     JsonWebToken.Payload payload
   ) throws AccessException, IOException {
@@ -75,18 +75,19 @@ public class TokenIssuer {
     //        MUST NOT be accepted for processing.
     // - jti: a unique identifier for the JWT.
     //
-    var now = Instant.now();
-    var expiryTime = now.plus(this.options.tokenExiry);
+    var issueTime = Instant.now();
+    var expiryTime = issueTime.plus(this.options.tokenExiry);
 
     var jwtPayload = payload
       .setIssuer(this.options.id().toString())
       .setAudience(audience)
-      .setNotBeforeTimeSeconds(now.getEpochSecond()) // TODO: Add 5min slack
+      .setNotBeforeTimeSeconds(issueTime.getEpochSecond()) // TODO: Add 5min slack
       .setExpirationTimeSeconds(expiryTime.getEpochSecond())
       .setJwtId(UUID.randomUUID().toString());
 
-    return new TokenWithExpiry(
+    return new BearerToken(
       this.serviceAccount.signJwt(jwtPayload),
+      issueTime,
       expiryTime);
   }
 
@@ -94,10 +95,6 @@ public class TokenIssuer {
   // Inner classes.
   // -------------------------------------------------------------------------
 
-  public record TokenWithExpiry(
-    String token,
-    Instant expiryTime
-  ) {}
 
   public record Options(
     URL id,

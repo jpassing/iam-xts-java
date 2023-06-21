@@ -3,7 +3,7 @@ package com.google.solutions.tokenservice.oauth;
 import com.google.auth.oauth2.TokenVerifier;
 import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
-import com.google.solutions.tokenservice.oauth.client.ClientRepository;
+import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class TestMtlsClientCredentialsFlow {
 
   private class Flow extends  MtlsClientCredentialsFlow
   {
-    public Flow(ClientRepository clientRepository, TokenIssuer issuer) {
+    public Flow(ClientPolicy clientRepository, TokenIssuer issuer) {
       super(clientRepository, issuer, new LogAdapter());
     }
 
@@ -61,7 +61,7 @@ public class TestMtlsClientCredentialsFlow {
   public void whenClientIdMissing_thenCanAuthenticateReturnsFalse()
   {
     var flow = new Flow(
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class));
 
     var request = createRequest(null);
@@ -72,7 +72,7 @@ public class TestMtlsClientCredentialsFlow {
   public void whenClientIdEmpty_thenCanAuthenticateReturnsFalse()
   {
     var flow = new Flow(
-      Mockito.mock(ClientRepository.class),
+      Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class));
 
     var request = createRequest("");
@@ -85,7 +85,7 @@ public class TestMtlsClientCredentialsFlow {
 
   @Test
   public void whenClientRepositoryFailsToAuthenticate_thenAuthenticateThrowsException() {
-    var clientRepository = Mockito.mock(ClientRepository.class);
+    var clientRepository = Mockito.mock(ClientPolicy.class);
     when(clientRepository.authenticateClient(eq("client-1"), any()))
       .thenThrow(new RuntimeException("mock"));
 
@@ -105,7 +105,7 @@ public class TestMtlsClientCredentialsFlow {
       Instant.ofEpochSecond(1000),
       new HashMap<>());
 
-    var clientRepository = Mockito.mock(ClientRepository.class);
+    var clientRepository = Mockito.mock(ClientPolicy.class);
     when(clientRepository.authenticateClient(eq("client-1"), any()))
       .thenReturn(client);
 
@@ -119,7 +119,7 @@ public class TestMtlsClientCredentialsFlow {
 
     var response = flow.authenticate(createRequest("client-1"));
     assertSame(client, response.client());
-    assertEquals("Bearer", response.tokenType());
+    assertEquals("Bearer", response.accessTokenType());
     assertNotNull(response.accessToken());
 
     var verifiedPayload = TokenVerifier

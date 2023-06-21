@@ -24,7 +24,7 @@ package com.google.solutions.tokenservice.oauth;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
-import com.google.solutions.tokenservice.oauth.client.ClientRepository;
+import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 
 /**
@@ -34,15 +34,14 @@ import com.google.solutions.tokenservice.platform.LogAdapter;
  * and Certificate-Bound Access Tokens).
  */
 public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
-  private final ClientRepository clientRepository;
+
 
   public MtlsClientCredentialsFlow(
-    ClientRepository clientRepository,
+    ClientPolicy clientPolicy,
     TokenIssuer issuer,
     LogAdapter logAdapter
   ) {
-    super(issuer, logAdapter);
-    this.clientRepository = clientRepository;
+    super(clientPolicy, issuer, logAdapter);
   }
 
   /**
@@ -71,6 +70,6 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
     // Authenticate the client based on the attributes we've gathered.
     //
     var clientAttributes = verifyClientCertificate(request);
-    return this.clientRepository.authenticateClient(clientId, clientAttributes);
+    return this.clientPolicy.authenticateClient(clientId, clientAttributes);
   }
 }
