@@ -58,7 +58,7 @@ public class TokenIssuer {
     return this.options.id();
   }
 
-  public BearerToken issueToken(
+  public IdToken issueToken(
     String audience,
     JsonWebToken.Payload payload
   ) throws AccessException, IOException {
@@ -85,7 +85,7 @@ public class TokenIssuer {
       .setExpirationTimeSeconds(expiryTime.getEpochSecond())
       .setJwtId(UUID.randomUUID().toString());
 
-    return new BearerToken(
+    return new IdToken(
       this.serviceAccount.signJwt(jwtPayload),
       issueTime,
       expiryTime);

@@ -56,21 +56,20 @@ public record TokenResponse(
 ) {
   public TokenResponse(
     AuthenticatedClient client,
-    BearerToken idToken,
-    BearerToken accessToken,
-    String accessTokenScope) {
+    IdToken idToken,
+    AccessToken accessToken) {
     this(
       client,
       idToken.token(),
       accessToken.token(),
       "Bearer",
       accessToken.expiryTime().getEpochSecond() - accessToken.issueTime().getEpochSecond(),
-      accessTokenScope);
+      accessToken.scope());
   }
 
   public TokenResponse(
     AuthenticatedClient client,
-    BearerToken idToken) {
+    IdToken idToken) {
     this(
       client,
       idToken.token(),

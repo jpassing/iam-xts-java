@@ -86,7 +86,7 @@ public class TestMtlsClientCredentialsFlow {
   @Test
   public void whenClientRepositoryFailsToAuthenticate_thenAuthenticateThrowsException() {
     var clientRepository = Mockito.mock(ClientPolicy.class);
-    when(clientRepository.authenticateClient(eq("client-1"), any()))
+    when(clientRepository.authenticateMtlsClient(eq("client-1"), any()))
       .thenThrow(new RuntimeException("mock"));
 
     var flow = new Flow(
@@ -106,7 +106,7 @@ public class TestMtlsClientCredentialsFlow {
       new HashMap<>());
 
     var clientRepository = Mockito.mock(ClientPolicy.class);
-    when(clientRepository.authenticateClient(eq("client-1"), any()))
+    when(clientRepository.authenticateMtlsClient(eq("client-1"), any()))
       .thenReturn(client);
 
     var issuer = new TokenIssuer(
@@ -120,7 +120,7 @@ public class TestMtlsClientCredentialsFlow {
     var response = flow.authenticate(createRequest("client-1"));
     assertSame(client, response.client());
     assertEquals("Bearer", response.accessTokenType());
-    assertNotNull(response.accessToken());
+    assertNotNull(response.idToken());
 
     var verifiedPayload = TokenVerifier
       .newBuilder()
@@ -128,7 +128,7 @@ public class TestMtlsClientCredentialsFlow {
       .setIssuer(issuer.id().toString())
       .setAudience("client-1")
       .build()
-      .verify(response.accessToken())
+      .verify(response.idToken())
       .getPayload();
     assertEquals(flow.name().toLowerCase(), verifiedPayload.get("amr"));
   }

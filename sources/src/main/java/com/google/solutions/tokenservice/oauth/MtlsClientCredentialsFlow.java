@@ -70,6 +70,6 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
     // Authenticate the client based on the attributes we've gathered.
     //
     var clientAttributes = verifyClientCertificate(request);
-    return this.clientPolicy.authenticateClient(clientId, clientAttributes);
+    return this.clientPolicy.authenticateMtlsClient(clientId, clientAttributes);
   }
 }

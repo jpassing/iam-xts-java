@@ -23,14 +23,13 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.api.client.util.GenericData;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.web.LogEvents;
-import io.vertx.codegen.doc.Token;
 
 import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
@@ -66,9 +65,11 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   /**
    * Issue an ID token for an authenticated client.
    */
-  protected BearerToken issueIdToken(
+  protected IdToken issueIdToken(
     AuthenticatedClient client
   ) throws AccessException, IOException {
+    Preconditions.checkNotNull(client, "client");
+
     //
     // In addition to the standard iss/exp/nbf claims, we
     // include the following claims:
@@ -95,13 +96,18 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   }
 
   /**
-   * Issue an access token.
+   * Issue an access token. This can be a Google STS token or a
+   * Google service account access token.
    */
-  protected BearerToken issueAccessToken(
+  protected AccessToken issueAccessToken(
     TokenRequest request,
     AuthenticatedClient client,
-    BearerToken idToken
+    IdToken idToken
   ) {
+    Preconditions.checkNotNull(request, "request");
+    Preconditions.checkNotNull(client, "client");
+    Preconditions.checkNotNull(idToken, "idToken");
+
     var provider = request.parameters().getFirst("provider");
     if (Strings.isNullOrEmpty(provider)) {
       //
@@ -118,7 +124,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
       scope = DEFAULT_SCOPE;
     }
 
-    var stsToken = new BearerToken("todo", Instant.now(), Instant.now());
+    var stsToken = new AccessToken("todo", "todo", Instant.now(), Instant.now());
 
     var serviceAccount = request.parameters().getFirst("impersonate_service_account");
     if (Strings.isNullOrEmpty(serviceAccount)) {
@@ -131,31 +137,10 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
       //
       // Impersonate a service account.
       //
-      var serviceAccountToken =  new BearerToken("todo", Instant.now(), Instant.now());
+      var serviceAccountToken =  new AccessToken("todo", "scope", Instant.now(), Instant.now());
 
       return serviceAccountToken;
     }
-  }
-
-  /**
-   * Issue an STS access token.
-   */
-  protected BearerToken issueStsToken(
-    BearerToken idToken,
-    String provider,
-    String scope
-  ) {
-    return null;
-  }
-
-  /**
-   * Issue an access token for a service account.
-   */
-  protected BearerToken issueServiceAccountAccessToken(
-    BearerToken stsToken,
-    UserId serviceAccount
-  ) {
-    return null;
   }
 
   //---------------------------------------------------------------------------
@@ -169,6 +154,8 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
 
   @Override
   public boolean canAuthenticate(TokenRequest request) {
+    Preconditions.checkNotNull(request, "request");
+
     //
     // Check if the client provided a client_id. Subclasses
     // may perform additional checks.
@@ -189,6 +176,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   public final TokenResponse authenticate(
     TokenRequest request
   ) throws AccessException, IOException {
+    Preconditions.checkNotNull(request, "request");
 
     //
     // Authenticate the client.
@@ -203,55 +191,32 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
         "The client or its credentials are invalid", e);
     }
 
-
+    //
+    // Issue tokens.
+    //
     var idToken = issueIdToken(client);
     var accessToken = issueAccessToken(request, client, idToken);
-    
 
-    var provider = request.parameters().getFirst("provider");
+    if (accessToken != null) {
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          String.format(
+            "Issued ID token and access token for client %s (scope: %s)",
+            client.clientId(),
+            accessToken.scope()))
+        .write();
 
-    if (Strings.isNullOrEmpty(provider)) {
-      //
-      // The client only requested an ID token.
-      //
-
-      var idToken = issueIdToken(client);
-
-      return new TokenResponse(
-        client,
-        idToken.token(),
-        null,
-        null,
-        null,
-        null);
+      return new TokenResponse(client, idToken, accessToken);
     }
     else {
-      //
-      // The client requested an ID token and an access token.
-      //
-      var scope = request.parameters().getFirst("scope");
-      if (Strings.isNullOrEmpty(scope)) {
-        scope = DEFAULT_SCOPE;
-      }
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          String.format("Issued ID token for client %s", client.clientId()))
+        .write();
 
-      var idToken = issueIdToken(client);
-      var accessToken = issueStsToken(
-        idToken,
-        provider,
-        scope);
-
-      var serviceAccount = request.parameters().getFirst("impersonate_service_account");
-      if (!Strings.isNullOrEmpty(serviceAccount)) {
-        accessToken = issueServiceAccountAccessToken(accessToken, new UserId(serviceAccount));
-      }
-
-      return new TokenResponse(
-        client,
-        idToken.token(),
-        accessToken.token(),
-        "Bearer",
-        accessToken.expiryTime().getEpochSecond() - accessToken.issueTime().getEpochSecond(),
-        scope);
+      return new TokenResponse(client, idToken);
     }
   }
 }

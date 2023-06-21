@@ -24,14 +24,16 @@ package com.google.solutions.tokenservice.oauth;
 import java.time.Instant;
 
 /**
- * A bearer token. This could be an access token or ID token.
+ * An OAuth access token.
  *
  * @param token encoded token value
+ * @param scope scope of token
  * @param issueTime time of issuance
  * @param expiryTime time of expiry
  */
-public record BearerToken(
+public record AccessToken(
   String token,
+  String scope,
   Instant issueTime,
   Instant expiryTime
 ) {}

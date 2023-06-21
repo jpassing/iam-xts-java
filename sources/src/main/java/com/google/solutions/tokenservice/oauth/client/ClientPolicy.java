@@ -29,11 +29,11 @@ import java.time.Instant;
 import java.util.HashMap;
 
 /**
- * Policy that defines which clients are allowed to authenticate.
+ * Policy for authenticating clients.
  *
- * This is an example implementation. A real implementation might use
- * an inventory database or configuration file to authenticate clients.
- *
+ * This class contains an example implementation. A real implementation
+ * might use an inventory database or configuration file to authenticate
+ * clients.
  */
 @ApplicationScoped
 public class ClientPolicy {
@@ -48,7 +48,7 @@ public class ClientPolicy {
    * @return Client if successful
    * @throws if the client is unknown of the attributes are invalid
    */
-  public AuthenticatedClient authenticateClient(
+  public AuthenticatedClient authenticateMtlsClient(
     String clientId,
     MtlsClientCertificate attributes
   )
