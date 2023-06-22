@@ -124,6 +124,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
       scope = DEFAULT_SCOPE;
     }
 
+    // TODO: STS exchange
     var stsToken = new AccessToken("todo", "todo", Instant.now(), Instant.now());
 
     var serviceAccount = request.parameters().getFirst("impersonate_service_account");
@@ -137,6 +138,8 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
       //
       // Impersonate a service account.
       //
+
+      //TODO: Impersonate a service account.
       var serviceAccountToken =  new AccessToken("todo", "scope", Instant.now(), Instant.now());
 
       return serviceAccountToken;
@@ -206,8 +209,6 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
             client.clientId(),
             accessToken.scope()))
         .write();
-
-      return new TokenResponse(client, idToken, accessToken);
     }
     else {
       this.logAdapter
@@ -215,8 +216,8 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
           LogEvents.API_TOKEN,
           String.format("Issued ID token for client %s", client.clientId()))
         .write();
-
-      return new TokenResponse(client, idToken);
     }
+
+    return new TokenResponse(client, idToken, null);
   }
 }

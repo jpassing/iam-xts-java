@@ -24,10 +24,7 @@ package com.google.solutions.tokenservice.web;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.Exceptions;
-import com.google.solutions.tokenservice.oauth.AuthenticationFlow;
-import com.google.solutions.tokenservice.oauth.ProviderMetadata;
-import com.google.solutions.tokenservice.oauth.TokenIssuer;
-import com.google.solutions.tokenservice.oauth.TokenRequest;
+import com.google.solutions.tokenservice.oauth.*;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 
 import javax.enterprise.context.RequestScoped;
@@ -114,7 +111,7 @@ public class OAuthResource {
   @Path("token")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response post(
+  public TokenResponse post(
     @Context HttpHeaders headers,
     @FormParam("grant_type") String grantType,
     MultivaluedMap<String, String> parameters
@@ -161,12 +158,10 @@ public class OAuthResource {
       this.logAdapter
         .newInfoEntry(
           LogEvents.API_TOKEN,
-          String.format("Issued token for client '%s'", response.client().clientId()))
+          String.format("Issued value for client '%s'", response.client().clientId()))
         .write();
 
-      return Response
-        .ok(response)
-        .build();
+      return response;
     }
     catch (Exception e)
     {
@@ -178,5 +173,7 @@ public class OAuthResource {
 
       throw (Exception) e.fillInStackTrace();
     }
+
+    // TODO: Add flag to get response/errors in https://google.aip.dev/auth/4117 format
   }
 }

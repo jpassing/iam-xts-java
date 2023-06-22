@@ -42,7 +42,7 @@ public class TestTokenIssuer {
       .setIssuer(ISSUER_ID.toString())
       .setAudience("audience-1")
       .build()
-      .verify(token.token())
+      .verify(token.value())
       .getPayload();
 
     assertEquals(ISSUER_ID.toString(), verifiedPayload.getIssuer());

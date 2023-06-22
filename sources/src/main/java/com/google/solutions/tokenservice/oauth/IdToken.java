@@ -26,12 +26,12 @@ import java.time.Instant;
 /**
  * An OIDC ID token.
  *
- * @param token encoded token value.
+ * @param value encoded token.
  * @param issueTime time of issuance.
  * @param expiryTime time of expiry.
  */
 public record IdToken(
-  String token,
+  String value,
   Instant issueTime,
   Instant expiryTime
 ) {}

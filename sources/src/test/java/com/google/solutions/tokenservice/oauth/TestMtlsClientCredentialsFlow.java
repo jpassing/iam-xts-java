@@ -128,7 +128,7 @@ public class TestMtlsClientCredentialsFlow {
       .setIssuer(issuer.id().toString())
       .setAudience("client-1")
       .build()
-      .verify(response.idToken())
+      .verify(response.idToken().value())
       .getPayload();
     assertEquals(flow.name().toLowerCase(), verifiedPayload.get("amr"));
   }

@@ -39,43 +39,45 @@ public record TokenResponse(
   @JsonIgnore
   AuthorizedClient client,
 
-  @JsonProperty("id_token")
-  String idToken,
+  @JsonIgnore
+  IdToken idToken,
 
-  @JsonProperty("access_token")
-  String accessToken,
+  @JsonIgnore
+  AccessToken accessToken
 
-  @JsonProperty("token_type")
-  String accessTokenType,
-
-  @JsonProperty("expires_in")
-  Long accessTokenExpiryInSeconds,
-
-  @JsonProperty("scope")
-  String accessTokenScope
 ) {
-  public TokenResponse(
-    AuthorizedClient client,
-    IdToken idToken,
-    AccessToken accessToken) {
-    this(
-      client,
-      idToken.token(),
-      accessToken.token(),
-      "Bearer",
-      accessToken.expiryTime().getEpochSecond() - accessToken.issueTime().getEpochSecond(),
-      accessToken.scope());
+
+  @JsonProperty("id_token")
+  public String idTokenValue() {
+    return this.idToken.value();
   }
 
-  public TokenResponse(
-    AuthorizedClient client,
-    IdToken idToken) {
-    this(
-      client,
-      idToken.token(),
-      null,
-      "Bearer",
-      null,
-      null);
+  @JsonProperty("access_token")
+  public String accessTokenValue() {
+    return this.accessToken == null
+      ? null
+      : this.accessToken.value();
+  }
+
+  @JsonProperty("token_type")
+  public String accessTokenType() {
+    return this.accessToken == null
+      ? null
+      : "Bearer";
+  }
+
+  @JsonProperty("expires_in")
+  public Long accessTokenExpiryInSeconds() {
+    return this.accessToken == null
+      ? null
+      : this.accessToken.expiryTime().getEpochSecond()
+        - this.accessToken.issueTime().getEpochSecond();
+  }
+
+  @JsonProperty("scope")
+  public String accessTokenScope() {
+    return this.accessToken == null
+      ? null
+      : this.accessToken.scope();
   }
 }
