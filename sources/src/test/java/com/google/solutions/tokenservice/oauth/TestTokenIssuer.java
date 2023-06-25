@@ -32,7 +32,7 @@ public class TestTokenIssuer {
     var payload = new JsonWebToken.Payload()
       .set("test", "value");
 
-    var token = issuer.issueToken(
+    var token = issuer.issueIdToken(
       "audience-1",
       payload);
 

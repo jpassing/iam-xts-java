@@ -21,10 +21,6 @@
 
 package com.google.solutions.tokenservice.oauth;
 
-import com.google.solutions.tokenservice.platform.AccessException;
-
-import java.io.IOException;
-
 /**
  * An OAuth authentication flow.
  */
@@ -47,10 +43,12 @@ public interface AuthenticationFlow {
   /**
    * Check if the flow is applicable to the given request.
    */
-  boolean canAuthenticate(TokenRequest request);
+  boolean canAuthenticate(AuthenticationRequest request);
 
   /**
    * Authenticate user or client.
    */
-  TokenResponse authenticate(TokenRequest request) throws AccessException, IOException;
+  Authentication authenticate(
+    AuthenticationRequest request
+  ) throws Authentication.AuthenticationException;
 }

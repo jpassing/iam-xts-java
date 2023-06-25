@@ -77,7 +77,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   }
 
   @Override
-  public boolean canAuthenticate(TokenRequest request) {
+  public boolean canAuthenticate(AuthenticationRequest request) {
     var headers = this.request.headers();
 
     var certPresent = headers.get(this.options.clientCertPresentHeaderName);
@@ -110,7 +110,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     return super.canAuthenticate(request);
   }
 
-  public MtlsClientCertificate verifyClientCertificate(TokenRequest request)
+  public MtlsClientCertificate verifyClientCertificate(AuthenticationRequest request)
   {
     //
     // Verify that the client presented a certificate and that the

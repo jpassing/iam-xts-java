@@ -47,7 +47,7 @@ public class RestDispatcher<TResource> {
     //
     // Register all exception mappers.
     //
-    for (var mapper : ExceptionMappers.ALL) {
+    for (var mapper : OAuthExceptionMappers.ALL) {
       dispatcher.getProviderFactory().registerProvider(mapper);
     }
 

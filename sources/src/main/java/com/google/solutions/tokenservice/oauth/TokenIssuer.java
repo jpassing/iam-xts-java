@@ -50,15 +50,28 @@ public class TokenIssuer {
     this.serviceAccount = serviceAccount;
   }
 
+  /**
+   * @return public URL to JWKS that can be used to verify tokens.
+   */
   public URL jwksUrl() {
     return serviceAccount.jwksUrl();
   }
 
+  /**
+   * @return OIDC-compliant issuer ID.
+   */
   public URL id() {
     return this.options.id();
   }
 
-  public IdToken issueToken(
+  /**
+   * Issue a signed ID token.
+   *
+   * @param audience audience to invlude in token
+   * @param payload extra claims
+   * @return signed token
+   */
+  public IdToken issueIdToken(
     String audience,
     JsonWebToken.Payload payload
   ) throws AccessException, IOException {

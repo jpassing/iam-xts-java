@@ -21,11 +21,12 @@
 
 package com.google.solutions.tokenservice.web;
 
-import com.google.common.base.Preconditions;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.Exceptions;
 import com.google.solutions.tokenservice.oauth.*;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Instance;
@@ -36,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,6 +61,77 @@ public class OAuthResource {
 
   @Inject
   TokenIssuer tokenIssuer;
+
+
+
+  /**
+   * OAuth token endpoint.
+   */
+  private Authentication handleTokenRequest(
+    HttpHeaders headers,
+    String grantType,
+    MultivaluedMap<String, String> parameters
+  ) throws Exception {
+    if (Strings.isNullOrEmpty(grantType))
+    {
+      throw new IllegalArgumentException("A grant type is required");
+    }
+
+    //
+    // Find a flow that:
+    // - is enabled (in the configuration)
+    // - supports the requested grant type
+    // - supports the presented set of request parameters
+    //
+    var request = new AuthenticationRequest(grantType, parameters);
+    var flow = this.flows
+      .stream()
+      .filter(f -> this.configuration.getAuthenticationFlows().contains(f.name()))
+      .filter(f -> f.grantType().equals(grantType) && f.canAuthenticate(request))
+      .findFirst();
+
+    if (!flow.isPresent()) {
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          String.format(
+            "No suitable flow found for grant type '%s' (enabled flows: %s)",
+            grantType,
+            String.join(", ", this.configuration.getAuthenticationFlows())))
+        .write();
+
+      throw new IllegalArgumentException(
+        String.format("No suitable flow found for grant type '%s'", grantType)
+      );
+    }
+
+    //
+    // Run flow to authenticate the user or client.
+    //
+    try {
+      var authentication = flow.get().authenticate(request);
+
+      this.logAdapter
+        .newInfoEntry(
+          LogEvents.API_TOKEN,
+          String.format("Issued value for client '%s'", authentication.client().clientId()))
+        .write();
+
+      return authentication;
+    }
+    catch (Exception e) // TODO: Map errors
+    {
+      this.logAdapter
+        .newErrorEntry(
+          LogEvents.API_TOKEN,
+          String.format("Authentication flow failed: %s", Exceptions.getFullMessage(e)))
+        .write();
+
+      throw (Exception) e.fillInStackTrace();
+    }
+
+    // TODO: Add flag to get response/errors in https://google.aip.dev/auth/4117 format
+  }
 
   // -------------------------------------------------------------------------
   // REST resources.
@@ -111,69 +184,145 @@ public class OAuthResource {
   @Path("token")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public TokenResponse post(
+  public Response post(
     @Context HttpHeaders headers,
     @FormParam("grant_type") String grantType,
     MultivaluedMap<String, String> parameters
-  ) throws Exception {
-    if (Strings.isNullOrEmpty(grantType))
-    {
-      throw new IllegalArgumentException("A grant type is required");
-    }
-
-    //
-    // Find a flow that:
-    // - is enabled (in the configuration)
-    // - supports the requested grant type
-    // - supports the presented set of request parameters
-    //
-    var request = new TokenRequest(grantType, parameters);
-    var flow = this.flows
-      .stream()
-      .filter(f -> this.configuration.getAuthenticationFlows().contains(f.name()))
-      .filter(f -> f.grantType().equals(grantType) && f.canAuthenticate(request))
-      .findFirst();
-
-    if (!flow.isPresent()) {
-      this.logAdapter
-        .newWarningEntry(
-          LogEvents.API_TOKEN,
-          String.format(
-            "No suitable flow found for grant type '%s' (enabled flows: %s)",
-            grantType,
-            String.join(", ", this.configuration.getAuthenticationFlows())))
-        .write();
-
-      throw new IllegalArgumentException(
-        String.format("No suitable flow found for grant type '%s'", grantType)
-      );
-    }
-
-    //
-    // Run flow to authenticate the user or client.
-    //
+  ) {
     try {
-      var response = flow.get().authenticate(request);
+      var authentication = handleTokenRequest(headers, grantType, parameters);
 
-      this.logAdapter
-        .newInfoEntry(
-          LogEvents.API_TOKEN,
-          String.format("Issued value for client '%s'", response.client().clientId()))
-        .write();
+      var tokenResponse = authentication.accessToken() != null
+        ? new TokenResponse(
+          authentication.idToken().value(),
+          authentication.accessToken().value(),
+          TokenResponse.BEARER,
+          authentication.accessToken().expiryTime().getEpochSecond()
+            - authentication.accessToken().issueTime().getEpochSecond(),
+          authentication.accessToken().scope())
+        : new TokenResponse(authentication.idToken().value());
 
-      return response;
+      return Response
+        .ok()
+        .entity(tokenResponse)
+        .build();
+
+      //TODO: Log response, errors
+    }
+    catch (IllegalArgumentException e)
+    {
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(new TokenErrorResponse(TokenErrorResponse.INVALID_REQUEST, e))
+        .build();
+    }
+    catch (Authentication.InvalidClientException e)
+    {
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(new TokenErrorResponse(TokenErrorResponse.UNAUTHORIZED_CLIENT, e))
+        .build();
+    }
+    catch (Authentication.TokenIssuanceException e)
+    {
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(new TokenErrorResponse(TokenErrorResponse.TEMPORARILY_UNAVAILABLE, e))
+        .build();
     }
     catch (Exception e)
     {
-      this.logAdapter
-        .newErrorEntry(
-          LogEvents.API_TOKEN,
-          String.format("Authentication flow failed: %s", Exceptions.getFullMessage(e)))
-        .write();
-
-      throw (Exception) e.fillInStackTrace();
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(new TokenErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
+        .build();
     }
 
     // TODO: Add flag to get response/errors in https://google.aip.dev/auth/4117 format
+  }
+
+  //---------------------------------------------------------------------------
+  // Response entities.
+  //---------------------------------------------------------------------------
+
+  /*
+   * OIDC provider metadata as defined in [OIDC.Discovery], section 3.
+   */
+  public record ProviderMetadata(
+    @JsonProperty("issuer")
+    URL issuerEndpoint,
+
+    @JsonProperty("authorization_endpoint")
+    URL authorizationEndpoint,
+
+    @JsonProperty("token_endpoint")
+    URL tokenEndpoint,
+
+    @JsonProperty("jwks_uri")
+    URL jwksEndpoint,
+
+    @JsonProperty("response_types_supported")
+    Collection<String> supportedResponseTypes,
+
+    @JsonProperty("grant_types_supported")
+    Collection<String> supportedGrantTypes,
+
+    @JsonProperty("subject_types_supported")
+    Collection<String> supportedSubjectTypes,
+
+    @JsonProperty("id_token_signing_alg_values_supported")
+    Collection<String> supportedIdTokenSigningAlgorithms,
+
+    @JsonProperty("token_endpoint_auth_methods_supported")
+    Collection<String> supportedTokenEndpointAuthenticationMethods
+  ) {
+  }
+
+  /**
+   * Token response as defined in RFC6749.
+   */
+  public record TokenResponse(
+    @JsonProperty("id_token")
+    String idToken,
+
+    @JsonProperty("access_token")
+    String accessToken,
+
+    @JsonProperty("token_type")
+    String tokenType,
+
+    @JsonProperty("expires_in")
+    Long expiresInSeconds,
+
+    @JsonProperty("scope")
+    String scope)
+  {
+    public TokenResponse(String idToken) {
+      this(idToken, null, null, null, null);
+    }
+
+    public static final String BEARER = "Bearer";
+
+  }
+
+  /**
+   * Token error response entity as defined in RFC6749.
+   *
+   * @param error Error code
+   * @param description Description
+   */
+  public record TokenErrorResponse(
+    @JsonProperty("error")
+    String error,
+
+    @JsonProperty("error_description")
+    String description
+  ) {
+
+    public TokenErrorResponse(String errorCode, Exception exception) {
+      this(errorCode, exception.getMessage());
+    }
+
+    public static final String UNAUTHORIZED_CLIENT = "unauthorized_client";
+    public static final String ACCESS_DENIED = "access_denied";
+    public static final String INVALID_REQUEST = "invalid_request";
+    public static final String SERVER_ERROR = "server_error";
+    public static final String TEMPORARILY_UNAVAILABLE = "temporarily_unavailable";
   }
 }

@@ -19,18 +19,21 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.oauth;
+package com.google.solutions.tokenservice.oauth.client;
 
-import javax.ws.rs.core.MultivaluedMap;
+import java.time.Instant;
+import java.util.Map;
 
 /**
- * Token response as defined in RFC6749. The exact set
- * of parameters depends on the grant type.
+ * Authenticated client.
  *
- * @param grantType OAuth grant type.
- * @param parameters additional POST parameters.
+ * @param clientId OAuth client ID.
+ * @param authenticationTime time of authentication.
+ * @param additionalClaims claims about this client.
  */
-public record TokenRequest(
-  String grantType,
-  MultivaluedMap<String, String> parameters) {
+public record AuthenticatedClient(
+  String clientId,
+  Instant authenticationTime,
+  Map<String, String> additionalClaims
+) {
 }

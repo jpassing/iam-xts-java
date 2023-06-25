@@ -24,7 +24,6 @@ package com.google.solutions.tokenservice.oauth.client;
 import com.google.solutions.tokenservice.oauth.MtlsClientCertificate;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ForbiddenException;
 import java.time.Instant;
 import java.util.HashMap;
 
@@ -41,14 +40,14 @@ public class ClientPolicy {
   }
 
   /**
-   * Authorize a client that has previously authenticated using mTLS.
+   * Authenticate a client using an mTLS client certificate.
    *
    * @param clientId clientId conveyed in request.
    * @param attributes attributes conveyed in client certificate.
    * @return Client if successful.
    * @throws if the client is unknown of the attributes are invalid.
    */
-  public AuthorizedClient authorizeClient(
+  public AuthenticatedClient authenticateClient(
     String clientId,
     MtlsClientCertificate attributes
   )
@@ -76,7 +75,7 @@ public class ClientPolicy {
     claims.put("x5_sha256", attributes.sha256fingerprint());
     claims.put("x5_serial", attributes.serialNumber());
 
-    return new AuthorizedClient(
+    return new AuthenticatedClient(
       clientId,
       Instant.now(),
       claims);

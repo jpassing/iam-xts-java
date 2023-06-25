@@ -23,7 +23,7 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.solutions.tokenservice.oauth.client.AuthorizedClient;
+import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 
@@ -34,7 +34,6 @@ import com.google.solutions.tokenservice.platform.LogAdapter;
  * and Certificate-Bound Access Tokens).
  */
 public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
-
 
   public MtlsClientCredentialsFlow(
     ClientPolicy clientPolicy,
@@ -48,7 +47,7 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
    * Extract mTLS client certificate information, and verify its authenticity.
    */
   protected abstract MtlsClientCertificate verifyClientCertificate(
-    TokenRequest request
+    AuthenticationRequest request
   );
 
   //---------------------------------------------------------------------------
@@ -61,7 +60,7 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
   }
 
   @Override
-  protected AuthorizedClient authenticateClient(TokenRequest request) {
+  protected AuthenticatedClient authenticateClient(AuthenticationRequest request) {
     var clientId = request.parameters().getFirst("client_id");
 
     Preconditions.checkArgument(!Strings.isNullOrEmpty(clientId), "client_id is required");
@@ -70,6 +69,6 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
     // Authenticate the client based on the attributes we've gathered.
     //
     var clientAttributes = verifyClientCertificate(request);
-    return this.clientPolicy.authorizeClient(clientId, clientAttributes);
+    return this.clientPolicy.authenticateClient(clientId, clientAttributes);
   }
 }

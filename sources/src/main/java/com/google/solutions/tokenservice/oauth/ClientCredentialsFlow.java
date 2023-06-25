@@ -25,13 +25,12 @@ import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.api.client.util.GenericData;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.solutions.tokenservice.oauth.client.AuthorizedClient;
+import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.web.LogEvents;
 
-import javax.ws.rs.ForbiddenException;
 import java.io.IOException;
 import java.time.Instant;
 
@@ -58,15 +57,15 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   /**
    * Identify and authenticate the client.
    */
-  protected abstract AuthorizedClient authenticateClient(
-    TokenRequest request
+  protected abstract AuthenticatedClient authenticateClient(
+    AuthenticationRequest request
   );
 
   /**
    * Issue an ID token for an authenticated client.
    */
   protected IdToken issueIdToken(
-    AuthorizedClient client
+    AuthenticatedClient client
   ) throws AccessException, IOException {
     Preconditions.checkNotNull(client, "client");
 
@@ -90,7 +89,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     clientClaims.putAll(client.additionalClaims());
     idTokenPayload.put("client", clientClaims);
 
-    return this.issuer.issueToken(
+    return this.issuer.issueIdToken(
       client.clientId(),
       idTokenPayload);
   }
@@ -100,8 +99,8 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
    * Google service account access token.
    */
   protected AccessToken issueAccessToken(
-    TokenRequest request,
-    AuthorizedClient client,
+    AuthenticationRequest request,
+    AuthenticatedClient client,
     IdToken idToken
   ) {
     Preconditions.checkNotNull(request, "request");
@@ -140,7 +139,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
       //
 
       //TODO: Impersonate a service account.
-      var serviceAccountToken =  new AccessToken("todo", "scope", Instant.now(), Instant.now());
+      var serviceAccountToken = new AccessToken("todo", "scope", Instant.now(), Instant.now());
 
       return serviceAccountToken;
     }
@@ -156,7 +155,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
-  public boolean canAuthenticate(TokenRequest request) {
+  public boolean canAuthenticate(AuthenticationRequest request) {
     Preconditions.checkNotNull(request, "request");
 
     //
@@ -176,48 +175,54 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   }
 
   @Override
-  public final TokenResponse authenticate(
-    TokenRequest request
-  ) throws AccessException, IOException {
+  public final Authentication authenticate(
+    AuthenticationRequest request
+  ) throws Authentication.AuthenticationException {
     Preconditions.checkNotNull(request, "request");
 
     //
     // Authenticate the client.
     //
-    AuthorizedClient client;
+    AuthenticatedClient client;
     try
     {
       client = authenticateClient(request);
     }
     catch (Exception e) {
-      throw new ForbiddenException(
+      throw new Authentication.InvalidClientException(
         "The client or its credentials are invalid", e);
     }
 
     //
     // Issue tokens.
     //
-    var idToken = issueIdToken(client);
-    var accessToken = issueAccessToken(request, client, idToken);
+    try {
+      var idToken = issueIdToken(client);
+      var accessToken = issueAccessToken(request, client, idToken);
 
-    if (accessToken != null) {
-      this.logAdapter
-        .newWarningEntry(
-          LogEvents.API_TOKEN,
-          String.format(
-            "Issued ID token and access token for client %s (scope: %s)",
-            client.clientId(),
-            accessToken.scope()))
-        .write();
-    }
-    else {
-      this.logAdapter
-        .newWarningEntry(
-          LogEvents.API_TOKEN,
-          String.format("Issued ID token for client %s", client.clientId()))
-        .write();
-    }
+      if (accessToken != null) {
+        this.logAdapter
+          .newWarningEntry(
+            LogEvents.API_TOKEN,
+            String.format(
+              "Issued ID token and access token for client %s (scope: %s)",
+              client.clientId(),
+              accessToken.scope()))
+          .write();
+      }
+      else {
+        this.logAdapter
+          .newWarningEntry(
+            LogEvents.API_TOKEN,
+            String.format("Issued ID token for client %s", client.clientId()))
+          .write();
+      }
 
-    return new TokenResponse(client, idToken, null);
+      return new Authentication(client, idToken, accessToken);
+    }
+    catch (AccessException | IOException e) {
+      throw new Authentication.TokenIssuanceException(
+        "Issuing tokens failed", e);
+    }
   }
 }

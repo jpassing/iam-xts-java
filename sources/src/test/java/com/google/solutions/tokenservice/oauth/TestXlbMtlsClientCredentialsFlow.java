@@ -29,14 +29,14 @@ public class TestXlbMtlsClientCredentialsFlow {
       "X-CertNotAfter"
     );
 
-  private static TokenRequest createRequest(String clientId)
+  private static AuthenticationRequest createRequest(String clientId)
   {
     var parameters = new MultivaluedHashMap<String, String>();
     if (clientId != null) {
       parameters.add("client_id", clientId);
     }
 
-    return new TokenRequest(
+    return new AuthenticationRequest(
       "client_credentials",
       parameters);
   }

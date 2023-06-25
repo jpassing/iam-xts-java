@@ -22,8 +22,6 @@
 package com.google.solutions.tokenservice.web;
 
 import com.google.solutions.tokenservice.URLHelper;
-import com.google.solutions.tokenservice.oauth.ProviderMetadata;
-import com.google.solutions.tokenservice.oauth.TokenError;
 import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
@@ -66,7 +64,7 @@ public class TestOAuthResource {
   @Test
   public void whenPathNotMapped_ThenGetReturnsError() throws Exception {
     var response = new RestDispatcher<>(this.resource)
-      .get("/api/unknown", TokenError.class);
+      .get("/api/unknown", OAuthResource.TokenErrorResponse.class);
 
     assertEquals(404, response.getStatus());
   }
@@ -78,7 +76,7 @@ public class TestOAuthResource {
   @Test
   public void getMetadata() throws Exception {
     var response = new RestDispatcher<>(this.resource)
-      .get("/.well-known/openid-configuration", ProviderMetadata.class);
+      .get("/.well-known/openid-configuration", OAuthResource.ProviderMetadata.class);
 
     assertEquals(200, response.getStatus());
 
@@ -94,7 +92,7 @@ public class TestOAuthResource {
   @Test
   public void whenGrantTypeMissing_thenTokenReturnsError() throws Exception {
     var response = new RestDispatcher<>(this.resource)
-      .postForm("/token", Map.ofEntries(), TokenError.class);
+      .postForm("/token", Map.ofEntries(), OAuthResource.TokenErrorResponse.class);
 
     assertEquals(400, response.getStatus());
     assertEquals("invalid_request", response.getBody().error());
@@ -103,7 +101,7 @@ public class TestOAuthResource {
   @Test
   public void whenGrantTypeNotSupported_thenTokenReturnsError() throws Exception {
     var response = new RestDispatcher<>(this.resource)
-      .postForm("/token", Map.ofEntries(), TokenError.class);
+      .postForm("/token", Map.ofEntries(), OAuthResource.TokenErrorResponse.class);
 
     assertEquals(400, response.getStatus());
     assertEquals("invalid_request", response.getBody().error());
@@ -112,7 +110,7 @@ public class TestOAuthResource {
   @Test
   public void whenContentTypeWrong_thenTokenReturnsError() throws Exception {
     var response = new RestDispatcher<>(this.resource)
-      .post("/token", TokenError.class);
+      .post("/token", OAuthResource.TokenErrorResponse.class);
 
     assertEquals(415, response.getStatus());
   }
