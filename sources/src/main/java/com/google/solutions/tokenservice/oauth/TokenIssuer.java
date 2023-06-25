@@ -23,6 +23,8 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.ServiceAccount;
 
@@ -67,12 +69,12 @@ public class TokenIssuer {
   /**
    * Issue a signed ID token.
    *
-   * @param audience audience to invlude in token
+   * @param client
    * @param payload extra claims
    * @return signed token
    */
   public IdToken issueIdToken(
-    String audience,
+    AuthenticatedClient client,
     JsonWebToken.Payload payload
   ) throws AccessException, IOException {
     Preconditions.checkNotNull(payload, "payload");
@@ -90,6 +92,10 @@ public class TokenIssuer {
     //
     var issueTime = Instant.now();
     var expiryTime = issueTime.plus(this.options.tokenExiry);
+
+    var audience = this.options.tokenAudience != null // TODO: test
+      ? this.options.tokenAudience.toString()
+      : client.clientId();
 
     var jwtPayload = payload
       .setIssuer(this.options.id().toString())
@@ -110,6 +116,7 @@ public class TokenIssuer {
 
   public record Options(
     URL id,
+    URL tokenAudience,
     Duration tokenExiry
   ) {}
 }

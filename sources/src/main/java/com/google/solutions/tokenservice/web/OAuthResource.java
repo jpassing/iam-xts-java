@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.Exceptions;
 import com.google.solutions.tokenservice.oauth.*;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import org.checkerframework.checker.units.qual.A;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Instance;
@@ -86,7 +85,7 @@ public class OAuthResource {
     var request = new AuthenticationRequest(grantType, parameters);
     var flow = this.flows
       .stream()
-      .filter(f -> this.configuration.getAuthenticationFlows().contains(f.name()))
+      .filter(f -> this.configuration.authenticationFlows().contains(f.name()))
       .filter(f -> f.grantType().equals(grantType) && f.canAuthenticate(request))
       .findFirst();
 
@@ -97,7 +96,7 @@ public class OAuthResource {
           String.format(
             "No suitable flow found for grant type '%s' (enabled flows: %s)",
             grantType,
-            String.join(", ", this.configuration.getAuthenticationFlows())))
+            String.join(", ", this.configuration.authenticationFlows())))
         .write();
 
       throw new IllegalArgumentException(
@@ -119,7 +118,7 @@ public class OAuthResource {
 
       return authentication;
     }
-    catch (Exception e) // TODO: Map errors
+    catch (Exception e)
     {
       this.logAdapter
         .newErrorEntry(
@@ -129,8 +128,6 @@ public class OAuthResource {
 
       throw (Exception) e.fillInStackTrace();
     }
-
-    // TODO: Add flag to get response/errors in https://google.aip.dev/auth/4117 format
   }
 
   // -------------------------------------------------------------------------
@@ -187,54 +184,90 @@ public class OAuthResource {
   public Response post(
     @Context HttpHeaders headers,
     @FormParam("grant_type") String grantType,
+    @FormParam("format") String format,
     MultivaluedMap<String, String> parameters
   ) {
-    try {
-      var authentication = handleTokenRequest(headers, grantType, parameters);
+    if ("external_credential".equals(format))
+    {
+      //
+      // Return results in a format that's consumable by client libraries,
+      // see https://google.aip.dev/auth/4117.
+      //
+      try {
+        var authentication = handleTokenRequest(headers, grantType, parameters);
 
-      var tokenResponse = authentication.accessToken() != null
-        ? new TokenResponse(
+        return Response
+          .ok()
+          .entity(new ExternalCredentialResponse(
+            authentication.idToken().value(),
+            authentication.idToken().expiryTime().getEpochSecond()
+              - authentication.idToken().issueTime().getEpochSecond()))
+          .build();
+      }
+      catch (IllegalArgumentException e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.INVALID_REQUEST, e))
+          .build();
+      }
+      catch (Authentication.InvalidClientException e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.UNAUTHORIZED_CLIENT, e))
+          .build();
+      }
+      catch (Authentication.TokenIssuanceException e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.TEMPORARILY_UNAVAILABLE, e))
+          .build();
+      }
+      catch (Exception e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
+          .build();
+      }
+    }
+    else {
+      //
+      // Return results in standard OAuth format.
+      //
+      try {
+        var authentication = handleTokenRequest(headers, grantType, parameters);
+
+        var tokenResponse = authentication.accessToken() != null
+          ? new TokenResponse(
           authentication.idToken().value(),
           authentication.accessToken().value(),
           TokenResponse.BEARER,
           authentication.accessToken().expiryTime().getEpochSecond()
             - authentication.accessToken().issueTime().getEpochSecond(),
           authentication.accessToken().scope())
-        : new TokenResponse(authentication.idToken().value());
+          : new TokenResponse(authentication.idToken().value());
 
-      return Response
-        .ok()
-        .entity(tokenResponse)
-        .build();
-
-      //TODO: Log response, errors
+        return Response
+          .ok()
+          .entity(tokenResponse)
+          .build();
+      }
+      catch (IllegalArgumentException e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new TokenErrorResponse(TokenErrorResponse.INVALID_REQUEST, e))
+          .build();
+      }
+      catch (Authentication.InvalidClientException e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new TokenErrorResponse(TokenErrorResponse.UNAUTHORIZED_CLIENT, e))
+          .build();
+      }
+      catch (Authentication.TokenIssuanceException e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new TokenErrorResponse(TokenErrorResponse.TEMPORARILY_UNAVAILABLE, e))
+          .build();
+      }
+      catch (Exception e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(new TokenErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
+          .build();
+      }
     }
-    catch (IllegalArgumentException e)
-    {
-      return Response.status(Response.Status.BAD_REQUEST)
-        .entity(new TokenErrorResponse(TokenErrorResponse.INVALID_REQUEST, e))
-        .build();
-    }
-    catch (Authentication.InvalidClientException e)
-    {
-      return Response.status(Response.Status.BAD_REQUEST)
-        .entity(new TokenErrorResponse(TokenErrorResponse.UNAUTHORIZED_CLIENT, e))
-        .build();
-    }
-    catch (Authentication.TokenIssuanceException e)
-    {
-      return Response.status(Response.Status.BAD_REQUEST)
-        .entity(new TokenErrorResponse(TokenErrorResponse.TEMPORARILY_UNAVAILABLE, e))
-        .build();
-    }
-    catch (Exception e)
-    {
-      return Response.status(Response.Status.BAD_REQUEST)
-        .entity(new TokenErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
-        .build();
-    }
-
-    // TODO: Add flag to get response/errors in https://google.aip.dev/auth/4117 format
   }
 
   //---------------------------------------------------------------------------
@@ -324,5 +357,57 @@ public class OAuthResource {
     public static final String INVALID_REQUEST = "invalid_request";
     public static final String SERVER_ERROR = "server_error";
     public static final String TEMPORARILY_UNAVAILABLE = "temporarily_unavailable";
+  }
+
+  /**
+   * External credential response entity as defined in https://google.aip.dev/auth/4117.
+   */
+  public record ExternalCredentialResponse(
+    @JsonProperty("id_token")
+    String idToken,
+
+    @JsonProperty("expiration_time")
+    long expirationTime
+  ) {
+    @JsonProperty("token_type")
+    String tokenType() {
+      return "urn:ietf:params:oauth:token-type:id_token";
+    }
+
+    @JsonProperty("version")
+    public int version() {
+      return 1;
+    }
+
+    @JsonProperty("success")
+    public boolean success() {
+      return true;
+    }
+  }
+
+  /**
+   * External credential error entity as defined in https://google.aip.dev/auth/4117.
+   */
+  public record ExternalCredentialErrorResponse(
+    @JsonProperty("code")
+    String code,
+
+    @JsonProperty("message")
+    String message
+  ) {
+
+    public ExternalCredentialErrorResponse(String errorCode, Exception exception) {
+      this(errorCode, exception.getMessage());
+    }
+
+    @JsonProperty("version")
+    public int version() {
+      return 1;
+    }
+
+    @JsonProperty("success")
+    public boolean success() {
+      return false;
+    }
   }
 }

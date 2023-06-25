@@ -21,8 +21,11 @@
 
 package com.google.solutions.tokenservice.web;
 
+import com.google.common.base.Strings;
+import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 
+import java.net.URL;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
@@ -34,6 +37,10 @@ public class RuntimeConfiguration {
   private final StringSetting authenticationFlows = new StringSetting(
     List.of("AUTH_FLOWS"),
     XlbMtlsClientCredentialsFlow.NAME); //TODO: Disable all flows by default.
+
+  protected final StringSetting tokenAudience = new StringSetting(
+    List.of("TOKEN_AUDIENCE"),
+    null);
 
   protected final DurationSetting tokenValidity = new DurationSetting(
     List.of("TOKEN_VALIDITY"),
@@ -90,8 +97,7 @@ public class RuntimeConfiguration {
   /**
    * List of enabled authentication flows.
    */
-  public Set<String> getAuthenticationFlows()
-  {
+  public Set<String> authenticationFlows() {
     return Arrays.stream(this.authenticationFlows.getValue()
       .split(","))
       .filter(s -> !s.isEmpty())

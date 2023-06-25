@@ -31,7 +31,9 @@ import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.ApplicationVersion;
+import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
@@ -261,6 +263,9 @@ public class RuntimeEnvironment {
 
     return new TokenIssuer.Options(
       baseUri,
+      Strings.isNullOrEmpty(this.configuration.tokenAudience.getValue())
+        ? null
+        : URLHelper.fromString(this.configuration.tokenAudience.getValue()),
       this.configuration.tokenValidity.getValue()
     );
   }

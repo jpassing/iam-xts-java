@@ -39,7 +39,7 @@ public class TestRuntimeConfiguration {
   public void whenNotSet_ThenAuthenticationFlowsReturnsDefault() {
     var configuration = new RuntimeConfiguration(Map.of());
 
-    var flows = configuration.getAuthenticationFlows();
+    var flows = configuration.authenticationFlows();
     assertEquals(Set.of(XlbMtlsClientCredentialsFlow.NAME), flows);
   }
 
@@ -48,7 +48,7 @@ public class TestRuntimeConfiguration {
     var settings = Map.of("AUTH_FLOWS", " flow1,,  flow2 ,");
     var configuration = new RuntimeConfiguration(settings);
 
-    var flows = configuration.getAuthenticationFlows();
+    var flows = configuration.authenticationFlows();
     assertEquals(2, flows.size());
     assertEquals(Set.of("flow1", "flow2"), flows);
   }

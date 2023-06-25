@@ -38,8 +38,6 @@ import java.time.Instant;
  * Flow for authenticating clients.
  */
 public abstract class ClientCredentialsFlow implements AuthenticationFlow {
-  private final String DEFAULT_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
-
   private final TokenIssuer issuer;
   protected final LogAdapter logAdapter;
   protected final ClientPolicy clientPolicy;
@@ -90,7 +88,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     idTokenPayload.put("client", clientClaims);
 
     return this.issuer.issueIdToken(
-      client.clientId(),
+      client,
       idTokenPayload);
   }
 
@@ -107,20 +105,13 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     Preconditions.checkNotNull(client, "client");
     Preconditions.checkNotNull(idToken, "idToken");
 
-    var provider = request.parameters().getFirst("provider");
-    if (Strings.isNullOrEmpty(provider)) {
-      //
-      // The client did not request an access token.
-      //
-      return null;
-    }
-
-    //
-    // Use the ID token and provider to perform an STS token exchange.
-    //
     var scope = request.parameters().getFirst("scope");
     if (Strings.isNullOrEmpty(scope)) {
-      scope = DEFAULT_SCOPE;
+      //
+      // No scope specified, so we don't need to issue an
+      // access token.
+      //
+      return null;
     }
 
     // TODO: STS exchange

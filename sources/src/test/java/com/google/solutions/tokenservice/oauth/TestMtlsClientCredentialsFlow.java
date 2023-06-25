@@ -110,7 +110,7 @@ public class TestMtlsClientCredentialsFlow {
       .thenReturn(client);
 
     var issuer = new TokenIssuer(
-      new TokenIssuer.Options(ISSUER_ID, Duration.ofMinutes(1)),
+      new TokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
 
     var flow = new Flow(
