@@ -10,7 +10,6 @@ import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.net.URL;
 import java.time.Duration;
@@ -27,7 +26,7 @@ public class TestMtlsClientCredentialsFlow {
 
   private static class Flow extends  MtlsClientCredentialsFlow
   {
-    public Flow(ClientPolicy clientPolicy, TokenIssuer issuer) {
+    public Flow(ClientPolicy clientPolicy, IdTokenIssuer issuer) {
       super(
         clientPolicy,
         issuer,
@@ -58,6 +57,33 @@ public class TestMtlsClientCredentialsFlow {
       parameters);
   }
 
+
+  // -------------------------------------------------------------------------
+  // canAuthenticate.
+  // -------------------------------------------------------------------------
+
+  @Test
+  public void whenClientIdMissing_thenCanAuthenticateReturnsFalse()
+  {
+    var flow = new Flow(
+      Mockito.mock(ClientPolicy.class),
+      Mockito.mock(IdTokenIssuer.class));
+
+    var request = createRequest(null);
+    assertFalse(flow.canAuthenticate(request));
+  }
+
+  @Test
+  public void whenClientIdEmpty_thenCanAuthenticateReturnsFalse()
+  {
+    var flow = new Flow(
+      Mockito.mock(ClientPolicy.class),
+      Mockito.mock(IdTokenIssuer.class));
+
+    var request = createRequest("");
+    assertFalse(flow.canAuthenticate(request));
+  }
+
   // -------------------------------------------------------------------------
   // authenticate.
   // -------------------------------------------------------------------------
@@ -70,7 +96,7 @@ public class TestMtlsClientCredentialsFlow {
 
     var flow = new Flow(
       clientRepository,
-      Mockito.mock(TokenIssuer.class));
+      Mockito.mock(IdTokenIssuer.class));
 
     assertThrows(
       Authentication.InvalidClientException.class,
@@ -88,8 +114,8 @@ public class TestMtlsClientCredentialsFlow {
     when(clientRepository.authenticateClient(eq("client-1"), any()))
       .thenReturn(client);
 
-    var issuer = new TokenIssuer(
-      new TokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1)),
+    var issuer = new IdTokenIssuer(
+      new IdTokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
 
     var flow = new Flow(

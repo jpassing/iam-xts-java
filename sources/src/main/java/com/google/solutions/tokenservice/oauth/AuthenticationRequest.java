@@ -24,8 +24,9 @@ package com.google.solutions.tokenservice.oauth;
 import javax.ws.rs.core.MultivaluedMap;
 
 /**
- * Token response as defined in RFC6749. The exact set
- * of parameters depends on the grant type.
+ * Authentication request containing the parameters provided
+ * by the client. The exact set of parameters depends on the
+ * grant type.
  *
  * @param grantType OAuth grant type.
  * @param parameters additional POST parameters.

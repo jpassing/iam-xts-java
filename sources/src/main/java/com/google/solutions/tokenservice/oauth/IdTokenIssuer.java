@@ -34,13 +34,19 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Issuer for ID tokens.
+ *
+ * To avoid having to manage a dedicated signing key pair, the class uses
+ * a service account and its Google-managed key pair to sign tokens.
+ */
 @ApplicationScoped
-public class TokenIssuer {
+public class IdTokenIssuer {
   public static final Duration ALLOWED_CLOCK_SKEW = Duration.ofMinutes(5);
   private final Options options;
   private final ServiceAccount serviceAccount;
 
-  public TokenIssuer(
+  public IdTokenIssuer(
     Options options,
     ServiceAccount serviceAccount
   ) {

@@ -27,6 +27,7 @@ import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
+import com.google.solutions.tokenservice.web.LogEvents;
 
 /**
  * Flow that authenticates clients using mTLS.
@@ -40,7 +41,7 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
 
   public MtlsClientCredentialsFlow(
     ClientPolicy clientPolicy,
-    TokenIssuer issuer,
+    IdTokenIssuer issuer,
     WorkloadIdentityPool workloadIdentityPool,
     LogAdapter logAdapter
   ) {
@@ -62,6 +63,27 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
   @Override
   public String authenticationMethod() {
     return "tls_client_auth";
+  }
+
+
+  @Override
+  public boolean canAuthenticate(AuthenticationRequest request) {
+    Preconditions.checkNotNull(request, "request");
+
+    //
+    // Check if the client provided a client_id. Subclasses
+    // may perform additional checks.
+    //
+    if (Strings.isNullOrEmpty(request.parameters().getFirst("client_id"))) {
+      this.logAdapter
+        .newWarningEntry(
+          LogEvents.API_TOKEN,
+          "The request lacks a required parameter: client_id")
+        .write();
+      return false;
+    }
+
+    return true;
   }
 
   @Override

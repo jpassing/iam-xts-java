@@ -29,25 +29,23 @@ import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.platform.ServiceAccount;
 import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.web.LogEvents;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 /**
- * Flow for authenticating clients.
+ * Abstract implementation of the OAuth client credentials flow.
  */
 public abstract class ClientCredentialsFlow implements AuthenticationFlow {
-  private final TokenIssuer issuer;
+  private final IdTokenIssuer issuer;
   private final WorkloadIdentityPool workloadIdentityPool;
   protected final LogAdapter logAdapter;
 
   public ClientCredentialsFlow(
-    TokenIssuer issuer,
+    IdTokenIssuer issuer,
     WorkloadIdentityPool workloadIdentityPool,
     LogAdapter logAdapter
   ) {
@@ -76,8 +74,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     // include the following claims:
     //
     // - amr: the name of the flow.
-    // - aud: audience(s) that this ID Token is intended for. It MUST contain the
-    //        OAuth 2.0 client_id of the relying party as an audience value.
+    // - aud: audience that the ID Token is intended for.
     // - client: JSON object containing claims about the client.
     //
     // NB. Because this is a client-credentials flow, we don't set a 'sub' claim.
@@ -97,8 +94,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   }
 
   /**
-   * Issue an access token. This can be a Google STS token or a
-   * Google service account access token.
+   * Issue an access token.
    */
   protected AccessToken issueAccessToken(
     AuthenticationRequest request,
@@ -124,6 +120,10 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     //
     var stsAccessToken = this.workloadIdentityPool.issueAccessToken(idToken, scope);
 
+    //
+    // If requested, use the STS token to impersonate a service
+    // account.
+    //
     var serviceAccountEmail = request.parameters().getFirst("service_account");
     if (!Strings.isNullOrEmpty(serviceAccountEmail) &&
         serviceAccountEmail.contains("@")) {
@@ -132,6 +132,9 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
         new UserId(serviceAccountEmail),
         stsAccessToken);
 
+      //
+      // Apply duration from ID token.
+      //
       return serviceAccount.generateAccessToken(
         List.of(scope),
         Duration.between(idToken.issueTime(), idToken.expiryTime()));
@@ -153,20 +156,6 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   @Override
   public boolean canAuthenticate(AuthenticationRequest request) {
     Preconditions.checkNotNull(request, "request");
-
-    //
-    // Check if the client provided a client_id. Subclasses
-    // may perform additional checks.
-    //
-    if (Strings.isNullOrEmpty(request.parameters().getFirst("client_id"))) {
-      this.logAdapter
-        .newWarningEntry(
-          LogEvents.API_TOKEN,
-          "The request lacks a required parameter: client_id")
-        .write();
-      return false;
-    }
-
     return true;
   }
 
@@ -190,7 +179,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     }
 
     //
-    // Issue ID token.
+    // Issue an ID token.
     //
     IdToken idToken;
     try {
@@ -203,7 +192,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     }
 
     //
-    // Issue access token if requested.
+    // Issue an access token if requested.
     //
     try {
       var accessToken = issueAccessToken(request, client, idToken);

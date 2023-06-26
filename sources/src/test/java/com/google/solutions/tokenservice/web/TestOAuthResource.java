@@ -22,7 +22,7 @@
 package com.google.solutions.tokenservice.web;
 
 import com.google.solutions.tokenservice.URLHelper;
-import com.google.solutions.tokenservice.oauth.TokenIssuer;
+import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,15 +30,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.enterprise.inject.Instance;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 public class TestOAuthResource {
 
@@ -51,8 +48,8 @@ public class TestOAuthResource {
     this.resource = new OAuthResource();
     this.resource.logAdapter = new LogAdapter();
     this.resource.runtimeEnvironment = Mockito.mock(RuntimeEnvironment.class);
-    this.resource.tokenIssuer = new TokenIssuer(
-      new TokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(5)),
+    this.resource.tokenIssuer = new IdTokenIssuer(
+      new IdTokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(5)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
     this.resource.flows = Mockito.mock(Instance.class);
   }

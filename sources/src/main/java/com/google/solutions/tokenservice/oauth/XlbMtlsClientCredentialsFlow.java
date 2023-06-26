@@ -61,7 +61,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   public XlbMtlsClientCredentialsFlow(
     Options options,
     ClientPolicy clientRepository,
-    TokenIssuer issuer,
+    IdTokenIssuer issuer,
     WorkloadIdentityPool workloadIdentityPool,
     HttpServerRequest request,
     LogAdapter logAdapter

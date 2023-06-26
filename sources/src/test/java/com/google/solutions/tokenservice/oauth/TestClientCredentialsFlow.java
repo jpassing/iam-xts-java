@@ -1,11 +1,9 @@
 package com.google.solutions.tokenservice.oauth;
 
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
-import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -20,7 +18,7 @@ import static org.wildfly.common.Assert.assertTrue;
 public class TestClientCredentialsFlow {
   private static class Flow extends ClientCredentialsFlow
   {
-    public Flow(TokenIssuer issuer, WorkloadIdentityPool pool) {
+    public Flow(IdTokenIssuer issuer, WorkloadIdentityPool pool) {
       super(
         issuer,
         pool,
@@ -55,32 +53,6 @@ public class TestClientCredentialsFlow {
       parameters);
   }
 
-  // -------------------------------------------------------------------------
-  // canAuthenticate.
-  // -------------------------------------------------------------------------
-
-  @Test
-  public void whenClientIdMissing_thenCanAuthenticateReturnsFalse()
-  {
-    var flow = new Flow(
-      Mockito.mock(TokenIssuer.class),
-      Mockito.mock(WorkloadIdentityPool.class));
-
-    var request = createRequest(null);
-    assertFalse(flow.canAuthenticate(request));
-  }
-
-  @Test
-  public void whenClientIdEmpty_thenCanAuthenticateReturnsFalse()
-  {
-    var flow = new Flow(
-      Mockito.mock(TokenIssuer.class),
-      Mockito.mock(WorkloadIdentityPool.class));
-
-    var request = createRequest("");
-    assertFalse(flow.canAuthenticate(request));
-  }
-
   //---------------------------------------------------------------------------
   // authenticate.
   //---------------------------------------------------------------------------
@@ -88,7 +60,7 @@ public class TestClientCredentialsFlow {
   @Test
   public void whenAuthenticationFails_thenAuthenticateThrowsException() {
     var flow = new Flow(
-      Mockito.mock(TokenIssuer.class),
+      Mockito.mock(IdTokenIssuer.class),
       Mockito.mock(WorkloadIdentityPool.class)
     ) {
       @Override
@@ -106,7 +78,7 @@ public class TestClientCredentialsFlow {
   public void whenAuthenticationSucceeds_thenAuthenticateIssuesIdToken() throws Exception {
     var idToken = new IdToken("id-token", Instant.now(), Instant.MAX);
 
-    var issuer = Mockito.mock(TokenIssuer.class);
+    var issuer = Mockito.mock(IdTokenIssuer.class);
     when(issuer.issueIdToken(any(), any())).thenReturn(idToken);
 
     var flow = new Flow(
@@ -125,7 +97,7 @@ public class TestClientCredentialsFlow {
     var idToken = new IdToken("id-token", Instant.now(), Instant.MAX);
     var accessToken = new StsAccessToken("access-token", "scope-1", Instant.now(), Instant.MAX);
 
-    var issuer = Mockito.mock(TokenIssuer.class);
+    var issuer = Mockito.mock(IdTokenIssuer.class);
     when(issuer.issueIdToken(any(), any())).thenReturn(idToken);
 
     var pool = Mockito.mock(WorkloadIdentityPool.class);

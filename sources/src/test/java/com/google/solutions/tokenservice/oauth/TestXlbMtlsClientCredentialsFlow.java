@@ -56,7 +56,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class),
+      Mockito.mock(IdTokenIssuer.class),
       Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
@@ -77,7 +77,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class),
+      Mockito.mock(IdTokenIssuer.class),
       Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
@@ -98,7 +98,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class),
+      Mockito.mock(IdTokenIssuer.class),
       Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
@@ -119,7 +119,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class),
+      Mockito.mock(IdTokenIssuer.class),
       Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
@@ -145,7 +145,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class),
+      Mockito.mock(IdTokenIssuer.class),
       Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
@@ -171,7 +171,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class),
+      Mockito.mock(IdTokenIssuer.class),
       Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());

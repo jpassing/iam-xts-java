@@ -7,7 +7,6 @@ import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
 import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.wildfly.common.Assert.assertTrue;
 
-public class TestTokenIssuer {
+public class TestIdTokenIssuer {
   private static final URL ISSUER_ID = URLHelper.fromString("http://example.com/");
 
   // -------------------------------------------------------------------------
@@ -28,8 +27,8 @@ public class TestTokenIssuer {
   public void whenNoAudienceConfigured_thenIssueTokenCreatesTokenForClient() throws Exception {
     var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
 
-    var issuer = new TokenIssuer(
-      new TokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1)),
+    var issuer = new IdTokenIssuer(
+      new IdTokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1)),
       serviceAccount);
 
     var payload = new JsonWebToken.Payload()
@@ -61,8 +60,8 @@ public class TestTokenIssuer {
   public void whenAudienceConfigured_thenIssueTokenCreatesTokenForAudience() throws Exception {
     var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
 
-    var issuer = new TokenIssuer(
-      new TokenIssuer.Options(
+    var issuer = new IdTokenIssuer(
+      new IdTokenIssuer.Options(
         ISSUER_ID,
         URLHelper.fromString("https://example.com/"),
         Duration.ofMinutes(1)),
@@ -97,8 +96,8 @@ public class TestTokenIssuer {
   public void issueTokenSetsValidity() throws Exception {
     var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
 
-    var issuerOptions = new TokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1));
-    var issuer = new TokenIssuer(
+    var issuerOptions = new IdTokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1));
+    var issuer = new IdTokenIssuer(
       issuerOptions,
       serviceAccount);
 
@@ -119,7 +118,7 @@ public class TestTokenIssuer {
 
     assertEquals(
       verifiedPayload.getNotBeforeTimeSeconds(),
-      token.issueTime().minus(TokenIssuer.ALLOWED_CLOCK_SKEW).getEpochSecond());
+      token.issueTime().minus(IdTokenIssuer.ALLOWED_CLOCK_SKEW).getEpochSecond());
 
     assertEquals(
       verifiedPayload.getExpirationTimeSeconds(),

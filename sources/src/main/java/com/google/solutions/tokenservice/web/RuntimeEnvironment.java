@@ -31,11 +31,9 @@ import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.ApplicationVersion;
-import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
-import com.google.solutions.tokenservice.oauth.TokenIssuer;
+import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
 import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.platform.ServiceAccount;
@@ -45,11 +43,8 @@ import io.vertx.core.http.HttpServerRequest;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.stream.Collectors;
@@ -254,7 +249,7 @@ public class RuntimeEnvironment {
 
   @Produces
   @Dependent
-  public TokenIssuer.Options getTokenIssuerOptions(
+  public IdTokenIssuer.Options getTokenIssuerOptions(
     HttpServerRequest request
   ) throws MalformedURLException {
     //
@@ -262,7 +257,7 @@ public class RuntimeEnvironment {
     //
     var baseUri = new URL(new URL(request.absoluteURI()), "/");
 
-    return new TokenIssuer.Options(
+    return new IdTokenIssuer.Options(
       baseUri,
       getWorkloadIdentityPoolOptions().expectedTokenAudience(),
       this.configuration.tokenValidity.getValue()

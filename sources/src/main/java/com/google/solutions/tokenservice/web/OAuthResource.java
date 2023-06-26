@@ -59,7 +59,7 @@ public class OAuthResource {
   Instance<AuthenticationFlow> flows;
 
   @Inject
-  TokenIssuer tokenIssuer;
+  IdTokenIssuer tokenIssuer;
 
 
 
