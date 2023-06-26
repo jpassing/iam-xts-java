@@ -38,7 +38,7 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 
 /**
- * Service account.
+ * Adapter class for interacting with the IAM Credentials API.
  */
 public class ServiceAccount {
   public static final String OAUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
