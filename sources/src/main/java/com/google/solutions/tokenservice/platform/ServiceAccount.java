@@ -39,6 +39,7 @@ import com.google.solutions.tokenservice.oauth.AccessToken;
 import com.google.solutions.tokenservice.oauth.ServiceAccountAccessToken;
 import com.google.solutions.tokenservice.oauth.StsAccessToken;
 
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
