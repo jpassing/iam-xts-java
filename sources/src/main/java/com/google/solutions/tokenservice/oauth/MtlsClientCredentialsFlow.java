@@ -35,12 +35,15 @@ import com.google.solutions.tokenservice.platform.LogAdapter;
  */
 public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
 
+  protected final ClientPolicy clientPolicy;
+
   public MtlsClientCredentialsFlow(
     ClientPolicy clientPolicy,
     TokenIssuer issuer,
     LogAdapter logAdapter
   ) {
-    super(clientPolicy, issuer, logAdapter);
+    super(issuer, logAdapter);
+    this.clientPolicy = clientPolicy;
   }
 
   /**

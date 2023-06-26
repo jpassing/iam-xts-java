@@ -7,6 +7,7 @@ import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Resource;
 import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
@@ -49,7 +50,7 @@ public class TestTokenIssuer {
       .getPayload();
 
     assertEquals(ISSUER_ID.toString(), verifiedPayload.getIssuer());
-    assertEquals("audience-1", verifiedPayload.getAudience());
+    assertEquals("client-1", verifiedPayload.getAudience());
     assertNotNull(verifiedPayload.getNotBeforeTimeSeconds());
     assertNotNull(verifiedPayload.getExpirationTimeSeconds());
     assertTrue(token.expiryTime().isAfter(Instant.now()));
@@ -85,10 +86,43 @@ public class TestTokenIssuer {
       .getPayload();
 
     assertEquals(ISSUER_ID.toString(), verifiedPayload.getIssuer());
-    assertEquals("audience-1", verifiedPayload.getAudience());
+    assertEquals("https://example.com/", verifiedPayload.getAudience());
     assertNotNull(verifiedPayload.getNotBeforeTimeSeconds());
     assertNotNull(verifiedPayload.getExpirationTimeSeconds());
     assertTrue(token.expiryTime().isAfter(Instant.now()));
     assertEquals("value", verifiedPayload.get("test"));
+  }
+
+  @Test
+  public void issueTokenSetsValidity() throws Exception {
+    var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
+
+    var issuerOptions = new TokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1));
+    var issuer = new TokenIssuer(
+      issuerOptions,
+      serviceAccount);
+
+    var client = new AuthenticatedClient("client-1", Instant.now(), Map.of());
+    var token = issuer.issueIdToken(
+      client,
+      new JsonWebToken.Payload());
+
+
+    var verifiedPayload = TokenVerifier
+      .newBuilder()
+      .setCertificatesLocation(serviceAccount.jwksUrl().toString())
+      .setIssuer(ISSUER_ID.toString())
+      .setAudience("client-1")
+      .build()
+      .verify(token.value())
+      .getPayload();
+
+    assertEquals(
+      verifiedPayload.getNotBeforeTimeSeconds(),
+      token.issueTime().minus(TokenIssuer.ALLOWED_CLOCK_SKEW).getEpochSecond());
+
+    assertEquals(
+      verifiedPayload.getExpirationTimeSeconds(),
+      token.issueTime().plus(issuerOptions.tokenExiry()).getEpochSecond());
   }
 }

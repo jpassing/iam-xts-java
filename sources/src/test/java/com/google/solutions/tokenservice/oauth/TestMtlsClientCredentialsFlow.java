@@ -24,10 +24,10 @@ import static org.mockito.Mockito.when;
 public class TestMtlsClientCredentialsFlow {
   private static final URL ISSUER_ID = URLHelper.fromString("http://example.com/");
 
-  private class Flow extends  MtlsClientCredentialsFlow
+  private static class Flow extends  MtlsClientCredentialsFlow
   {
-    public Flow(ClientPolicy clientRepository, TokenIssuer issuer) {
-      super(clientRepository, issuer, new LogAdapter());
+    public Flow(ClientPolicy clientPolicy, TokenIssuer issuer) {
+      super(clientPolicy, issuer, new LogAdapter());
     }
 
     @Override
@@ -51,32 +51,6 @@ public class TestMtlsClientCredentialsFlow {
     return new AuthenticationRequest(
       "client_credentials",
       parameters);
-  }
-
-  // -------------------------------------------------------------------------
-  // canAuthenticate.
-  // -------------------------------------------------------------------------
-
-  @Test
-  public void whenClientIdMissing_thenCanAuthenticateReturnsFalse()
-  {
-    var flow = new Flow(
-      Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class));
-
-    var request = createRequest(null);
-    assertFalse(flow.canAuthenticate(request));
-  }
-
-  @Test
-  public void whenClientIdEmpty_thenCanAuthenticateReturnsFalse()
-  {
-    var flow = new Flow(
-      Mockito.mock(ClientPolicy.class),
-      Mockito.mock(TokenIssuer.class));
-
-    var request = createRequest("");
-    assertFalse(flow.canAuthenticate(request));
   }
 
   // -------------------------------------------------------------------------

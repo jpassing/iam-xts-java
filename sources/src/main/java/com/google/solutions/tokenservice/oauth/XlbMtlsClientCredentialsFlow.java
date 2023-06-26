@@ -21,6 +21,7 @@
 
 package com.google.solutions.tokenservice.oauth;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
@@ -78,6 +79,8 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
 
   @Override
   public boolean canAuthenticate(AuthenticationRequest request) {
+    Preconditions.checkNotNull(request, "request");
+
     var headers = this.request.headers();
 
     var certPresent = headers.get(this.options.clientCertPresentHeaderName);

@@ -40,14 +40,11 @@ import java.time.Instant;
 public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   private final TokenIssuer issuer;
   protected final LogAdapter logAdapter;
-  protected final ClientPolicy clientPolicy;
 
   public ClientCredentialsFlow(
-    ClientPolicy clientPolicy,
     TokenIssuer issuer,
     LogAdapter logAdapter
   ) {
-    this.clientPolicy = clientPolicy;
     this.issuer = issuer;
     this.logAdapter = logAdapter;
   }

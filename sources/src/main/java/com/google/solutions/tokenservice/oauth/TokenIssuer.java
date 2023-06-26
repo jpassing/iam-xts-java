@@ -23,7 +23,6 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.ServiceAccount;
@@ -37,6 +36,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class TokenIssuer {
+  public static final Duration ALLOWED_CLOCK_SKEW = Duration.ofMinutes(5);
   private final Options options;
   private final ServiceAccount serviceAccount;
 
@@ -77,6 +77,7 @@ public class TokenIssuer {
     AuthenticatedClient client,
     JsonWebToken.Payload payload
   ) throws AccessException, IOException {
+    Preconditions.checkNotNull(client, "client");
     Preconditions.checkNotNull(payload, "payload");
 
     //
@@ -93,14 +94,14 @@ public class TokenIssuer {
     var issueTime = Instant.now();
     var expiryTime = issueTime.plus(this.options.tokenExiry);
 
-    var audience = this.options.tokenAudience != null // TODO: test
+    var audience = this.options.tokenAudience != null
       ? this.options.tokenAudience.toString()
       : client.clientId();
 
     var jwtPayload = payload
       .setIssuer(this.options.id().toString())
       .setAudience(audience)
-      .setNotBeforeTimeSeconds(issueTime.getEpochSecond()) // TODO: Add 5min slack
+      .setNotBeforeTimeSeconds(issueTime.minus(ALLOWED_CLOCK_SKEW).getEpochSecond())
       .setExpirationTimeSeconds(expiryTime.getEpochSecond())
       .setJwtId(UUID.randomUUID().toString());
 
