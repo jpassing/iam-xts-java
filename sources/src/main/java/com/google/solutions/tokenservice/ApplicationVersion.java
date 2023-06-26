@@ -59,6 +59,6 @@ public class ApplicationVersion {
 
   static {
     VERSION_STRING = loadVersion();
-    USER_AGENT = "cloud-solutions/xts" + VERSION_STRING; // TODO: set UA
+    USER_AGENT = "cloud-solutions/xts-v" + VERSION_STRING;
   }
 }

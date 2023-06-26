@@ -109,8 +109,6 @@ public class RuntimeEnvironment {
     //
     var logAdapter = new LogAdapter();
 
-    // TODO: testPermission on SA
-
     if (isRunningOnCloudRun()) {
       //
       // Initialize using service account attached to AppEngine or Cloud Run.

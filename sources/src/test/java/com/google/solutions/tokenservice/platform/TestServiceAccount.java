@@ -1,24 +1,27 @@
-package com.google.solutions.tokenservice.adapters;
+package com.google.solutions.tokenservice.platform;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
 import com.google.solutions.tokenservice.UserId;
-import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
-import com.google.solutions.tokenservice.platform.NotAuthenticatedException;
-import com.google.solutions.tokenservice.platform.ServiceAccount;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestServiceAccount {
   private static final UserId SampleUser = new UserId("sample@project-1.iam.gserviceaccount.com");
+  private static final String CLOUD_PLATFORM_SCOPE
+    = "https://www.googleapis.com/auth/cloud-platform";
 
   // -------------------------------------------------------------------------
   // signJwt.
   // -------------------------------------------------------------------------
 
   @Test
-  public void whenUnauthenticated_ThenSignJwtThrowsException() {
+  public void whenUnauthenticated_thenSignJwtThrowsException() {
     var serviceAccount = new ServiceAccount(
       SampleUser,
       IntegrationTestEnvironment.INVALID_CREDENTIAL);
@@ -32,7 +35,7 @@ public class TestServiceAccount {
   }
 
   @Test
-  public void whenCallerHasPermission_ThenSignJwtSucceeds() throws Exception {
+  public void whenCallerHasPermission_thenSignJwtSucceeds() throws Exception {
     var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
 
     var payload = new JsonWebToken.Payload()

@@ -25,6 +25,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.api.services.iamcredentials.v1.IAMCredentials;
+import com.google.api.services.iamcredentials.v1.model.GenerateAccessTokenRequest;
 import com.google.api.services.iamcredentials.v1.model.SignJwtRequest;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -32,19 +33,27 @@ import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
+import com.google.solutions.tokenservice.oauth.AccessToken;
 
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Adapter class for interacting with the IAM Credentials API.
  */
-public class ServiceAccount {
+public class ServiceAccount {// TODO: Rename to ServiceIdentity
   public static final String OAUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 
   private final UserId id;
   private final GoogleCredentials credentials;
+
+  private String resourceName() {
+    return String.format("projects/-/serviceAccounts/%s", this.id);
+  }
 
   private IAMCredentials createClient() throws IOException
   {
@@ -96,9 +105,7 @@ public class ServiceAccount {
       return createClient()
         .projects()
         .serviceAccounts()
-        .signJwt(
-          String.format("projects/-/serviceAccounts/%s", this.id),
-          request)
+        .signJwt(resourceName(), request)
         .execute()
         .getSignedJwt();
     }

@@ -21,13 +21,16 @@
 
 package com.google.solutions.tokenservice.platform;
 
+import com.google.solutions.tokenservice.oauth.AccessToken;
 import com.google.solutions.tokenservice.oauth.IdToken;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestWorkloadIdentityPool {
 
@@ -54,5 +57,29 @@ public class TestWorkloadIdentityPool {
       () -> sts.issueAccessToken(
         new IdToken("id-token", Instant.now(), Instant.MAX),
         CLOUD_PLATFORM_SCOPE));
+  }
+
+
+  // -------------------------------------------------------------------------
+  // impersonateServiceAccount.
+  // -------------------------------------------------------------------------
+
+  @Test
+  public void whenUnauthenticated_thenImpersonateServiceAccountThrowsException() {
+    var options = new WorkloadIdentityPool.Options(
+      1,
+      "doesnotexist",
+      "doesnotexist");
+
+    var sts = new WorkloadIdentityPool(options);
+    var invalidAccessToken = new AccessToken("invalid", null, Instant.now(), Instant.MAX);
+
+    assertThrows(
+      NotAuthenticatedException.class,
+      () -> sts.impersonateServiceAccount(
+        invalidAccessToken,
+        IntegrationTestEnvironment.SERVICE_ACCOUNT.id(),
+        List.of(CLOUD_PLATFORM_SCOPE),
+        Duration.ofMinutes(5)));
   }
 }

@@ -25,9 +25,11 @@ import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.api.client.util.GenericData;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.platform.ServiceAccount;
 import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.web.LogEvents;
 
@@ -118,25 +120,29 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     // Use the ID token to request an access token from the
     // workload identity pool.
     //
-    var stsToken = this.workloadIdentityPool.issueAccessToken(idToken, scope);
+    var accessToken = this.workloadIdentityPool.issueAccessToken(idToken, scope);
 
-    var serviceAccount = request.parameters().getFirst("impersonate_service_account");
-    if (Strings.isNullOrEmpty(serviceAccount)) {
-      //
-      // No impersonation requested, just return the STS token.
-      //
-      return stsToken;
-    }
-    else {
-      //
-      // Impersonate a service account.
-      //
-
-      //TODO: Impersonate a service account.
-      var serviceAccountToken = new AccessToken("todo", "scope", Instant.now(), Instant.now());
-
-      return serviceAccountToken;
-    }
+    return accessToken;
+//    var serviceAccountEmail = request.parameters().getFirst("service_account");
+//    if (!Strings.isNullOrEmpty(serviceAccountEmail) &&
+//        serviceAccountEmail.contains("@")) {
+//
+//      //
+//      // Use STS token to impersonate a service account.
+//      //
+//      // )
+//      //
+//      // No impersonation requested, just return the STS token.
+//      //
+//      return stsToken;
+//    }
+//    else {
+//
+//      //TODO: Impersonate a service account.
+//      var serviceAccountToken = new AccessToken("todo", "scope", Instant.now(), Instant.now());
+//
+//      return serviceAccountToken;
+//    }
   }
 
   //---------------------------------------------------------------------------
