@@ -53,7 +53,7 @@ public class RuntimeConfiguration {
 
   protected final StringSetting tokenIssuer = new StringSetting(
     List.of("TOKEN_ISSUER"),
-    null);
+    "");
 
   //
   // Names of mTLS headers. The header names are configurable, cf.

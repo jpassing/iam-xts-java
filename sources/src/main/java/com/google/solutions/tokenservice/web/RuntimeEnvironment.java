@@ -291,7 +291,7 @@ public class RuntimeEnvironment {
       issuerId = new URL(new URL(
         request.absoluteURI().replace("http:", "https:")), "/");
     }
-    
+
     return new IdTokenIssuer.Options(
       issuerId,
       getWorkloadIdentityPoolOptions().expectedTokenAudience(),
