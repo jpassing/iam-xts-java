@@ -22,6 +22,8 @@
 package com.google.solutions.tokenservice.platform;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.api.services.iamcredentials.v1.IAMCredentials;
@@ -34,6 +36,8 @@ import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.AccessToken;
+import com.google.solutions.tokenservice.oauth.ServiceAccountAccessToken;
+import com.google.solutions.tokenservice.oauth.StsAccessToken;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,7 +53,7 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
   public static final String OAUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 
   private final UserId id;
-  private final GoogleCredentials credentials;
+  private final HttpRequestInitializer requestInitializer;
 
   private String resourceName() {
     return String.format("projects/-/serviceAccounts/%s", this.id);
@@ -62,7 +66,7 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
         .Builder(
           HttpTransport.newTransport(),
           new GsonFactory(),
-          new HttpCredentialsAdapter(this.credentials))
+          this.requestInitializer)
         .setApplicationName(ApplicationVersion.USER_AGENT)
         .build();
     }
@@ -79,7 +83,25 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
     Preconditions.checkNotNull(credentials, "credentials");
 
     this.id = id;
-    this.credentials = credentials;
+    this.requestInitializer = new HttpCredentialsAdapter(credentials);
+  }
+
+  public ServiceAccount(
+    UserId id,
+    StsAccessToken stsAccessToken
+  )  {
+    Preconditions.checkNotNull(id, "email");
+    Preconditions.checkNotNull(stsAccessToken, "stsAccessToken");
+
+    this.id = id;
+    this.requestInitializer = new HttpRequestInitializer() {
+      @Override
+      public void initialize(HttpRequest httpRequest) throws IOException {
+        httpRequest
+          .getHeaders()
+          .put("Authorization", String.format("Bearer %s", stsAccessToken.value()));
+      }
+    };
   }
 
   /**
@@ -116,6 +138,51 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
         case 403:
           throw new AccessDeniedException(
             String.format("Denied access to service account '%s': %s", this.id, e.getMessage()), e);
+        default:
+          throw (GoogleJsonResponseException)e.fillInStackTrace();
+      }
+    }
+  }
+
+  /**
+   * Impersonate the service account and obtain an access token.
+   *
+   * @param scopes requested scopes, fully qualified.
+   * @param lifetime lifetime of requested token
+   */
+  public ServiceAccountAccessToken generateAccessToken(
+    List<String> scopes,
+    Duration lifetime
+  ) throws AccessException, IOException {
+    try {
+      var request = new GenerateAccessTokenRequest()
+        .setScope(scopes)
+        .setLifetime(lifetime.toSeconds() + "s");
+
+      var issueTime = Instant.now();
+      var response = createClient()
+        .projects()
+        .serviceAccounts()
+        .generateAccessToken(resourceName(), request)
+        .execute();
+
+      return new ServiceAccountAccessToken(
+        response.getAccessToken(),
+        String.join(" ", scopes),
+        issueTime,
+        Instant.parse(response.getExpireTime()));
+    }
+    catch (GoogleJsonResponseException e) {
+      switch (e.getStatusCode()) {
+        case 401:
+          throw new NotAuthenticatedException("Not authenticated", e);
+        case 403:
+          throw new AccessDeniedException(
+            String.format(
+              "Denied access to service account '%s': %s",
+              this.id,
+              e.getMessage()),
+            e);
         default:
           throw (GoogleJsonResponseException)e.fillInStackTrace();
       }

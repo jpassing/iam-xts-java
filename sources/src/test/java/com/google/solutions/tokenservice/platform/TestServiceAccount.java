@@ -55,6 +55,37 @@ public class TestServiceAccount {
   }
 
   // -------------------------------------------------------------------------
+  // generateAccessToken.
+  // -------------------------------------------------------------------------
+
+  @Test
+  public void whenUnauthenticated_thenGenerateAccessTokenThrowsException() {
+    var serviceAccount = new ServiceAccount(
+      SampleUser,
+      IntegrationTestEnvironment.INVALID_CREDENTIAL);
+
+    assertThrows(
+      NotAuthenticatedException.class,
+      () -> serviceAccount.generateAccessToken(
+        List.of(CLOUD_PLATFORM_SCOPE),
+        Duration.ofMinutes(5)));
+  }
+
+  @Test
+  public void whenCallerHasPermission_thenGenerateAccessTokenReturnsToken() throws Exception {
+    var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
+
+    var token = serviceAccount.generateAccessToken(
+      List.of(CLOUD_PLATFORM_SCOPE),
+      Duration.ofMinutes(5));
+
+    assertNotNull(token);
+    assertNotNull(token.value());
+    assertEquals(CLOUD_PLATFORM_SCOPE, token.scope());
+    assertTrue(token.expiryTime().isAfter(Instant.now()));
+  }
+
+  // -------------------------------------------------------------------------
   // getJwksUrl.
   // -------------------------------------------------------------------------
 

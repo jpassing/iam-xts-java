@@ -35,6 +35,8 @@ import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.AccessToken;
 import com.google.solutions.tokenservice.oauth.IdToken;
+import com.google.solutions.tokenservice.oauth.ServiceAccountAccessToken;
+import com.google.solutions.tokenservice.oauth.StsAccessToken;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
@@ -76,32 +78,10 @@ public class WorkloadIdentityPool {
     }
   }
 
-  private IAMCredentials createIamCredentialsClient(AccessToken token) throws IOException
-  {
-    var credential = GoogleCredentials
-      .newBuilder()
-      .setAccessToken(
-        new com.google.auth.oauth2.AccessToken(token.value(), Date.from(token.expiryTime())))
-      .build();
-
-    try {
-      return new IAMCredentials
-        .Builder(
-          HttpTransport.newTransport(),
-          new GsonFactory(),
-          new HttpCredentialsAdapter(credential))
-        .setApplicationName(ApplicationVersion.USER_AGENT)
-        .build();
-    }
-    catch (GeneralSecurityException e) {
-      throw new IOException("Creating a IAMCredentials client failed", e);
-    }
-  }
-
   /**
    * Exchange an ID token for an STS access token.
    */
-  public AccessToken issueAccessToken(
+  public StsAccessToken issueAccessToken(
     IdToken idToken,
     String scope
   ) throws IOException {
@@ -125,7 +105,7 @@ public class WorkloadIdentityPool {
         .token(request)
         .execute();
 
-      return new AccessToken(
+      return new StsAccessToken(
         response.getAccessToken(),
         scope,
         issueTime,
@@ -143,53 +123,19 @@ public class WorkloadIdentityPool {
   }
 
   /**
-   * Impersonate the service account and obtain an access token.
+   * Use an STS token to impersonate a service account.
    *
-   * @param scopes requested scopes, fully qualified.
-   * @param lifetime lifetime of requested token
+   * @param serviceAccountId
+   * @param accessToken
+   * @return
    */
-  public AccessToken impersonateServiceAccount(
-    AccessToken accessToken,
-    UserId serviceAccount,
-    List<String> scopes,
-    Duration lifetime
-  ) throws AccessException, IOException {
-    try {
-      var request = new GenerateAccessTokenRequest()
-        .setScope(scopes)
-        .setLifetime(lifetime.toSeconds() + "s");
-
-      var issueTime = Instant.now();
-      var response = createIamCredentialsClient(accessToken)
-        .projects()
-        .serviceAccounts()
-        .generateAccessToken(
-          String.format("projects/-/serviceAccounts/%s", serviceAccount.email()),
-          request)
-        .execute();
-
-      return new AccessToken(
-        response.getAccessToken(),
-        String.join(" ", scopes),
-        issueTime,
-        Instant.parse(response.getExpireTime()));
-    }
-    catch (GoogleJsonResponseException e) {
-      switch (e.getStatusCode()) {
-        case 401:
-          throw new NotAuthenticatedException("Not authenticated", e);
-        case 403:
-          throw new AccessDeniedException(
-            String.format(
-              "Denied access to service account '%s': %s",
-              serviceAccount.email(),
-              e.getMessage()),
-            e);
-        default:
-          throw (GoogleJsonResponseException)e.fillInStackTrace();
-      }
-    }
+  public ServiceAccount impersonateServiceAccount(
+    UserId serviceAccountId,
+    StsAccessToken accessToken
+  ) {
+    return new ServiceAccount(serviceAccountId, accessToken);
   }
+
 
   // -------------------------------------------------------------------------
   // Inner classes.

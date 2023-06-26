@@ -21,6 +21,7 @@
 
 package com.google.solutions.tokenservice.oauth;
 
+import java.time.Duration;
 import java.time.Instant;
 
 
@@ -35,4 +36,5 @@ public record IdToken(
   String value,
   Instant issueTime,
   Instant expiryTime
-) {}
+) {
+}

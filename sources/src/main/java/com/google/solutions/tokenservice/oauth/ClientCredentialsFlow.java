@@ -34,7 +34,9 @@ import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.web.LogEvents;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Flow for authenticating clients.
@@ -120,29 +122,23 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     // Use the ID token to request an access token from the
     // workload identity pool.
     //
-    var accessToken = this.workloadIdentityPool.issueAccessToken(idToken, scope);
+    var stsAccessToken = this.workloadIdentityPool.issueAccessToken(idToken, scope);
 
-    return accessToken;
-//    var serviceAccountEmail = request.parameters().getFirst("service_account");
-//    if (!Strings.isNullOrEmpty(serviceAccountEmail) &&
-//        serviceAccountEmail.contains("@")) {
-//
-//      //
-//      // Use STS token to impersonate a service account.
-//      //
-//      // )
-//      //
-//      // No impersonation requested, just return the STS token.
-//      //
-//      return stsToken;
-//    }
-//    else {
-//
-//      //TODO: Impersonate a service account.
-//      var serviceAccountToken = new AccessToken("todo", "scope", Instant.now(), Instant.now());
-//
-//      return serviceAccountToken;
-//    }
+    var serviceAccountEmail = request.parameters().getFirst("service_account");
+    if (!Strings.isNullOrEmpty(serviceAccountEmail) &&
+        serviceAccountEmail.contains("@")) {
+
+      var serviceAccount = this.workloadIdentityPool.impersonateServiceAccount(
+        new UserId(serviceAccountEmail),
+        stsAccessToken);
+
+      return serviceAccount.generateAccessToken(
+        List.of(scope),
+        Duration.between(idToken.issueTime(), idToken.expiryTime()));
+    }
+    else {
+      return stsAccessToken;
+    }
   }
 
   //---------------------------------------------------------------------------
@@ -194,7 +190,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     }
 
     //
-    // Issue tokens.
+    // Issue ID token.
     //
     IdToken idToken;
     try {
@@ -206,18 +202,35 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
         e);
     }
 
+    //
+    // Issue access token if requested.
+    //
     try {
       var accessToken = issueAccessToken(request, client, idToken);
 
-      if (accessToken != null) {
+      if (accessToken instanceof StsAccessToken stsAccessToken)
+      {
         this.logAdapter
           .newInfoEntry(
             LogEvents.API_TOKEN,
             String.format(
-              "Issued ID token and access token for client '%s' (scope: %s)",
+              "Issued ID token and STS access token for client '%s' and scope '%s'",
               client.clientId(),
-              accessToken.scope()))
+              stsAccessToken.scope()))
           .write();
+
+      }
+      else if (accessToken instanceof ServiceAccountAccessToken saAccessToken)
+      {
+        this.logAdapter
+          .newInfoEntry(
+            LogEvents.API_TOKEN,
+            String.format(
+              "Issued ID token and service account access token for client '%s' and scope '%s'",
+              client.clientId(),
+              saAccessToken.scope()))
+          .write();
+
       }
       else {
         this.logAdapter

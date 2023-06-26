@@ -123,7 +123,7 @@ public class TestClientCredentialsFlow {
   @Test
   public void whenScopeProvided_thenAuthenticateIssuesStsAccessToken() throws Exception {
     var idToken = new IdToken("id-token", Instant.now(), Instant.MAX);
-    var accessToken = new AccessToken("access-token", "scope-1", Instant.now(), Instant.MAX);
+    var accessToken = new StsAccessToken("access-token", "scope-1", Instant.now(), Instant.MAX);
 
     var issuer = Mockito.mock(TokenIssuer.class);
     when(issuer.issueIdToken(any(), any())).thenReturn(idToken);
