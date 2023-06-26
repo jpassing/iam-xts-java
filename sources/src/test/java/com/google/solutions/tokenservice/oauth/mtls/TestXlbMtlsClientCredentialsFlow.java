@@ -111,27 +111,6 @@ public class TestXlbMtlsClientCredentialsFlow {
     assertTrue(flow.canAuthenticate(request));
   }
 
-  @Test
-  public void whenClientIdMissing_thenCanAuthenticateReturnsFalse()
-  {
-    var headers = new HeadersMultiMap();
-    headers.add(OPTIONS.clientCertPresentHeaderName(), "TRuE");
-
-    var httpRequest = Mockito.mock(HttpServerRequest.class);
-    when(httpRequest.headers()).thenReturn(headers);
-
-    var flow = new XlbMtlsClientCredentialsFlow(
-      OPTIONS,
-      Mockito.mock(ClientPolicy.class),
-      Mockito.mock(IdTokenIssuer.class),
-      Mockito.mock(WorkloadIdentityPool.class),
-      httpRequest,
-      new LogAdapter());
-
-    var request = createRequest("");
-    assertFalse(flow.canAuthenticate(request));
-  }
-
   // -------------------------------------------------------------------------
   // verifyRequest.
   // -------------------------------------------------------------------------

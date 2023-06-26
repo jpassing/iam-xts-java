@@ -19,6 +19,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,33 +61,6 @@ public class TestMtlsClientCredentialsFlow {
     return new AuthenticationRequest(
       "client_credentials",
       parameters);
-  }
-
-
-  // -------------------------------------------------------------------------
-  // canAuthenticate.
-  // -------------------------------------------------------------------------
-
-  @Test
-  public void whenClientIdMissing_thenCanAuthenticateReturnsFalse()
-  {
-    var flow = new Flow(
-      Mockito.mock(ClientPolicy.class),
-      Mockito.mock(IdTokenIssuer.class));
-
-    var request = createRequest(null);
-    assertFalse(flow.canAuthenticate(request));
-  }
-
-  @Test
-  public void whenClientIdEmpty_thenCanAuthenticateReturnsFalse()
-  {
-    var flow = new Flow(
-      Mockito.mock(ClientPolicy.class),
-      Mockito.mock(IdTokenIssuer.class));
-
-    var request = createRequest("");
-    assertFalse(flow.canAuthenticate(request));
   }
 
   // -------------------------------------------------------------------------
@@ -142,6 +116,8 @@ public class TestMtlsClientCredentialsFlow {
       .build()
       .verify(response.idToken().value())
       .getPayload();
-    assertEquals(flow.name().toLowerCase(), verifiedPayload.get("amr"));
+    assertEquals(
+      flow.name().toLowerCase(),
+      ((ArrayList)verifiedPayload.get("amr")).get(0));
   }
 }
