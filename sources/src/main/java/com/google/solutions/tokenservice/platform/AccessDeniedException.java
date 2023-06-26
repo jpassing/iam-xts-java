@@ -21,7 +21,7 @@
 
 package com.google.solutions.tokenservice.platform;
 
-public class AccessDeniedException extends AccessException {
+public class AccessDeniedException extends ApiException {
   public AccessDeniedException(String message) {
     super(message, null);
   }

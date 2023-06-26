@@ -35,15 +35,11 @@ import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
-import com.google.solutions.tokenservice.oauth.AccessToken;
-import com.google.solutions.tokenservice.oauth.ServiceAccountAccessToken;
-import com.google.solutions.tokenservice.oauth.StsAccessToken;
 import com.google.solutions.tokenservice.platform.AccessDeniedException;
-import com.google.solutions.tokenservice.platform.AccessException;
+import com.google.solutions.tokenservice.platform.ApiException;
 import com.google.solutions.tokenservice.platform.HttpTransport;
 import com.google.solutions.tokenservice.platform.NotAuthenticatedException;
 
-import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -114,7 +110,7 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
    */
   public String signJwt(
     JsonWebToken.Payload payload
-  ) throws AccessException, IOException {
+  ) throws ApiException, IOException {
     Preconditions.checkNotNull(payload, "payload");
 
     try
@@ -138,13 +134,20 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
     }
     catch (GoogleJsonResponseException e) {
       switch (e.getStatusCode()) {
+        case 400:
+          throw new IllegalArgumentException(
+            "Signing JWT failed",
+            ApiException.from(e));
         case 401:
-          throw new NotAuthenticatedException("Not authenticated", e);
+          throw new NotAuthenticatedException(
+            "Not authenticated",
+            ApiException.from(e));
         case 403:
           throw new AccessDeniedException(
-            String.format("Denied access to service account '%s': %s", this.id, e.getMessage()), e);
+            String.format("Access to service account '%s' was denied", this.id),
+            ApiException.from(e));
         default:
-          throw (GoogleJsonResponseException)e.fillInStackTrace();
+          throw ApiException.from((GoogleJsonResponseException)e.fillInStackTrace());
       }
     }
   }
@@ -158,7 +161,7 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
   public ServiceAccountAccessToken generateAccessToken(
     List<String> scopes,
     Duration lifetime
-  ) throws AccessException, IOException {
+  ) throws ApiException, IOException {
     try {
       var request = new GenerateAccessTokenRequest()
         .setScope(scopes)
@@ -179,17 +182,20 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
     }
     catch (GoogleJsonResponseException e) {
       switch (e.getStatusCode()) {
+        case 400:
+          throw new IllegalArgumentException(
+            "Generating access token failed",
+            ApiException.from(e));
         case 401:
-          throw new NotAuthenticatedException("Not authenticated", e);
+          throw new NotAuthenticatedException(
+            "Not authenticated",
+            ApiException.from(e));
         case 403:
           throw new AccessDeniedException(
-            String.format(
-              "Denied access to service account '%s': %s",
-              this.id,
-              e.getMessage()),
-            e);
+            String.format("Access to service account '%s' was denied", this.id),
+            ApiException.from(e));
         default:
-          throw (GoogleJsonResponseException)e.fillInStackTrace();
+          throw ApiException.from((GoogleJsonResponseException)e.fillInStackTrace());
       }
     }
   }

@@ -21,7 +21,7 @@
 
 package com.google.solutions.tokenservice.platform;
 
-public class NotAuthenticatedException extends AccessException {
+public class NotAuthenticatedException extends ApiException {
   public NotAuthenticatedException(String message, Exception inner) {
     super(message, inner);
   }

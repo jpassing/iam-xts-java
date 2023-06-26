@@ -24,7 +24,7 @@ package com.google.solutions.tokenservice.oauth;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
-import com.google.solutions.tokenservice.platform.AccessException;
+import com.google.solutions.tokenservice.platform.ApiException;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class IdTokenIssuer {
   public IdToken issueIdToken(
     AuthenticatedClient client,
     JsonWebToken.Payload payload
-  ) throws AccessException, IOException {
+  ) throws ApiException, IOException {
     Preconditions.checkNotNull(client, "client");
     Preconditions.checkNotNull(payload, "payload");
 

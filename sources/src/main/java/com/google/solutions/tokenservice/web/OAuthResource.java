@@ -202,17 +202,17 @@ public class OAuthResource {
           .build();
       }
       catch (Authentication.InvalidClientException e) {
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.FORBIDDEN)
           .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.UNAUTHORIZED_CLIENT, e))
           .build();
       }
       catch (Authentication.TokenIssuanceException e) {
-        return Response.status(Response.Status.BAD_REQUEST)
-          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
+        return Response.status(Response.Status.FORBIDDEN)
+          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.ACCESS_DENIED, e))
           .build();
       }
       catch (Exception e) {
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
           .build();
       }
@@ -245,17 +245,17 @@ public class OAuthResource {
           .build();
       }
       catch (Authentication.InvalidClientException e) {
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.FORBIDDEN)
           .entity(new TokenErrorResponse(TokenErrorResponse.UNAUTHORIZED_CLIENT, e))
           .build();
       }
       catch (Authentication.TokenIssuanceException e) {
-        return Response.status(Response.Status.BAD_REQUEST)
-          .entity(new TokenErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
+        return Response.status(Response.Status.FORBIDDEN)
+          .entity(new TokenErrorResponse(TokenErrorResponse.ACCESS_DENIED, e))
           .build();
       }
       catch (Exception e) {
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(new TokenErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
           .build();
       }

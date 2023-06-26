@@ -1,4 +1,3 @@
-//
 // Copyright 2023 Google LLC
 //
 // Licensed to the Apache Software Foundation (ASF) under one
@@ -21,11 +20,20 @@
 
 package com.google.solutions.tokenservice.platform;
 
-public abstract class AccessException extends Exception {
-  public AccessException(String message) {
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+
+public class ApiException extends Exception {
+  protected ApiException(String message) {
     super(message);
   }
-  public AccessException(String message, Exception inner) {
+  protected ApiException(String message, Exception inner) {
     super(message, inner);
+  }
+
+  public static ApiException from(GoogleJsonResponseException e) {
+    return new ApiException(
+      e.getDetails() != null
+        ? e.getDetails().getMessage()
+        : e.getMessage());
   }
 }

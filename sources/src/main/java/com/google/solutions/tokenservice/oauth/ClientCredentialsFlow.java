@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
-import com.google.solutions.tokenservice.platform.AccessException;
+import com.google.solutions.tokenservice.platform.ApiException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.web.LogEvents;
 
@@ -65,7 +65,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
    */
   protected IdToken issueIdToken(
     AuthenticatedClient client
-  ) throws AccessException, IOException {
+  ) throws ApiException, IOException {
     Preconditions.checkNotNull(client, "client");
 
     //
@@ -99,7 +99,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     AuthenticationRequest request,
     AuthenticatedClient client,
     IdToken idToken
-  )  throws AccessException, IOException {
+  )  throws ApiException, IOException {
     Preconditions.checkNotNull(request, "request");
     Preconditions.checkNotNull(client, "client");
     Preconditions.checkNotNull(idToken, "idToken");
@@ -124,8 +124,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     // account.
     //
     var serviceAccountEmail = request.parameters().getFirst("service_account");
-    if (!Strings.isNullOrEmpty(serviceAccountEmail) &&
-        serviceAccountEmail.contains("@")) {
+    if (!Strings.isNullOrEmpty(serviceAccountEmail)) {
 
       var serviceAccount = this.workloadIdentityPool.impersonateServiceAccount(
         new UserId(serviceAccountEmail),
