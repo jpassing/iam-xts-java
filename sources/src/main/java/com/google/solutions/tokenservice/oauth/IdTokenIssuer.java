@@ -41,7 +41,6 @@ import java.util.UUID;
  */
 @ApplicationScoped
 public class IdTokenIssuer {
-  public static final Duration ALLOWED_CLOCK_SKEW = Duration.ofMinutes(5);
   private final Options options;
   private final ServiceAccount serviceAccount;
 
@@ -103,10 +102,15 @@ public class IdTokenIssuer {
       ? this.options.tokenAudience.toString()
       : client.clientId();
 
+    var issuer = this.options.id().toString();
+    if (issuer.endsWith("/")) {
+      issuer = issuer.substring(0, issuer.length() - 1);
+    }
+
     var jwtPayload = payload
-      .setIssuer(this.options.id().toString())
+      .setIssuer(issuer)
+      .setIssuedAtTimeSeconds(issueTime.getEpochSecond())
       .setAudience(audience)
-      .setNotBeforeTimeSeconds(issueTime.minus(ALLOWED_CLOCK_SKEW).getEpochSecond())
       .setExpirationTimeSeconds(expiryTime.getEpochSecond())
       .setJwtId(UUID.randomUUID().toString());
 

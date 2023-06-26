@@ -26,6 +26,7 @@ import java.time.OffsetDateTime;
 /**
  * Client attributes conveyed in the client certificate.
  *
+ * @param clientId Client ID
  * @param spiffeId SPIFFE ID of the certificate
  * @param sanDns dNSName SAN entry in the certificate
  * @param sanUri uniformResourceIdentifier SAN entry in the certificate
@@ -35,6 +36,7 @@ import java.time.OffsetDateTime;
  * @param notAfter timestamp after which the client certificate is not valid.
  */
 public record MtlsClientCertificate(
+  String clientId,
   String spiffeId,
   String sanDns,
   String sanUri,

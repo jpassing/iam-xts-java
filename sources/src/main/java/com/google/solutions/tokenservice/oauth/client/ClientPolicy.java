@@ -42,13 +42,11 @@ public class ClientPolicy {
   /**
    * Authenticate a client using an mTLS client certificate.
    *
-   * @param clientId clientId conveyed in request.
    * @param attributes attributes conveyed in client certificate.
    * @return Client if successful.
    * @throws if the client is unknown of the attributes are invalid.
    */
   public AuthenticatedClient authenticateClient(
-    String clientId,
     MtlsClientCertificate attributes
   )
   {
@@ -76,7 +74,7 @@ public class ClientPolicy {
     claims.put("x5_serial", attributes.serialNumber());
 
     return new AuthenticatedClient(
-      clientId,
+      attributes.clientId(),
       Instant.now(),
       claims);
   }

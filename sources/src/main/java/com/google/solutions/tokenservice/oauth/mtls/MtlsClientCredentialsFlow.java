@@ -91,14 +91,10 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
 
   @Override
   protected AuthenticatedClient authenticateClient(AuthenticationRequest request) {
-    var clientId = request.parameters().getFirst("client_id");
-
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(clientId), "client_id is required");
-
     //
     // Authenticate the client based on the attributes we've gathered.
     //
     var clientAttributes = verifyClientCertificate(request);
-    return this.clientPolicy.authenticateClient(clientId, clientAttributes);
+    return this.clientPolicy.authenticateClient(clientAttributes);
   }
 }

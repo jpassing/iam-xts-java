@@ -179,6 +179,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     // attributes might be empty.
     //
     return new MtlsClientCertificate(
+      clientId,
       headers.get(this.options.clientCertSpiffeIdHeaderName),
       headers.get(this.options.clientCertDnsSansHeaderName),
       headers.get(this.options.clientCertUriSansHeaderName),

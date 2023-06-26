@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.wildfly.common.Assert.assertTrue;
 
 public class TestIdTokenIssuer {
-  private static final URL ISSUER_ID = URLHelper.fromString("http://example.com/");
+  private static final URL ISSUER_ID = URLHelper.fromString("http://issuer.example.com/");
 
   // -------------------------------------------------------------------------
   // issueToken.
@@ -42,15 +42,15 @@ public class TestIdTokenIssuer {
     var verifiedPayload = TokenVerifier
       .newBuilder()
       .setCertificatesLocation(serviceAccount.jwksUrl().toString())
-      .setIssuer(ISSUER_ID.toString())
+      .setIssuer("http://issuer.example.com")
       .setAudience("client-1")
       .build()
       .verify(token.value())
       .getPayload();
 
-    assertEquals(ISSUER_ID.toString(), verifiedPayload.getIssuer());
+    assertEquals("http://issuer.example.com", verifiedPayload.getIssuer());
     assertEquals("client-1", verifiedPayload.getAudience());
-    assertNotNull(verifiedPayload.getNotBeforeTimeSeconds());
+    assertNotNull(verifiedPayload.getIssuedAtTimeSeconds());
     assertNotNull(verifiedPayload.getExpirationTimeSeconds());
     assertTrue(token.expiryTime().isAfter(Instant.now()));
     assertEquals("value", verifiedPayload.get("test"));
@@ -78,50 +78,17 @@ public class TestIdTokenIssuer {
     var verifiedPayload = TokenVerifier
       .newBuilder()
       .setCertificatesLocation(serviceAccount.jwksUrl().toString())
-      .setIssuer(ISSUER_ID.toString())
+      .setIssuer("http://issuer.example.com")
       .setAudience("https://example.com/")
       .build()
       .verify(token.value())
       .getPayload();
 
-    assertEquals(ISSUER_ID.toString(), verifiedPayload.getIssuer());
+    assertEquals("http://issuer.example.com", verifiedPayload.getIssuer());
     assertEquals("https://example.com/", verifiedPayload.getAudience());
-    assertNotNull(verifiedPayload.getNotBeforeTimeSeconds());
+    assertNotNull(verifiedPayload.getIssuedAtTimeSeconds());
     assertNotNull(verifiedPayload.getExpirationTimeSeconds());
     assertTrue(token.expiryTime().isAfter(Instant.now()));
     assertEquals("value", verifiedPayload.get("test"));
-  }
-
-  @Test
-  public void issueTokenSetsValidity() throws Exception {
-    var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
-
-    var issuerOptions = new IdTokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1));
-    var issuer = new IdTokenIssuer(
-      issuerOptions,
-      serviceAccount);
-
-    var client = new AuthenticatedClient("client-1", Instant.now(), Map.of());
-    var token = issuer.issueIdToken(
-      client,
-      new JsonWebToken.Payload());
-
-
-    var verifiedPayload = TokenVerifier
-      .newBuilder()
-      .setCertificatesLocation(serviceAccount.jwksUrl().toString())
-      .setIssuer(ISSUER_ID.toString())
-      .setAudience("client-1")
-      .build()
-      .verify(token.value())
-      .getPayload();
-
-    assertEquals(
-      verifiedPayload.getNotBeforeTimeSeconds(),
-      token.issueTime().minus(IdTokenIssuer.ALLOWED_CLOCK_SKEW).getEpochSecond());
-
-    assertEquals(
-      verifiedPayload.getExpirationTimeSeconds(),
-      token.issueTime().plus(issuerOptions.tokenExiry()).getEpochSecond());
   }
 }

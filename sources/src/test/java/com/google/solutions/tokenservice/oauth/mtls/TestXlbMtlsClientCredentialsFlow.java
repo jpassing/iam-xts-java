@@ -155,7 +155,31 @@ public class TestXlbMtlsClientCredentialsFlow {
       new LogAdapter());
 
     var request = createRequest("client-1");
+    assertThrows(
+      ForbiddenException.class,
+      () -> flow.verifyClientCertificate(request));
+  }
 
+  @Test
+  public void whenMtlsCertChainVerifiedHeaderIsTrueButClientIdMissing_thenVerifyClientCertificateThrowsException()
+  {
+    var headers = new HeadersMultiMap();
+    headers.add(OPTIONS.clientCertPresentHeaderName(), "TRuE");
+    headers.add(OPTIONS.clientCertChainVerifiedHeaderName(), "TRue");
+    headers.add(OPTIONS.clientCertSpiffeIdHeaderName(), "spiffe-1");
+
+    var httpRequest = Mockito.mock(HttpServerRequest.class);
+    when(httpRequest.headers()).thenReturn(headers);
+
+    var flow = new XlbMtlsClientCredentialsFlow(
+      OPTIONS,
+      Mockito.mock(ClientPolicy.class),
+      Mockito.mock(IdTokenIssuer.class),
+      Mockito.mock(WorkloadIdentityPool.class),
+      httpRequest,
+      new LogAdapter());
+
+    var request = createRequest("client-1");
     assertThrows(
       ForbiddenException.class,
       () -> flow.verifyClientCertificate(request));
@@ -168,6 +192,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     headers.add(OPTIONS.clientCertPresentHeaderName(), "TRuE");
     headers.add(OPTIONS.clientCertChainVerifiedHeaderName(), "TRue");
     headers.add(OPTIONS.clientCertSpiffeIdHeaderName(), "spiffe-1");
+    headers.add(OPTIONS.clientIdHeaderName(), "spiffe-1");
 
     var httpRequest = Mockito.mock(HttpServerRequest.class);
     when(httpRequest.headers()).thenReturn(headers);

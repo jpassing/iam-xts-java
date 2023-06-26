@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class TestMtlsClientCredentialsFlow {
-  private static final URL ISSUER_ID = URLHelper.fromString("http://example.com/");
+  private static final String ISSUER_ID = "http://example.com";
 
   private static class Flow extends MtlsClientCredentialsFlow
   {
@@ -46,7 +46,7 @@ public class TestMtlsClientCredentialsFlow {
 
     @Override
     protected MtlsClientCertificate verifyClientCertificate(AuthenticationRequest request) {
-      return new MtlsClientCertificate(null, null, null, null, null, null, null);
+      return new MtlsClientCertificate(null, null, null, null, null, null, null, null);
     }
   }
 
@@ -96,7 +96,7 @@ public class TestMtlsClientCredentialsFlow {
   @Test
   public void whenClientRepositoryFailsToAuthenticate_thenAuthenticateThrowsException() {
     var clientRepository = Mockito.mock(ClientPolicy.class);
-    when(clientRepository.authenticateClient(eq("client-1"), any()))
+    when(clientRepository.authenticateClient(any()))
       .thenThrow(new RuntimeException("mock"));
 
     var flow = new Flow(
@@ -116,11 +116,14 @@ public class TestMtlsClientCredentialsFlow {
       new HashMap<>());
 
     var clientRepository = Mockito.mock(ClientPolicy.class);
-    when(clientRepository.authenticateClient(eq("client-1"), any()))
+    when(clientRepository.authenticateClient(any()))
       .thenReturn(client);
 
     var issuer = new IdTokenIssuer(
-      new IdTokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1)),
+      new IdTokenIssuer.Options(
+        URLHelper.fromString(ISSUER_ID),
+        null,
+        Duration.ofMinutes(1)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
 
     var flow = new Flow(
