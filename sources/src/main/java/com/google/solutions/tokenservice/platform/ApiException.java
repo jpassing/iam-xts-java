@@ -32,7 +32,7 @@ public class ApiException extends Exception {
 
   public static ApiException from(GoogleJsonResponseException e) {
     return new ApiException(
-      e.getDetails() != null
+      e.getDetails() != null && e.getDetails().getMessage() != null
         ? e.getDetails().getMessage()
         : e.getMessage());
   }
