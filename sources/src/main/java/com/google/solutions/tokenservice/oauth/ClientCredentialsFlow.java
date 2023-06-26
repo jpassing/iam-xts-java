@@ -29,7 +29,6 @@ import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.web.LogEvents;
 
 import java.io.IOException;

@@ -1,8 +1,11 @@
-package com.google.solutions.tokenservice.oauth;
+package com.google.solutions.tokenservice.oauth.mtls;
 
+import com.google.solutions.tokenservice.oauth.AuthenticationRequest;
+import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
+import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
+import com.google.solutions.tokenservice.oauth.mtls.XlbMtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
 import org.junit.jupiter.api.Test;
@@ -16,7 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.wildfly.common.Assert.assertTrue;
 
 public class TestXlbMtlsClientCredentialsFlow {
-  private static final XlbMtlsClientCredentialsFlow.Options OPTIONS 
+  private static final XlbMtlsClientCredentialsFlow.Options OPTIONS
     = new XlbMtlsClientCredentialsFlow.Options(
       "X-CertPresent",
       "X-CertChainVerified",

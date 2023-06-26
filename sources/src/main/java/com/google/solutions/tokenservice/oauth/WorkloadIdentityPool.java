@@ -19,33 +19,23 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.platform;
+package com.google.solutions.tokenservice.oauth;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.iamcredentials.v1.IAMCredentials;
-import com.google.api.services.iamcredentials.v1.model.GenerateAccessTokenRequest;
 import com.google.api.services.sts.v1.CloudSecurityToken;
 import com.google.api.services.sts.v1.model.GoogleIdentityStsV1ExchangeTokenRequest;
-import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
-import com.google.solutions.tokenservice.oauth.AccessToken;
-import com.google.solutions.tokenservice.oauth.IdToken;
-import com.google.solutions.tokenservice.oauth.ServiceAccountAccessToken;
-import com.google.solutions.tokenservice.oauth.StsAccessToken;
+import com.google.solutions.tokenservice.platform.HttpTransport;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.sql.Date;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 /**
  * Adapter class for interacting with the STS API.

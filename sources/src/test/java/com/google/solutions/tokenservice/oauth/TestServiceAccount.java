@@ -1,8 +1,11 @@
-package com.google.solutions.tokenservice.platform;
+package com.google.solutions.tokenservice.oauth;
 
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
 import com.google.solutions.tokenservice.UserId;
+import com.google.solutions.tokenservice.oauth.ServiceAccount;
+import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
+import com.google.solutions.tokenservice.platform.NotAuthenticatedException;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;

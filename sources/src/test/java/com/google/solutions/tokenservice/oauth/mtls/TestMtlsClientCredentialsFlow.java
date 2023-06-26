@@ -1,12 +1,17 @@
-package com.google.solutions.tokenservice.oauth;
+package com.google.solutions.tokenservice.oauth.mtls;
 
 import com.google.auth.oauth2.TokenVerifier;
 import com.google.solutions.tokenservice.URLHelper;
+import com.google.solutions.tokenservice.oauth.Authentication;
+import com.google.solutions.tokenservice.oauth.AuthenticationRequest;
+import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
+import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
+import com.google.solutions.tokenservice.oauth.mtls.MtlsClientCertificate;
+import com.google.solutions.tokenservice.oauth.mtls.MtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -24,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class TestMtlsClientCredentialsFlow {
   private static final URL ISSUER_ID = URLHelper.fromString("http://example.com/");
 
-  private static class Flow extends  MtlsClientCredentialsFlow
+  private static class Flow extends MtlsClientCredentialsFlow
   {
     public Flow(ClientPolicy clientPolicy, IdTokenIssuer issuer) {
       super(

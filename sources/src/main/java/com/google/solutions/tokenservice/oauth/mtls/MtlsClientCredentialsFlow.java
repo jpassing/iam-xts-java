@@ -19,14 +19,17 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.oauth;
+package com.google.solutions.tokenservice.oauth.mtls;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.solutions.tokenservice.oauth.AuthenticationRequest;
+import com.google.solutions.tokenservice.oauth.ClientCredentialsFlow;
+import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
+import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.web.LogEvents;
 
 /**

@@ -25,7 +25,6 @@ import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.AccessException;
-import com.google.solutions.tokenservice.platform.ServiceAccount;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;

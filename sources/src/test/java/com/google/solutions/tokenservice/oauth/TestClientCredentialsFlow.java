@@ -2,7 +2,6 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

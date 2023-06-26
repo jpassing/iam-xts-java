@@ -21,7 +21,7 @@
 
 package com.google.solutions.tokenservice.oauth.client;
 
-import com.google.solutions.tokenservice.oauth.MtlsClientCertificate;
+import com.google.solutions.tokenservice.oauth.mtls.MtlsClientCertificate;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.Instant;

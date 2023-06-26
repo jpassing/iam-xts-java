@@ -26,6 +26,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.solutions.tokenservice.ProjectId;
 import com.google.solutions.tokenservice.UserId;
+import com.google.solutions.tokenservice.oauth.ServiceAccount;
 
 import java.io.File;
 import java.io.FileInputStream;

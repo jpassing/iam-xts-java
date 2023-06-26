@@ -19,7 +19,7 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.platform;
+package com.google.solutions.tokenservice.oauth;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
@@ -38,6 +38,10 @@ import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.AccessToken;
 import com.google.solutions.tokenservice.oauth.ServiceAccountAccessToken;
 import com.google.solutions.tokenservice.oauth.StsAccessToken;
+import com.google.solutions.tokenservice.platform.AccessDeniedException;
+import com.google.solutions.tokenservice.platform.AccessException;
+import com.google.solutions.tokenservice.platform.HttpTransport;
+import com.google.solutions.tokenservice.platform.NotAuthenticatedException;
 
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;

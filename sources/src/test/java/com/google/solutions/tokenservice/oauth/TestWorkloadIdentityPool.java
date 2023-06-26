@@ -19,11 +19,13 @@
 // under the License.
 //
 
-package com.google.solutions.tokenservice.platform;
+package com.google.solutions.tokenservice.oauth;
 
-import com.google.solutions.tokenservice.oauth.AccessToken;
 import com.google.solutions.tokenservice.oauth.IdToken;
 import com.google.solutions.tokenservice.oauth.StsAccessToken;
+import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
+import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
+import com.google.solutions.tokenservice.platform.NotAuthenticatedException;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;

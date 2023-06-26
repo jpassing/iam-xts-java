@@ -34,10 +34,10 @@ import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
-import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
+import com.google.solutions.tokenservice.oauth.mtls.XlbMtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.LogAdapter;
-import com.google.solutions.tokenservice.platform.ServiceAccount;
-import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
+import com.google.solutions.tokenservice.oauth.ServiceAccount;
+import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.ApplicationScoped;
