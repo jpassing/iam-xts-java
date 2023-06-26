@@ -1,9 +1,11 @@
 package com.google.solutions.tokenservice.oauth;
 
+import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnit;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.time.Instant;
@@ -118,8 +120,35 @@ public class TestClientCredentialsFlow {
   }
 
   @Test
-  public void whenScopeAndServiceAccountProvided_thenAuthenticateIssuesServiceAccountToken() {
-    assertTrue(false);
+  public void whenScopeAndServiceAccountProvided_thenAuthenticateIssuesServiceAccountToken() throws Exception {
+    var idToken = new IdToken("id-token", Instant.now(), Instant.MAX);
+    var accessToken = new StsAccessToken("access-token", "scope-1", Instant.now(), Instant.MAX);
+    var saAccessToken = new ServiceAccountAccessToken("access-token", "scope", Instant.now(), Instant.MAX);
 
+    var issuer = Mockito.mock(IdTokenIssuer.class);
+    when(issuer.issueIdToken(any(), any())).thenReturn(idToken);
+
+    var impersonatedSaId = new UserId("sa@project.iam.gserviceaccount.com");
+    var impersonatedSa = Mockito.mock(ServiceAccount.class);
+    when(impersonatedSa.generateAccessToken(any(), any())).thenReturn(saAccessToken);
+
+    var pool = Mockito.mock(WorkloadIdentityPool.class);
+    when(pool.issueAccessToken(same(idToken), eq("scope-1"))).thenReturn(accessToken);
+    when(pool.impersonateServiceAccount(eq(impersonatedSaId), any())).thenReturn(impersonatedSa);
+
+    var flow = new Flow(issuer, pool);
+
+    var parameters = new MultivaluedHashMap<String, String>();
+    parameters.add("client_id", "client-1");
+    parameters.add("scope", "scope-1");
+    parameters.add("service_account", impersonatedSaId.email());
+
+    var authentication = flow.authenticate(
+      new AuthenticationRequest("client_credentials", parameters));
+
+    assertNotNull(authentication.client());
+    assertNotNull(authentication.idToken());
+    assertNotNull(authentication.accessToken());
+    assertSame(saAccessToken, authentication.accessToken());
   }
 }
