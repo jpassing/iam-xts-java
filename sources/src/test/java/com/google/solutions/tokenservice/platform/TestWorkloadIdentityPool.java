@@ -55,18 +55,4 @@ public class TestWorkloadIdentityPool {
         new IdToken("id-token", Instant.now(), Instant.MAX),
         CLOUD_PLATFORM_SCOPE));
   }
-
-  @Test
-  public void whenTokenInvalid_thenIssueAccessTokenThrowsException()
-    throws Exception {
-
-    assertTrue(false);
-  }
-
-  @Test
-  public void whenScopeInvalid_thenIssueAccessTokenThrowsException()
-    throws Exception {
-
-    assertTrue(false);
-  }
 }
