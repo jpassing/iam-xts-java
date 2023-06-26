@@ -29,6 +29,7 @@ import javax.enterprise.context.RequestScoped;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -117,8 +118,9 @@ public class LogAdapter {
       return this;
     }
 
-    public LogEntry addLabels(Function<LogEntry, LogEntry> func) {
-      return func.apply(this);
+    public LogEntry addLabels(Consumer<LogEntry> func) {
+      func.accept(this);
+      return this;
     }
 
     /**

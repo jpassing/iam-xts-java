@@ -100,7 +100,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     AuthenticationRequest request,
     AuthenticatedClient client,
     IdToken idToken
-  ) {
+  )  throws AccessException, IOException {
     Preconditions.checkNotNull(request, "request");
     Preconditions.checkNotNull(client, "client");
     Preconditions.checkNotNull(idToken, "idToken");
@@ -114,8 +114,11 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
       return null;
     }
 
-    // TODO: STS exchange
-    var stsToken = new AccessToken("todo", "todo", Instant.now(), Instant.now());
+    //
+    // Use the ID token to request an access token from the
+    // workload identity pool.
+    //
+    var stsToken = this.workloadIdentityPool.issueAccessToken(idToken, scope);
 
     var serviceAccount = request.parameters().getFirst("impersonate_service_account");
     if (Strings.isNullOrEmpty(serviceAccount)) {
@@ -187,33 +190,43 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     //
     // Issue tokens.
     //
+    IdToken idToken;
     try {
-      var idToken = issueIdToken(client);
+      idToken = issueIdToken(client);
+    }
+    catch (Exception e) {
+      throw new Authentication.TokenIssuanceException(
+        String.format("Issuing ID token for client '%s' failed", client.clientId()),
+        e);
+    }
+
+    try {
       var accessToken = issueAccessToken(request, client, idToken);
 
       if (accessToken != null) {
         this.logAdapter
-          .newWarningEntry(
+          .newInfoEntry(
             LogEvents.API_TOKEN,
             String.format(
-              "Issued ID token and access token for client %s (scope: %s)",
+              "Issued ID token and access token for client '%s' (scope: %s)",
               client.clientId(),
               accessToken.scope()))
           .write();
       }
       else {
         this.logAdapter
-          .newWarningEntry(
+          .newInfoEntry(
             LogEvents.API_TOKEN,
-            String.format("Issued ID token for client %s", client.clientId()))
+            String.format("Issued ID token for client '%s'", client.clientId()))
           .write();
       }
 
       return new Authentication(client, idToken, accessToken);
     }
-    catch (AccessException | IOException e) {
+    catch (Exception e) {
       throw new Authentication.TokenIssuanceException(
-        "Issuing tokens failed", e);
+        String.format("Issuing access token for client '%s' failed", client.clientId()),
+        e);
     }
   }
 }

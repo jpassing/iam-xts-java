@@ -32,6 +32,7 @@ import io.vertx.core.http.HttpServerRequest;
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.ForbiddenException;
 import java.time.OffsetDateTime;
+import java.util.Set;
 
 /**
  * Flow that authenticates clients using mTLS, terminated
@@ -68,6 +69,14 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     super(clientRepository, issuer, workloadIdentityPool, logAdapter);
     this.request = request;
     this.options = options;
+  }
+
+  private void addHeaderLabels(LogAdapter.LogEntry entry) {
+    var headers = this.request.headers();
+    for (var headerName : this.options.allClientCertHeaders())
+    {
+      entry.addLabel("header/" + headerName.toLowerCase(), headers.get(headerName));
+    }
   }
 
   //---------------------------------------------------------------------------
@@ -133,16 +142,19 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
       this.logAdapter
         .newErrorEntry(
           LogEvents.API_TOKEN,
-          String.format(
-            "The client certificate did not pass verification: (%s: %s, %s: %s [sha256])",
-            this.options.clientCertErrorHeaderName,
-            headers.get(this.options.clientCertErrorHeaderName),
-            this.options.clientCertHashHeaderName,
-            headers.get(this.options.clientCertHashHeaderName)))
+          "The client certificate did not pass verification")
+        .addLabels(this::addHeaderLabels)
         .write();
 
       throw new ForbiddenException("The client certificate did not pass verification");
     }
+
+    this.logAdapter
+      .newInfoEntry(
+        LogEvents.API_TOKEN,
+        "The client was authenticated successfully")
+      .addLabels(this::addHeaderLabels)
+      .write();
 
     //
     // NB. There's no way for us to check that the "Verified" header was
@@ -181,5 +193,19 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     String clientCertSerialNumberHeaderName,
     String clientCertNotBeforeHeaderName,
     String clientCertNotAfterHeaderName
-  ) {}
+  ) {
+    public Set<String> allClientCertHeaders() {
+      return Set.of(
+        clientCertPresentHeaderName,
+        clientCertChainVerifiedHeaderName,
+        clientCertErrorHeaderName,
+        clientCertSpiffeIdHeaderName,
+        clientCertDnsSansHeaderName,
+        clientCertUriSansHeaderName,
+        clientCertHashHeaderName,
+        clientCertSerialNumberHeaderName,
+        clientCertNotBeforeHeaderName,
+        clientCertNotAfterHeaderName);
+    }
+  }
 }

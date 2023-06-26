@@ -27,20 +27,33 @@ import com.google.api.services.sts.v1.CloudSecurityToken;
 import com.google.api.services.sts.v1.model.GoogleIdentityStsV1ExchangeTokenRequest;
 import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.ApplicationVersion;
+import com.google.solutions.tokenservice.ProjectId;
+import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.oauth.AccessToken;
 import com.google.solutions.tokenservice.oauth.IdToken;
+import com.google.solutions.tokenservice.oauth.TokenIssuer;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.time.Duration;
 import java.time.Instant;
 
 /**
  * Adapter class for interacting with the STS API.
  */
+@ApplicationScoped
 public class WorkloadIdentityPool {
   private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:token-exchange";
   private static final String ACCESS_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
   private static final String ID_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:id_token";
+
+  private final Options options;
+
+  public WorkloadIdentityPool(Options options) {
+    this.options = options;
+  }
 
   private CloudSecurityToken createClient() throws IOException
   {
@@ -60,23 +73,20 @@ public class WorkloadIdentityPool {
 
   public AccessToken issueAccessToken(
     IdToken idToken,
-    String audience,
     String scope
   ) throws IOException {
     Preconditions.checkNotNull(idToken, "idToken");
-    Preconditions.checkNotNull(audience, "audience");
     Preconditions.checkNotNull(scope, "scope");
 
     try {
       var client = createClient();
-
       var request = new GoogleIdentityStsV1ExchangeTokenRequest()
         .setGrantType(GRANT_TYPE)
-        .setAudience(audience)
+        .setAudience(this.options.audience())
         .setScope(scope)
         .setRequestedTokenType(ACCESS_TOKEN_TYPE)
         .setSubjectToken(idToken.value())
-        .setRequestedTokenType(ID_TOKEN_TYPE);
+        .setSubjectTokenType(ID_TOKEN_TYPE);
 
       var issueTime = Instant.now();
 
@@ -99,6 +109,28 @@ public class WorkloadIdentityPool {
         default:
           throw (GoogleJsonResponseException) e.fillInStackTrace();
       }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Inner classes.
+  // -------------------------------------------------------------------------
+
+  public record Options(
+    long projectNumber,
+    String poolId,
+    String providerId
+  ) {
+    public String audience() {
+      return String.format(
+        "//iam.googleapis.com/projects/%d/locations/global/workloadIdentityPools/%s/providers/%s",
+        this.projectNumber(),
+        this.poolId(),
+        this.providerId());
+    }
+
+    public URL expectedTokenAudience() {
+      return URLHelper.fromString("https:" + audience());
     }
   }
 }

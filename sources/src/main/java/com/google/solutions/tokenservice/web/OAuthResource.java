@@ -108,22 +108,14 @@ public class OAuthResource {
     // Run flow to authenticate the user or client.
     //
     try {
-      var authentication = flow.get().authenticate(request);
-
-      this.logAdapter
-        .newInfoEntry(
-          LogEvents.API_TOKEN,
-          String.format("Issued value for client '%s'", authentication.client().clientId()))
-        .write();
-
-      return authentication;
+      return flow.get().authenticate(request);
     }
     catch (Exception e)
     {
       this.logAdapter
         .newErrorEntry(
           LogEvents.API_TOKEN,
-          String.format("Authentication flow failed: %s", Exceptions.getFullMessage(e)))
+          String.format("Authentication failed: %s", Exceptions.getFullMessage(e)))
         .write();
 
       throw (Exception) e.fillInStackTrace();
@@ -216,7 +208,7 @@ public class OAuthResource {
       }
       catch (Authentication.TokenIssuanceException e) {
         return Response.status(Response.Status.BAD_REQUEST)
-          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.TEMPORARILY_UNAVAILABLE, e))
+          .entity(new ExternalCredentialErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
           .build();
       }
       catch (Exception e) {
@@ -259,7 +251,7 @@ public class OAuthResource {
       }
       catch (Authentication.TokenIssuanceException e) {
         return Response.status(Response.Status.BAD_REQUEST)
-          .entity(new TokenErrorResponse(TokenErrorResponse.TEMPORARILY_UNAVAILABLE, e))
+          .entity(new TokenErrorResponse(TokenErrorResponse.SERVER_ERROR, e))
           .build();
       }
       catch (Exception e) {
@@ -296,7 +288,7 @@ public class OAuthResource {
     @JsonProperty("grant_types_supported")
     Collection<String> supportedGrantTypes,
 
-    @JsonProperty("subject_types_supported")
+    @JsonProperty("subject_types_supported") // TODO: Remove?
     Collection<String> supportedSubjectTypes,
 
     @JsonProperty("id_token_signing_alg_values_supported")

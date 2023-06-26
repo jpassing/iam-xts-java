@@ -39,6 +39,7 @@ import com.google.solutions.tokenservice.oauth.TokenIssuer;
 import com.google.solutions.tokenservice.oauth.XlbMtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.platform.ServiceAccount;
+import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -107,6 +108,8 @@ public class RuntimeEnvironment {
     // is request-scoped.
     //
     var logAdapter = new LogAdapter();
+
+    // TODO: testPermission on SA
 
     if (isRunningOnCloudRun()) {
       //
@@ -263,10 +266,29 @@ public class RuntimeEnvironment {
 
     return new TokenIssuer.Options(
       baseUri,
-      Strings.isNullOrEmpty(this.configuration.tokenAudience.getValue())
-        ? null
-        : URLHelper.fromString(this.configuration.tokenAudience.getValue()),
+      getWorkloadIdentityPoolOptions().expectedTokenAudience(),
       this.configuration.tokenValidity.getValue()
     );
+  }
+
+  @Produces
+  @Dependent
+  public WorkloadIdentityPool.Options getWorkloadIdentityPoolOptions() {
+    if (!this.configuration.workloadIdenityProjectNumber.isValid()) {
+      throw new RuntimeException("The workload identity project number is invalid");
+    }
+
+    if (!this.configuration.workloadIdenityPoolId.isValid()) {
+      throw new RuntimeException("The workload identity pool ID is invalid");
+    }
+
+    if (!this.configuration.workloadIdenityProviderIdId.isValid()) {
+      throw new RuntimeException("The workload identity provider number is invalid");
+    }
+
+    return new WorkloadIdentityPool.Options(
+      this.configuration.workloadIdenityProjectNumber.getValue(),
+      this.configuration.workloadIdenityPoolId.getValue(),
+      this.configuration.workloadIdenityProviderIdId.getValue());
   }
 }

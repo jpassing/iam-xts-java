@@ -21,7 +21,10 @@
 
 package com.google.solutions.tokenservice.platform;
 
+import com.google.solutions.tokenservice.oauth.IdToken;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,15 +39,20 @@ public class TestWorkloadIdentityPool {
   // -------------------------------------------------------------------------
 
   @Test
-  public void whenAudienceInvalid_thenIssueAccessTokenThrowsException()
+  public void whenPoolInvalid_thenIssueAccessTokenThrowsException()
     throws Exception {
-    var sts = new WorkloadIdentityPool();
+
+    var options = new WorkloadIdentityPool.Options(
+      1,
+      "doesnotexist",
+      "doesnotexist");
+
+    var sts = new WorkloadIdentityPool(options);
 
     assertThrows(
       IllegalArgumentException.class,
       () -> sts.issueAccessToken(
-        "id-token",
-        "//invalid-audience",
+        new IdToken("id-token", Instant.now(), Instant.MAX),
         CLOUD_PLATFORM_SCOPE));
   }
 

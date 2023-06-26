@@ -38,8 +38,16 @@ public class RuntimeConfiguration {
     List.of("AUTH_FLOWS"),
     XlbMtlsClientCredentialsFlow.NAME); //TODO: Disable all flows by default.
 
-  protected final StringSetting tokenAudience = new StringSetting(
-    List.of("TOKEN_AUDIENCE"),
+  protected final LongSetting workloadIdenityProjectNumber = new LongSetting(
+    List.of("WORKLOAD_IDENITY_PROJECT_NUMBER"),
+    null);
+
+  protected final StringSetting workloadIdenityPoolId = new StringSetting(
+    List.of("WORKLOAD_IDENITY_POOL_ID"),
+    null);
+
+  protected final StringSetting workloadIdenityProviderIdId = new StringSetting(
+    List.of("WORKLOAD_IDENITY_PROVIDER_ID"),
     null);
 
   protected final DurationSetting tokenValidity = new DurationSetting(
@@ -169,6 +177,17 @@ public class RuntimeConfiguration {
     @Override
     protected Integer parse(String value) {
       return Integer.parseInt(value);
+    }
+  }
+
+  public class LongSetting extends Setting<Long> {
+    public LongSetting(Collection<String> keys, Long defaultValue) {
+      super(keys, defaultValue);
+    }
+
+    @Override
+    protected Long parse(String value) {
+      return Long.parseLong(value);
     }
   }
 
