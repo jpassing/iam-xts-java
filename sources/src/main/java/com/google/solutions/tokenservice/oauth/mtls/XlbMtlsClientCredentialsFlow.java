@@ -139,7 +139,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
         "The request did not include a client certificate");
     }
 
-    if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertChainVerifiedHeaderName)))
+    if (!"true".equalsIgnoreCase(headers.get(this.options.clientCertChainVerifiedHeaderName())))
     {
       this.logAdapter
         .newErrorEntry(
@@ -151,10 +151,18 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
       throw new ForbiddenException("The client certificate did not pass verification");
     }
 
+    var clientId = headers.get(this.options.clientIdHeaderName());
+    if (Strings.isNullOrEmpty(clientId)) {
+      throw new ForbiddenException(
+        String.format(
+          "The client presented a valid certificate, but the header '%s' does not contain a client ID",
+          this.options.clientIdHeaderName()));
+    }
+
     this.logAdapter
       .newInfoEntry(
         LogEvents.API_TOKEN,
-        "The client was authenticated successfully")
+        String.format("Authenticated client '%s' using mTLS headers", clientId))
       .addLabels(this::addHeaderLabels)
       .write();
 
@@ -185,6 +193,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
   // -------------------------------------------------------------------------
 
   public record Options(
+    String clientIdHeaderName,
     String clientCertPresentHeaderName,
     String clientCertChainVerifiedHeaderName,
     String clientCertErrorHeaderName,

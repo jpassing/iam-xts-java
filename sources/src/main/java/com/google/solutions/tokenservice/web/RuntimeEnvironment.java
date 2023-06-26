@@ -31,7 +31,9 @@ import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.ApplicationVersion;
+import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
 import com.google.solutions.tokenservice.oauth.mtls.XlbMtlsClientCredentialsFlow;
@@ -47,6 +49,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,6 +106,23 @@ public class RuntimeEnvironment {
     // is request-scoped.
     //
     var logAdapter = new LogAdapter();
+
+    //
+    // Validate options.
+    //
+    var validClientIdHeaders = Set.of(
+      this.configuration.mtlsClientCertSpiffeIdHeader.getValue(),
+      this.configuration.mtlsClientCertDnsSansHeader.getValue(),
+      this.configuration.mtlsClientCertUriSansHeader.getValue());
+
+    if (!validClientIdHeaders.contains(this.configuration.mtlsClientIdHeader.getValue())) {
+      throw new RuntimeException(
+        String.format(
+          "The header '%s' cannot be used as client ID header. " +
+            "Use one of the following headers instead: %s.",
+          this.configuration.mtlsClientIdHeader.getValue(),
+          String.join(", ", validClientIdHeaders)));
+    }
 
     if (isRunningOnCloudRun()) {
       //
@@ -235,6 +255,7 @@ public class RuntimeEnvironment {
   @Dependent
   public XlbMtlsClientCredentialsFlow.Options getXlbMtlsClientCredentialsFlowOptions() {
     return new XlbMtlsClientCredentialsFlow.Options(
+      this.configuration.mtlsClientIdHeader.getValue(),
       this.configuration.mtlsClientCertPresentHeader.getValue(),
       this.configuration.mtlsClientCertChainVerifiedHeader.getValue(),
       this.configuration.mtlsClientCertErrorHeader.getValue(),
@@ -252,13 +273,27 @@ public class RuntimeEnvironment {
   public IdTokenIssuer.Options getTokenIssuerOptions(
     HttpServerRequest request
   ) throws MalformedURLException {
-    //
-    // Use the base URL as issuer ID.
-    //
-    var baseUri = new URL(new URL(request.absoluteURI()), "/");
-
+    URL issuerId;
+    if (!Strings.isNullOrEmpty(this.configuration.tokenIssuer.getValue()))
+    {
+      //
+      // Use configured issuer URL.
+      //
+      issuerId = URLHelper.fromString(this.configuration.tokenIssuer.getValue());
+    }
+    else {
+      //
+      // Determine issuer URL from request URL.
+      //
+      // Because the load balancer terminates HTTPS, we have
+      // to force the scheme back to https://.
+      //
+      issuerId = new URL(new URL(
+        request.absoluteURI().replace("http:", "https:")), "/");
+    }
+    
     return new IdTokenIssuer.Options(
-      baseUri,
+      issuerId,
       getWorkloadIdentityPoolOptions().expectedTokenAudience(),
       this.configuration.tokenValidity.getValue()
     );

@@ -21,6 +21,7 @@ import static org.wildfly.common.Assert.assertTrue;
 public class TestXlbMtlsClientCredentialsFlow {
   private static final XlbMtlsClientCredentialsFlow.Options OPTIONS
     = new XlbMtlsClientCredentialsFlow.Options(
+      "X-ClientId",
       "X-CertPresent",
       "X-CertChainVerified",
       "X-CertError",

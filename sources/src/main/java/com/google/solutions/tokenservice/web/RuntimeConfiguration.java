@@ -51,6 +51,10 @@ public class RuntimeConfiguration {
     List.of("TOKEN_VALIDITY"),
     Duration.ofMinutes(5));
 
+  protected final StringSetting tokenIssuer = new StringSetting(
+    List.of("TOKEN_ISSUER"),
+    null);
+
   //
   // Names of mTLS headers. The header names are configurable, cf.
   // https://cloud.google.com/load-balancing/docs/https/setting-up-mtls-global-ext-https#add-custom-header
@@ -72,7 +76,7 @@ public class RuntimeConfiguration {
     List.of("MTLS_HEADER_CLIENT_CERT_SPIFFE_ID"),
     "X-Client-Cert-Spiffe");
   protected final StringSetting mtlsClientCertUriSansHeader = new StringSetting(
-    List.of("MTLS_HEADER_client_cert_uri_sans"),
+    List.of("MTLS_HEADER_CLIENT_CERT_URI_SANS"),
     "X-Client-Cert-URI-SANs");
   protected final StringSetting mtlsClientCertDnsSansHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_DNSNAME_SANS"),
@@ -86,6 +90,9 @@ public class RuntimeConfiguration {
   protected final StringSetting mtlsClientCertNotAfterHeader = new StringSetting(
     List.of("MTLS_HEADER_CLIENT_CERT_VALID_NOT_AFTER"),
     "X-Client-Cert-Valid-Not-After");
+  protected final StringSetting mtlsClientIdHeader = new StringSetting(
+    List.of("MTLS_HEADER_CLIENT_ID"),
+    "X-Client-Cert-Spiffe");
 
   public RuntimeConfiguration(Map<String, String> settings) {
     this(key -> settings.get(key));
