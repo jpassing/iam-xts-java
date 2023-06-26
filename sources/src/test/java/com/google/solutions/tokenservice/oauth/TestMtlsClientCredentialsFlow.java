@@ -6,6 +6,7 @@ import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -27,7 +28,11 @@ public class TestMtlsClientCredentialsFlow {
   private static class Flow extends  MtlsClientCredentialsFlow
   {
     public Flow(ClientPolicy clientPolicy, TokenIssuer issuer) {
-      super(clientPolicy, issuer, new LogAdapter());
+      super(
+        clientPolicy,
+        issuer,
+        Mockito.mock(WorkloadIdentityPool.class),
+        new LogAdapter());
     }
 
     @Override

@@ -25,6 +25,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.web.LogEvents;
 import io.vertx.core.http.HttpServerRequest;
 
@@ -60,10 +61,11 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     Options options,
     ClientPolicy clientRepository,
     TokenIssuer issuer,
+    WorkloadIdentityPool workloadIdentityPool,
     HttpServerRequest request,
     LogAdapter logAdapter
   ) {
-    super(clientRepository, issuer, logAdapter);
+    super(clientRepository, issuer, workloadIdentityPool, logAdapter);
     this.request = request;
     this.options = options;
   }

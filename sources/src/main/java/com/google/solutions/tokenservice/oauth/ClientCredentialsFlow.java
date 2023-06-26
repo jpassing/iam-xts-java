@@ -26,9 +26,9 @@ import com.google.api.client.util.GenericData;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
-import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.AccessException;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.web.LogEvents;
 
 import java.io.IOException;
@@ -39,13 +39,16 @@ import java.time.Instant;
  */
 public abstract class ClientCredentialsFlow implements AuthenticationFlow {
   private final TokenIssuer issuer;
+  private final WorkloadIdentityPool workloadIdentityPool;
   protected final LogAdapter logAdapter;
 
   public ClientCredentialsFlow(
     TokenIssuer issuer,
+    WorkloadIdentityPool workloadIdentityPool,
     LogAdapter logAdapter
   ) {
     this.issuer = issuer;
+    this.workloadIdentityPool = workloadIdentityPool;
     this.logAdapter = logAdapter;
   }
 

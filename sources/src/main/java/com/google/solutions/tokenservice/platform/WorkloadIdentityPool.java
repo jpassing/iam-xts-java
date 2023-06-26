@@ -25,10 +25,10 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.sts.v1.CloudSecurityToken;
 import com.google.api.services.sts.v1.model.GoogleIdentityStsV1ExchangeTokenRequest;
-import com.google.api.services.sts.v1.model.GoogleIdentityStsV1ExchangeTokenResponse;
 import com.google.common.base.Preconditions;
 import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.oauth.AccessToken;
+import com.google.solutions.tokenservice.oauth.IdToken;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -37,7 +37,7 @@ import java.time.Instant;
 /**
  * Adapter class for interacting with the STS API.
  */
-public class TokenExchange {
+public class WorkloadIdentityPool {
   private static final String GRANT_TYPE = "urn:ietf:params:oauth:grant-type:token-exchange";
   private static final String ACCESS_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:access_token";
   private static final String ID_TOKEN_TYPE = "urn:ietf:params:oauth:token-type:id_token";
@@ -58,8 +58,8 @@ public class TokenExchange {
     }
   }
 
-  public AccessToken exchangeIdTokenForAccessToken(
-    String idToken,
+  public AccessToken issueAccessToken(
+    IdToken idToken,
     String audience,
     String scope
   ) throws IOException {
@@ -75,7 +75,7 @@ public class TokenExchange {
         .setAudience(audience)
         .setScope(scope)
         .setRequestedTokenType(ACCESS_TOKEN_TYPE)
-        .setSubjectToken(idToken)
+        .setSubjectToken(idToken.value())
         .setRequestedTokenType(ID_TOKEN_TYPE);
 
       var issueTime = Instant.now();

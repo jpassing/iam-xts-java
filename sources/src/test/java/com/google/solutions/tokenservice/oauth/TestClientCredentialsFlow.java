@@ -3,7 +3,9 @@ package com.google.solutions.tokenservice.oauth;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -19,7 +21,10 @@ public class TestClientCredentialsFlow {
   private static class Flow extends ClientCredentialsFlow
   {
     public Flow(TokenIssuer issuer) {
-      super(issuer, new LogAdapter());
+      super(
+        issuer,
+        Mockito.mock(WorkloadIdentityPool.class),
+        new LogAdapter());
     }
 
     @Override

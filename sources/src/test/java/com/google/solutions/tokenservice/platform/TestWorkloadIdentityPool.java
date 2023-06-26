@@ -26,37 +26,37 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestTokenExchange {
+public class TestWorkloadIdentityPool {
 
   private static final String CLOUD_PLATFORM_SCOPE
     = "https://www.googleapis.com/auth/cloud-platform";
 
   // -------------------------------------------------------------------------
-  // exchangeIdTokenForAccessToken.
+  // IssueAccessToken.
   // -------------------------------------------------------------------------
 
   @Test
-  public void whenAudienceInvalid_thenExchangeIdTokenForAccessTokenThrowsException()
+  public void whenAudienceInvalid_thenIssueAccessTokenThrowsException()
     throws Exception {
-    var sts = new TokenExchange();
+    var sts = new WorkloadIdentityPool();
 
     assertThrows(
       IllegalArgumentException.class,
-      () -> sts.exchangeIdTokenForAccessToken(
+      () -> sts.issueAccessToken(
         "id-token",
         "//invalid-audience",
         CLOUD_PLATFORM_SCOPE));
   }
 
   @Test
-  public void whenTokenInvalid_thenExchangeIdTokenForAccessTokenThrowsException()
+  public void whenTokenInvalid_thenIssueAccessTokenThrowsException()
     throws Exception {
 
     assertTrue(false);
   }
 
   @Test
-  public void whenScopeInvalid_thenExchangeIdTokenForAccessTokenThrowsException()
+  public void whenScopeInvalid_thenIssueAccessTokenThrowsException()
     throws Exception {
 
     assertTrue(false);

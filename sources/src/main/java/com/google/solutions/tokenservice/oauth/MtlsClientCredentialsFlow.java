@@ -26,6 +26,7 @@ import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 
 /**
  * Flow that authenticates clients using mTLS.
@@ -40,9 +41,10 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
   public MtlsClientCredentialsFlow(
     ClientPolicy clientPolicy,
     TokenIssuer issuer,
+    WorkloadIdentityPool workloadIdentityPool,
     LogAdapter logAdapter
   ) {
-    super(issuer, logAdapter);
+    super(issuer, workloadIdentityPool, logAdapter);
     this.clientPolicy = clientPolicy;
   }
 

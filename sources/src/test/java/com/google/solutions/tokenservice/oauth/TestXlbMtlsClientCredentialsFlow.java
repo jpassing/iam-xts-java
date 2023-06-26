@@ -2,6 +2,7 @@ package com.google.solutions.tokenservice.oauth;
 
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
 import com.google.solutions.tokenservice.platform.LogAdapter;
+import com.google.solutions.tokenservice.platform.WorkloadIdentityPool;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,7 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
+      Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
 
@@ -76,6 +78,7 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
+      Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
 
@@ -96,6 +99,7 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
+      Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
 
@@ -116,6 +120,7 @@ public class TestXlbMtlsClientCredentialsFlow {
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
+      Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
 
@@ -137,11 +142,11 @@ public class TestXlbMtlsClientCredentialsFlow {
     var httpRequest = Mockito.mock(HttpServerRequest.class);
     when(httpRequest.headers()).thenReturn(headers);
 
-
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
+      Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
 
@@ -163,11 +168,11 @@ public class TestXlbMtlsClientCredentialsFlow {
     var httpRequest = Mockito.mock(HttpServerRequest.class);
     when(httpRequest.headers()).thenReturn(headers);
 
-
     var flow = new XlbMtlsClientCredentialsFlow(
       OPTIONS,
       Mockito.mock(ClientPolicy.class),
       Mockito.mock(TokenIssuer.class),
+      Mockito.mock(WorkloadIdentityPool.class),
       httpRequest,
       new LogAdapter());
 
