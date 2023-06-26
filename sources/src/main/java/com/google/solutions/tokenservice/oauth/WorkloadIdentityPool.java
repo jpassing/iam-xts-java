@@ -21,8 +21,13 @@
 
 package com.google.solutions.tokenservice.oauth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.Key;
 import com.google.api.services.sts.v1.CloudSecurityToken;
 import com.google.api.services.sts.v1.model.GoogleIdentityStsV1ExchangeTokenRequest;
 import com.google.common.base.Preconditions;
@@ -80,7 +85,7 @@ public class WorkloadIdentityPool {
 
     try {
       var client = createStsClient();
-      var request = new GoogleIdentityStsV1ExchangeTokenRequest()
+      var requestBody = new GoogleIdentityStsV1ExchangeTokenRequest()
         .setGrantType(GRANT_TYPE)
         .setAudience(this.options.audience())
         .setScope(scope)
@@ -88,12 +93,36 @@ public class WorkloadIdentityPool {
         .setSubjectToken(idToken.value())
         .setSubjectTokenType(ID_TOKEN_TYPE);
 
-      var issueTime = Instant.now();
+      //
+      // The token API returns errors in OAuth format, not in the standard
+      // Google API error format as the client library expects.
+      //
+      // Add hook to extract error details.
+      //
+      var request = client.v1().new Token(requestBody) {
+        @Override
+        protected GoogleJsonResponseException newExceptionOnError(HttpResponse response) {
+          try {
+            var builder = new HttpResponseException.Builder(
+              response.getStatusCode(),
+              response.getStatusMessage(),
+              response.getHeaders());
 
-      var response = client
-        .v1()
-        .token(request)
-        .execute();
+            var errorDetails = client
+              .getJsonFactory()
+              .fromInputStream(response.getContent(), TokenErrorDetails.class);
+
+            return new GoogleJsonResponseException(builder, errorDetails.toError());
+          }
+          catch (IOException e)
+          {
+            return super.newExceptionOnError(response);
+          }
+        }
+      };
+
+      var issueTime = Instant.now();
+      var response = request.execute();
 
       return new StsAccessToken(
         response.getAccessToken(),
@@ -104,7 +133,9 @@ public class WorkloadIdentityPool {
     catch (GoogleJsonResponseException e) {
       switch (e.getStatusCode()) {
         case 400:
-          throw new IllegalArgumentException(e.getMessage());
+          throw new IllegalArgumentException(e.getDetails() != null
+            ? e.getDetails().getMessage()
+            : e.getMessage());
 
         default:
           throw (GoogleJsonResponseException) e.fillInStackTrace();
@@ -146,6 +177,23 @@ public class WorkloadIdentityPool {
 
     public URL expectedTokenAudience() {
       return URLHelper.fromString("https:" + audience());
+    }
+  }
+
+  public static class TokenErrorDetails {
+    @Key
+    private String error;
+
+    @Key
+    private String error_description;
+
+    public GoogleJsonError toError() {
+      var error = new GoogleJsonError();
+      error.setMessage(String.format(
+        "Token exchange failed with code %s: %s",
+        this.error,
+        this.error_description));
+      return error;
     }
   }
 }

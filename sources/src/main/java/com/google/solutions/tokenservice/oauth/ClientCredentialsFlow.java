@@ -80,9 +80,9 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     //
 
     var idTokenPayload = new JsonWebToken.Payload()
-      .set("amr", name().toLowerCase())
-      .set("client_id", client.clientId());
-      //.set("sub", client.clientId());
+      .set("amr", new String[] { name().toLowerCase() }) //TODO: add amr
+      //.set("client_id", client.clientId())//TODO: add clientid
+      .set("sub", client.clientId()); //TODO: remove sub?
 
     var clientClaims = new GenericData();
     clientClaims.putAll(client.additionalClaims());

@@ -68,27 +68,6 @@ public abstract class MtlsClientCredentialsFlow extends ClientCredentialsFlow {
     return "tls_client_auth";
   }
 
-
-  @Override
-  public boolean canAuthenticate(AuthenticationRequest request) {
-    Preconditions.checkNotNull(request, "request");
-
-    //
-    // Check if the client provided a client_id. Subclasses
-    // may perform additional checks.
-    //
-    if (Strings.isNullOrEmpty(request.parameters().getFirst("client_id"))) {
-      this.logAdapter
-        .newWarningEntry(
-          LogEvents.API_TOKEN,
-          "The request lacks a required parameter: client_id")
-        .write();
-      return false;
-    }
-
-    return true;
-  }
-
   @Override
   protected AuthenticatedClient authenticateClient(AuthenticationRequest request) {
     //

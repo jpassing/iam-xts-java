@@ -22,6 +22,9 @@
 package com.google.solutions.tokenservice.platform;
 
 public abstract class AccessException extends Exception {
+  public AccessException(String message) {
+    super(message);
+  }
   public AccessException(String message, Exception inner) {
     super(message, inner);
   }
