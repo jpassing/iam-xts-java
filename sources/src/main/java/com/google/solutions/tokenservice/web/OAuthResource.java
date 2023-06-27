@@ -70,7 +70,6 @@ public class OAuthResource {
    * OAuth token endpoint.
    */
   private Authentication handleTokenRequest(
-    HttpHeaders headers,
     String grantType,
     MultivaluedMap<String, String> parameters
   ) throws Exception {
@@ -177,7 +176,6 @@ public class OAuthResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public Response post(
-    @Context HttpHeaders headers,
     @FormParam("grant_type") String grantType,
     @FormParam("format") String format,
     MultivaluedMap<String, String> parameters
@@ -189,9 +187,8 @@ public class OAuthResource {
       // see https://google.aip.dev/auth/4117.
       //
       try {
-        var authentication = handleTokenRequest(headers, grantType, parameters);
+        var authentication = handleTokenRequest(grantType, parameters);
 
-        //TODO: Add tests
         return Response
           .ok()
           .entity(new ExternalCredentialResponse(
@@ -226,8 +223,7 @@ public class OAuthResource {
       // Return results in standard OAuth format.
       //
       try {
-        var authentication = handleTokenRequest(headers, grantType, parameters);
-        //TODO: Add tests for scope, service_account
+        var authentication = handleTokenRequest(grantType, parameters);
         var tokenResponse = authentication.accessToken() != null
           ? new TokenResponse(
           authentication.idToken().value(),
