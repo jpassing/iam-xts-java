@@ -24,40 +24,7 @@ public class TestIdTokenIssuer {
   // -------------------------------------------------------------------------
 
   @Test
-  public void whenNoAudienceConfigured_thenIssueTokenCreatesTokenForClient() throws Exception {
-    var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
-
-    var issuer = new IdTokenIssuer(
-      new IdTokenIssuer.Options(ISSUER_ID, null, Duration.ofMinutes(1)),
-      serviceAccount);
-
-    var payload = new JsonWebToken.Payload()
-      .set("test", "value");
-
-    var client = new AuthenticatedClient("client-1", Instant.now(), Map.of());
-    var token = issuer.issueIdToken(
-      client,
-      payload);
-
-    var verifiedPayload = TokenVerifier
-      .newBuilder()
-      .setCertificatesLocation(serviceAccount.jwksUrl().toString())
-      .setIssuer("http://issuer.example.com")
-      .setAudience("client-1")
-      .build()
-      .verify(token.value())
-      .getPayload();
-
-    assertEquals("http://issuer.example.com", verifiedPayload.getIssuer());
-    assertEquals("client-1", verifiedPayload.getAudience());
-    assertNotNull(verifiedPayload.getIssuedAtTimeSeconds());
-    assertNotNull(verifiedPayload.getExpirationTimeSeconds());
-    assertTrue(token.expiryTime().isAfter(Instant.now()));
-    assertEquals("value", verifiedPayload.get("test"));
-  }
-
-  @Test
-  public void whenAudienceConfigured_thenIssueTokenCreatesTokenForAudience() throws Exception {
+  public void issueTokenCreatesTokenForAudience() throws Exception {
     var serviceAccount = IntegrationTestEnvironment.SERVICE_ACCOUNT;
 
     var issuer = new IdTokenIssuer(

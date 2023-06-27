@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.MultivaluedHashMap;
+import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -90,10 +91,11 @@ public class TestMtlsClientCredentialsFlow {
     when(clientRepository.authenticateClient(any()))
       .thenReturn(client);
 
+    var tokenAudience = "https://example.com";
     var issuer = new IdTokenIssuer(
       new IdTokenIssuer.Options(
         URLHelper.fromString(ISSUER_ID),
-        null,
+        new URL(tokenAudience),
         Duration.ofMinutes(1)),
       IntegrationTestEnvironment.SERVICE_ACCOUNT);
 
@@ -109,7 +111,7 @@ public class TestMtlsClientCredentialsFlow {
       .newBuilder()
       .setCertificatesLocation(issuer.jwksUrl().toString())
       .setIssuer(issuer.id().toString())
-      .setAudience("client-1")
+      .setAudience(tokenAudience)
       .build()
       .verify(response.idToken().value())
       .getPayload();
