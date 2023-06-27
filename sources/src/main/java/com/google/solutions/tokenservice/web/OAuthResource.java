@@ -355,25 +355,28 @@ public class OAuthResource {
    * External credential response entity as defined in https://google.aip.dev/auth/4117.
    */
   public record ExternalCredentialResponse(
+    @JsonProperty("success")
+    boolean success,
+
+    @JsonProperty("version")
+    int version,
+
     @JsonProperty("id_token")
     String idToken,
+
+    @JsonProperty("token_type")
+    String tokenType,
 
     @JsonProperty("expiration_time")
     long expirationTime
   ) {
-    @JsonProperty("token_type")
-    String tokenType() {
-      return "urn:ietf:params:oauth:token-type:id_token";
-    }
-
-    @JsonProperty("version")
-    public int version() {
-      return 1;
-    }
-
-    @JsonProperty("success")
-    public boolean success() {
-      return true;
+    public ExternalCredentialResponse(String idToken, long expirationTime) {
+      this(
+        true,
+        1,
+        idToken,
+        "urn:ietf:params:oauth:token-type:id_token",
+        expirationTime);
     }
   }
 
@@ -381,25 +384,20 @@ public class OAuthResource {
    * External credential error entity as defined in https://google.aip.dev/auth/4117.
    */
   public record ExternalCredentialErrorResponse(
+    @JsonProperty("success")
+    boolean success,
+
+    @JsonProperty("version")
+    int version,
+
     @JsonProperty("code")
     String code,
 
     @JsonProperty("message")
     String message
   ) {
-
     public ExternalCredentialErrorResponse(String errorCode, Exception exception) {
-      this(errorCode, exception.getMessage());
-    }
-
-    @JsonProperty("version")
-    public int version() {
-      return 1;
-    }
-
-    @JsonProperty("success")
-    public boolean success() {
-      return false;
+      this(false, 1, errorCode, exception.getMessage());
     }
   }
 }

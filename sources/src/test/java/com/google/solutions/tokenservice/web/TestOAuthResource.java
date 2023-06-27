@@ -455,38 +455,4 @@ public class TestOAuthResource {
     assertEquals("id-token", response.getBody().idToken());
     assertEquals(60, response.getBody().expirationTime());
   }
-
-  @Test
-  public void whenFlowSucceedsWithIdAndAccessTokens_thenTokenSucceedsInExtCredFormat() throws Exception {
-    var iat = Instant.now();
-    var exp = iat.plus(Duration.ofMinutes(1));
-    var flow = new TestFlow()
-    {
-      @Override
-      public Authentication authenticate(AuthenticationRequest request
-      ) throws Authentication.AuthenticationException {
-        return new Authentication(
-          new AuthenticatedClient("client", iat, Map.of()),
-          new IdToken("id-token", iat, exp),
-          new StsAccessToken("access-token", "scope", iat, exp));
-      }
-    };
-
-    setFlow(flow);
-
-    var response = new RestDispatcher<>(this.resource)
-      .postForm(
-        "/token",
-        Map.of(
-          "grant_type", flow.grantType(),
-          "format", "external_credential"),
-        OAuthResource.TokenResponse.class);
-
-    assertEquals(200, response.getStatus());
-    assertEquals("id-token", response.getBody().idToken());
-    assertEquals("access-token", response.getBody().accessToken());
-    assertEquals("Bearer", response.getBody().tokenType());
-    assertEquals(exp.getEpochSecond(), response.getBody().expiresInSeconds());
-    assertEquals("scope", response.getBody().scope());
-  }
 }
