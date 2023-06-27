@@ -21,7 +21,6 @@
 
 package com.google.solutions.tokenservice.oauth;
 
-import java.time.Duration;
 import java.time.Instant;
 
 

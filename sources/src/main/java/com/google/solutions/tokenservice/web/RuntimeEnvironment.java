@@ -21,12 +21,6 @@
 
 package com.google.solutions.tokenservice.web;
 
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.GenericData;
 import com.google.auth.oauth2.ComputeEngineCredentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ImpersonatedCredentials;
@@ -36,10 +30,10 @@ import com.google.solutions.tokenservice.ApplicationVersion;
 import com.google.solutions.tokenservice.URLHelper;
 import com.google.solutions.tokenservice.UserId;
 import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
-import com.google.solutions.tokenservice.oauth.mtls.XlbMtlsClientCredentialsFlow;
-import com.google.solutions.tokenservice.platform.LogAdapter;
 import com.google.solutions.tokenservice.oauth.ServiceAccount;
 import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
+import com.google.solutions.tokenservice.oauth.mtls.XlbMtlsClientCredentialsFlow;
+import com.google.solutions.tokenservice.platform.LogAdapter;
 import io.vertx.core.http.HttpServerRequest;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -48,7 +42,6 @@ import javax.enterprise.inject.Produces;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

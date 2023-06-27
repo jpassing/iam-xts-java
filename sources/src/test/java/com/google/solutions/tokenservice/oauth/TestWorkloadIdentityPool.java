@@ -21,9 +21,6 @@
 
 package com.google.solutions.tokenservice.oauth;
 
-import com.google.solutions.tokenservice.oauth.IdToken;
-import com.google.solutions.tokenservice.oauth.StsAccessToken;
-import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.NotAuthenticatedException;
 import org.junit.jupiter.api.Test;
@@ -32,8 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestWorkloadIdentityPool {
 

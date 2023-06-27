@@ -5,7 +5,6 @@ import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnit;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import java.time.Instant;
@@ -14,7 +13,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.wildfly.common.Assert.assertTrue;
 
 public class TestClientCredentialsFlow {
   private static class Flow extends ClientCredentialsFlow

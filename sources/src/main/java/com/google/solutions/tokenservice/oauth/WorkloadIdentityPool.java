@@ -21,7 +21,6 @@
 
 package com.google.solutions.tokenservice.oauth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpResponse;

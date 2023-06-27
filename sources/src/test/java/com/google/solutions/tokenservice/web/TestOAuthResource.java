@@ -35,7 +35,6 @@ import java.time.Duration;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 
 public class TestOAuthResource {
 

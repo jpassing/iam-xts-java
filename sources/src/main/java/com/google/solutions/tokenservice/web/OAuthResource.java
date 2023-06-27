@@ -24,7 +24,10 @@ package com.google.solutions.tokenservice.web;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import com.google.solutions.tokenservice.Exceptions;
-import com.google.solutions.tokenservice.oauth.*;
+import com.google.solutions.tokenservice.oauth.Authentication;
+import com.google.solutions.tokenservice.oauth.AuthenticationFlow;
+import com.google.solutions.tokenservice.oauth.AuthenticationRequest;
+import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 
 import javax.enterprise.context.RequestScoped;
