@@ -27,8 +27,23 @@ import java.time.Instant;
  * An OAuth access token.
  */
 public interface AccessToken {
+  /**
+   * Encoded token.
+   */
   String value();
+
+  /**
+   * Scope of token.
+   */
   String scope();
+
+  /**
+   * Time of issuance.
+   */
   Instant issueTime();
+
+  /**
+   * Time of expiry.
+   */
   Instant expiryTime();
 }

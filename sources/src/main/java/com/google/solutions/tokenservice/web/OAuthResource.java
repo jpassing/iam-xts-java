@@ -188,6 +188,7 @@ public class OAuthResource {
       try {
         var authentication = handleTokenRequest(headers, grantType, parameters);
 
+        //TODO: Add tests
         return Response
           .ok()
           .entity(new ExternalCredentialResponse(
@@ -223,7 +224,7 @@ public class OAuthResource {
       //
       try {
         var authentication = handleTokenRequest(headers, grantType, parameters);
-
+        //TODO: Add tests for scope, service_account
         var tokenResponse = authentication.accessToken() != null
           ? new TokenResponse(
           authentication.idToken().value(),

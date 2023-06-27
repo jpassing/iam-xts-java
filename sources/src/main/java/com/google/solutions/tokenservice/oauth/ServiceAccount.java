@@ -48,9 +48,9 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Adapter class for interacting with the IAM Credentials API.
+ * A service account.
  */
-public class ServiceAccount {// TODO: Rename to ServiceIdentity
+public class ServiceAccount {
   public static final String OAUTH_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 
   private final UserId id;
@@ -95,14 +95,9 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
     Preconditions.checkNotNull(stsAccessToken, "stsAccessToken");
 
     this.id = id;
-    this.requestInitializer = new HttpRequestInitializer() {
-      @Override
-      public void initialize(HttpRequest httpRequest) throws IOException {
-        httpRequest
-          .getHeaders()
-          .put("Authorization", String.format("Bearer %s", stsAccessToken.value()));
-      }
-    };
+    this.requestInitializer = httpRequest -> httpRequest
+      .getHeaders()
+      .put("Authorization", String.format("Bearer %s", stsAccessToken.value()));
   }
 
   /**
@@ -162,6 +157,10 @@ public class ServiceAccount {// TODO: Rename to ServiceIdentity
     List<String> scopes,
     Duration lifetime
   ) throws ApiException, IOException {
+    Preconditions.checkNotNull(scopes, "scopes");
+    Preconditions.checkNotNull(lifetime, "lifetime");
+    Preconditions.checkArgument(!lifetime.isNegative(), "lifetime");
+
     try {
       var request = new GenerateAccessTokenRequest()
         .setScope(scopes)

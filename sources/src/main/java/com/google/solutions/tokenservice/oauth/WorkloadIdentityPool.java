@@ -43,7 +43,7 @@ import java.security.GeneralSecurityException;
 import java.time.Instant;
 
 /**
- * Adapter class for interacting with the STS API.
+ * A workload identity pool.
  */
 @ApplicationScoped
 public class WorkloadIdentityPool {
@@ -156,7 +156,6 @@ public class WorkloadIdentityPool {
   ) {
     return new ServiceAccount(serviceAccountId, accessToken);
   }
-
 
   // -------------------------------------------------------------------------
   // Inner classes.

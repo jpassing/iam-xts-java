@@ -4,7 +4,6 @@ import com.google.solutions.tokenservice.oauth.AuthenticationRequest;
 import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
 import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
-import com.google.solutions.tokenservice.oauth.mtls.XlbMtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.impl.headers.HeadersMultiMap;
@@ -136,7 +135,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var request = createRequest("client-1");
     assertThrows(
       ForbiddenException.class,
-      () -> flow.verifyClientCertificate(request));
+      () -> flow.getVerifiedClientAttributes(request));
   }
 
   @Test
@@ -161,7 +160,7 @@ public class TestXlbMtlsClientCredentialsFlow {
     var request = createRequest("client-1");
     assertThrows(
       ForbiddenException.class,
-      () -> flow.verifyClientCertificate(request));
+      () -> flow.getVerifiedClientAttributes(request));
   }
 
   @Test
@@ -186,7 +185,7 @@ public class TestXlbMtlsClientCredentialsFlow {
 
     var request = createRequest("client-1");
 
-    var attributes = flow.verifyClientCertificate(request);
+    var attributes = flow.getVerifiedClientAttributes(request);
 
     assertNotNull(attributes);
     assertEquals("spiffe-1", attributes.spiffeId());

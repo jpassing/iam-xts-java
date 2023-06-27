@@ -8,15 +8,12 @@ import com.google.solutions.tokenservice.oauth.IdTokenIssuer;
 import com.google.solutions.tokenservice.oauth.WorkloadIdentityPool;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 import com.google.solutions.tokenservice.oauth.client.ClientPolicy;
-import com.google.solutions.tokenservice.oauth.mtls.MtlsClientCertificate;
-import com.google.solutions.tokenservice.oauth.mtls.MtlsClientCredentialsFlow;
 import com.google.solutions.tokenservice.platform.IntegrationTestEnvironment;
 import com.google.solutions.tokenservice.platform.LogAdapter;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.MultivaluedHashMap;
-import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -46,8 +43,8 @@ public class TestMtlsClientCredentialsFlow {
     }
 
     @Override
-    protected MtlsClientCertificate verifyClientCertificate(AuthenticationRequest request) {
-      return new MtlsClientCertificate(null, null, null, null, null, null, null, null);
+    protected MtlsClientAttributes getVerifiedClientAttributes(AuthenticationRequest request) {
+      return new MtlsClientAttributes(null, null, null, null, null, null, null, null);
     }
   }
 

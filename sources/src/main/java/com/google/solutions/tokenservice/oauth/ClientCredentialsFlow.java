@@ -48,6 +48,10 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     WorkloadIdentityPool workloadIdentityPool,
     LogAdapter logAdapter
   ) {
+    Preconditions.checkNotNull(issuer, "issuer");
+    Preconditions.checkNotNull(workloadIdentityPool, "workloadIdentityPool");
+    Preconditions.checkNotNull(logAdapter, "logAdapter");
+
     this.issuer = issuer;
     this.workloadIdentityPool = workloadIdentityPool;
     this.logAdapter = logAdapter;
@@ -69,18 +73,20 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     Preconditions.checkNotNull(client, "client");
 
     //
-    // In addition to the standard iss/exp/nbf claims, we
-    // include the following claims:
+    // In addition to the standard iss/exp/iat that all ID tokens need
+    // to contain, we include the following "extra" claims:
     //
-    // - amr: the name of the flow.
-    // - aud: audience that the ID Token is intended for.
-    // - client: JSON object containing claims about the client.
+    // - amr:    the name of the flow, could be used in a workload identity pool
+    //           provider's attribute condition.
+    // - client: JSON object containing claims about the client. The exact set
+    //           of claims depends on the flow/subclass.
     //
-    // NB. Because this is a client-credentials flow, we don't set a 'sub' claim.
+    // NB. This is a client-credentials flow, so we're authenticating clients, not
+    // end users. Thus, we don't set a 'sub' claim.
     //
 
     var idTokenPayload = new JsonWebToken.Payload()
-      .set("amr", new String[] { name().toLowerCase() }) //TODO: add amr
+      .set("amr", new String[] { name().toLowerCase() })
       .set("client_id", client.clientId());
 
     var clientClaims = new GenericData();
@@ -107,8 +113,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     var scope = request.parameters().getFirst("scope");
     if (Strings.isNullOrEmpty(scope)) {
       //
-      // No scope specified, so we don't need to issue an
-      // access token.
+      // No scope specified, the client isn't interested in an access token.
       //
       return null;
     }
@@ -190,7 +195,7 @@ public abstract class ClientCredentialsFlow implements AuthenticationFlow {
     }
 
     //
-    // Issue an access token if requested.
+    // Issue an access token (if requested).
     //
     try {
       var accessToken = issueAccessToken(request, client, idToken);

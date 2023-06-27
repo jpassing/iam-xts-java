@@ -24,18 +24,19 @@ package com.google.solutions.tokenservice.oauth.mtls;
 import java.time.OffsetDateTime;
 
 /**
- * Client attributes conveyed in the client certificate.
+ * Client attributes as conveyed in a client certificate.
  *
- * @param clientId Client ID
- * @param spiffeId SPIFFE ID of the certificate
- * @param sanDns dNSName SAN entry in the certificate
- * @param sanUri uniformResourceIdentifier SAN entry in the certificate
- * @param sha256fingerprint SHA-256 sha256fingerprint of the client certificate
- * @param serialNumber  serial number of the client certificate
+ * @param clientId Client ID, corresponds to the spiffeID, sanDns or sanUri.
+ *
+ * @param spiffeId SPIFFE ID of the certificate.
+ * @param sanDns dNSName SAN entry in the certificate.
+ * @param sanUri uniformResourceIdentifier SAN entry in the certificate.
+ * @param sha256fingerprint SHA-256 sha256fingerprint of the client certificate.
+ * @param serialNumber  serial number of the client certificate.
  * @param notBefore timestamp before which the client certificate is not valid.
  * @param notAfter timestamp after which the client certificate is not valid.
  */
-public record MtlsClientCertificate(
+public record MtlsClientAttributes(
   String clientId,
   String spiffeId,
   String sanDns,

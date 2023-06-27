@@ -25,7 +25,7 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * Authenticated client.
+ * A client that has been authenticated successfully.
  *
  * @param clientId OAuth client ID.
  * @param authenticationTime time of authentication.

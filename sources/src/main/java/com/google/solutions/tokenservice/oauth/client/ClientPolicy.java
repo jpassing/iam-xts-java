@@ -21,7 +21,7 @@
 
 package com.google.solutions.tokenservice.oauth.client;
 
-import com.google.solutions.tokenservice.oauth.mtls.MtlsClientCertificate;
+import com.google.solutions.tokenservice.oauth.mtls.MtlsClientAttributes;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.Instant;
@@ -40,26 +40,26 @@ public class ClientPolicy {
   }
 
   /**
-   * Authenticate a client using an mTLS client certificate.
+   * Authenticate a client using an mTLS client certificate. The
+   * certificate and its attributes have previously been verified
    *
    * @param attributes attributes conveyed in client certificate.
    * @return Client if successful.
-   * @throws if the client is unknown of the attributes are invalid.
+   * @throws exception if the client is unknown of the attributes are invalid.
    */
   public AuthenticatedClient authenticateClient(
-    MtlsClientCertificate attributes
+    MtlsClientAttributes attributes
   )
   {
     //
-    // The client has successfully authenticated by presenting a trusted
-    // mTLS client certificate. In this example implementation, we consider
-    // that sufficient, and simply use the certificate attributes as
-    // client claims.
+    // The client presented a trusted mTLS client certificate.
+    // In this example implementation, we consider that sufficient,
+    // and simply use the certificate attributes as client claims.
     //
     // In a real-world scenario, we could perform additional checks here,
     // such as:
     //
-    // - check the certificate hash against an allow-list of device registry
+    // - check the certificate hash against an allow-list
     // - require specific attributes (such as Spiffe ID) to be provided
     //
     // Also, we could transform or enrich the set of claims, for example by

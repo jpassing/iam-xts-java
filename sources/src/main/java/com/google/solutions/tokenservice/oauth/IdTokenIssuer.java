@@ -34,7 +34,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Issuer for ID tokens.
+ * Issuer (and signer) for ID tokens.
  *
  * To avoid having to manage a dedicated signing key pair, the class uses
  * a service account and its Google-managed key pair to sign tokens.
@@ -88,19 +88,14 @@ public class IdTokenIssuer {
     // Add standard set of JWT claims based on
     // https://datatracker.ietf.org/doc/html/rfc7519#section-4
     //
-    // - iss: identifies the principal that issued the JWT.
-    // - aud: identifies the recipients that the JWT is intended for.
-    // - nbf: identifies the time before which the JWT MUST NOT be accepted for processing.
-    // - exp: identifies the expiration time on or after which the JWT
-    //        MUST NOT be accepted for processing.
+    // - iss: the base URL of this service (so that OIDC Disovery works).
+    // - aud: the audience, which is always a workload identity pool provider.
+    // - iat: the time of issue.
+    // - exp: the time of expiry.
     // - jti: a unique identifier for the JWT.
     //
     var issueTime = Instant.now();
     var expiryTime = issueTime.plus(this.options.tokenExiry);
-
-    var audience = this.options.tokenAudience != null
-      ? this.options.tokenAudience.toString()
-      : client.clientId();
 
     var issuer = this.options.id().toString();
     if (issuer.endsWith("/")) {
@@ -110,7 +105,7 @@ public class IdTokenIssuer {
     var jwtPayload = payload
       .setIssuer(issuer)
       .setIssuedAtTimeSeconds(issueTime.getEpochSecond())
-      .setAudience(audience)
+      .setAudience(this.options.tokenAudience.toString())
       .setExpirationTimeSeconds(expiryTime.getEpochSecond())
       .setJwtId(UUID.randomUUID().toString());
 

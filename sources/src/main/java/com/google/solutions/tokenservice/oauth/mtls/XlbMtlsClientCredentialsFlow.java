@@ -69,6 +69,10 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     LogAdapter logAdapter
   ) {
     super(clientRepository, issuer, workloadIdentityPool, logAdapter);
+
+    Preconditions.checkNotNull(request, "request");
+    Preconditions.checkNotNull(options, "options");
+
     this.request = request;
     this.options = options;
   }
@@ -126,11 +130,13 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     return super.canAuthenticate(request);
   }
 
-  public MtlsClientCertificate verifyClientCertificate(AuthenticationRequest request)
+  public MtlsClientAttributes getVerifiedClientAttributes(AuthenticationRequest request)
   {
+    Preconditions.checkNotNull(request, "request");
+
     //
     // Verify that the client presented a certificate and that the
-    // load balancer verified the certificate.
+    // load balancer reported it as "verified".
     //
     var headers = this.request.headers();
     if (!canAuthenticate(request))
@@ -151,6 +157,18 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
       throw new ForbiddenException("The client certificate did not pass verification");
     }
 
+    //
+    // The load balancer verified the certificate, and we can now read the other
+    // headers to obtain the certificate attributes.
+    //
+    // NB. There's no way for us to confirm that it was really the load balancer
+    // that added the header. But if the application has been deployed correctly,
+    // then there shouldn't be any way for clients to sidestep the load balancer.
+    //
+
+    //
+    // Read whatever header has been configured to contain the OAuth client ID.
+    //
     var clientId = headers.get(this.options.clientIdHeaderName());
     if (Strings.isNullOrEmpty(clientId)) {
       throw new ForbiddenException(
@@ -166,19 +184,12 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
       .addLabels(this::addHeaderLabels)
       .write();
 
-    //
-    // NB. There's no way for us to check that the "Verified" header was
-    // added by the load balancer (as opposed to a MITM or the client),
-    // and that the header is authentic. But if the app is deployed correctly
-    // (with the correct ingress settings), then bypassing or MITM-ing the
-    // load balancer should not be possible.
-    //
 
     //
     // Return all attributes from HTTP headers. Note that some
     // attributes might be empty.
     //
-    return new MtlsClientCertificate(
+    return new MtlsClientAttributes(
       clientId,
       headers.get(this.options.clientCertSpiffeIdHeaderName),
       headers.get(this.options.clientCertDnsSansHeaderName),

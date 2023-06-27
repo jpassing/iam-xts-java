@@ -24,7 +24,7 @@ package com.google.solutions.tokenservice.oauth;
 import com.google.solutions.tokenservice.oauth.client.AuthenticatedClient;
 
 /**
- * Result of an authentication flow.
+ * Result of a successful authentication flow.
  *
  * @param client Client that was used to authenticate.
  * @param idToken ID Token for the authenticated principal.
