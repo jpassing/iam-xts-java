@@ -31,26 +31,62 @@ import java.util.stream.Collectors;
 public class RuntimeConfiguration {
   private final Function<String, String> readSetting;
 
+
+  public RuntimeConfiguration(Map<String, String> settings) {
+    this(key -> settings.get(key));
+  }
+
+  public RuntimeConfiguration(Function<String, String> readSetting) {
+    this.readSetting = readSetting;
+  }
+
+  // -------------------------------------------------------------------------
+  // Settings.
+  // -------------------------------------------------------------------------
+
+  /**
+   * List of enabled authentication flows.
+   */
   private final StringSetting authenticationFlows = new StringSetting(
     List.of("AUTH_FLOWS"),
     XlbMtlsClientCredentialsFlow.NAME); //TODO: Disable all flows by default.
 
+  /**
+   * Project number of the project that contains the workload identity pool.
+   * The project might differ from the project that the application is deployed in.
+   */
   protected final LongSetting workloadIdenityProjectNumber = new LongSetting(
     List.of("WORKLOAD_IDENITY_PROJECT_NUMBER"),
     null);
 
+  /**
+   * ID of the workload identity pool that's used for token exchanges.
+   */
   protected final StringSetting workloadIdenityPoolId = new StringSetting(
     List.of("WORKLOAD_IDENITY_POOL_ID"),
     null);
 
+  /**
+   * ID of the workload identity pool provider that's used for token exchanges.
+   * The provider must use this application as its OIDC IdP.
+   */
   protected final StringSetting workloadIdenityProviderIdId = new StringSetting(
     List.of("WORKLOAD_IDENITY_PROVIDER_ID"),
     null);
 
+  /**
+   * Token lifetime for ID token and access tokens.
+   */
   protected final DurationSetting tokenValidity = new DurationSetting(
     List.of("TOKEN_VALIDITY"),
     Duration.ofMinutes(5));
 
+  /**
+   * Issuer URL to use. By default, the application determines the URL automatically
+   * from incoming requests.
+   *
+   * The setting is primarily intended for testing and debugging scenarios.
+   */
   protected final StringSetting tokenIssuer = new StringSetting(
     List.of("TOKEN_ISSUER"),
     "");
@@ -94,22 +130,7 @@ public class RuntimeConfiguration {
     List.of("MTLS_HEADER_CLIENT_ID"),
     "X-Client-Cert-Spiffe");
 
-  public RuntimeConfiguration(Map<String, String> settings) {
-    this(key -> settings.get(key));
-  }
-
-  public RuntimeConfiguration(Function<String, String> readSetting) {
-    this.readSetting = readSetting;
-  }
-
-  // -------------------------------------------------------------------------
-  // Settings.
-  // -------------------------------------------------------------------------
-
-  /**
-   * List of enabled authentication flows.
-   */
-  public Set<String> authenticationFlows() {
+  protected Set<String> authenticationFlows() {
     return Arrays.stream(this.authenticationFlows.getValue()
       .split(","))
       .filter(s -> !s.isEmpty())
@@ -173,17 +194,6 @@ public class RuntimeConfiguration {
     }
   }
 
-  public class IntSetting extends Setting<Integer> {
-    public IntSetting(Collection<String> keys, Integer defaultValue) {
-      super(keys, defaultValue);
-    }
-
-    @Override
-    protected Integer parse(String value) {
-      return Integer.parseInt(value);
-    }
-  }
-
   public class LongSetting extends Setting<Long> {
     public LongSetting(Collection<String> keys, Long defaultValue) {
       super(keys, defaultValue);
@@ -192,17 +202,6 @@ public class RuntimeConfiguration {
     @Override
     protected Long parse(String value) {
       return Long.parseLong(value);
-    }
-  }
-
-  public class BooleanSetting extends Setting<Boolean> {
-    public BooleanSetting(Collection<String> keys, Boolean defaultValue) {
-      super(keys, defaultValue);
-    }
-
-    @Override
-    protected Boolean parse(String value) {
-      return Boolean.parseBoolean(value);
     }
   }
 

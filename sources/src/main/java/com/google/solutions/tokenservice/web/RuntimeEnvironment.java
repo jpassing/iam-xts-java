@@ -61,8 +61,6 @@ public class RuntimeEnvironment {
   private static final String CONFIG_IMPERSONATE_SA = "tokenservice.impersonateServiceAccount";
   private static final String CONFIG_DEBUG_MODE = "tokenservice.debug";
 
-  private final String projectId;
-  private final String projectNumber;
   private final ServiceAccount serviceAccount;
 
   /**
@@ -73,24 +71,6 @@ public class RuntimeEnvironment {
   // -------------------------------------------------------------------------
   // Private helpers.
   // -------------------------------------------------------------------------
-
-  private static HttpResponse getMetadata(String path) throws IOException {
-    var genericUrl = new GenericUrl(ComputeEngineCredentials.getMetadataServerUrl() + path);
-    var request = new NetHttpTransport().createRequestFactory().buildGetRequest(genericUrl);
-
-    request.setParser(new JsonObjectParser(GsonFactory.getDefaultInstance()));
-    request.getHeaders().set("Metadata-Flavor", "Google");
-    request.setThrowExceptionOnExecuteError(true);
-
-    try {
-      return request.execute();
-    }
-    catch (UnknownHostException exception) {
-      throw new IOException(
-        "Cannot find the metadata server. This is likely because code is not running on Google Cloud.",
-        exception);
-    }
-  }
 
   public boolean isRunningOnCloudRun() {
     return System.getenv().containsKey("K_SERVICE");
@@ -129,12 +109,6 @@ public class RuntimeEnvironment {
       // Initialize using service account attached to AppEngine or Cloud Run.
       //
       try {
-        GenericData projectMetadata =
-          getMetadata("/computeMetadata/v1/project/?recursive=true").parseAs(GenericData.class);
-
-        this.projectId = (String) projectMetadata.get("projectId");
-        this.projectNumber = projectMetadata.get("numericProjectId").toString();
-
         var applicationCredentials = GoogleCredentials.getApplicationDefault();
 
         this.serviceAccount = new ServiceAccount(
@@ -144,9 +118,7 @@ public class RuntimeEnvironment {
         logAdapter
           .newInfoEntry(
             LogEvents.RUNTIME_STARTUP,
-            String.format("Running in project %s (%s) as %s, version %s",
-              this.projectId,
-              this.projectNumber,
+            String.format("Running as %s, version %s",
               this.serviceAccount,
               ApplicationVersion.VERSION_STRING))
           .write();
@@ -164,9 +136,6 @@ public class RuntimeEnvironment {
       //
       // Initialize using development settings and credential.
       //
-      this.projectId = "dev";
-      this.projectNumber = "0";
-
       try {
         var defaultCredentials = GoogleCredentials.getApplicationDefault();
 
@@ -236,7 +205,7 @@ public class RuntimeEnvironment {
   }
 
   // -------------------------------------------------------------------------
-  // Producer methods.
+  // CDI Producer methods.
   // -------------------------------------------------------------------------
 
   @Produces

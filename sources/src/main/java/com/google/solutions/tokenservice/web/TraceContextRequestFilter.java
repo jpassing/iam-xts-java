@@ -33,15 +33,14 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.ext.Provider;
 
 /**
- * Use AppEngine-specific headers to enrich the log.
+ * Use Cloud Run-specific headers to enrich the log.
  */
 @Dependent
 @Provider
 @Priority(Priorities.AUTHENTICATION - 100)
 public class TraceContextRequestFilter implements ContainerRequestFilter {
   /**
-   * Header that contains a unique identifier for the request, cf.
-   * https://cloud.google.com/appengine/docs/standard/java11/reference/request-response-headers
+   * Header that contains a unique identifier for the request.
    */
   private static final String TRACE_CONTEXT_HEADER_NAME = "X-Cloud-Trace-Context";
 
