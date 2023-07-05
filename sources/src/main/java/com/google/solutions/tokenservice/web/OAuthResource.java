@@ -160,7 +160,7 @@ public class OAuthResource {
         .map(f -> f.grantType())
         .distinct()
         .collect(Collectors.toList()),
-      List.of("pairwise"),
+      List.of("none"),
       List.of("RS256"),
       this.flows.stream()
         .map(f -> f.authenticationMethod())
@@ -288,7 +288,7 @@ public class OAuthResource {
     @JsonProperty("grant_types_supported")
     Collection<String> supportedGrantTypes,
 
-    @JsonProperty("subject_types_supported") // TODO: Remove?
+    @JsonProperty("subject_types_supported")
     Collection<String> supportedSubjectTypes,
 
     @JsonProperty("id_token_signing_alg_values_supported")

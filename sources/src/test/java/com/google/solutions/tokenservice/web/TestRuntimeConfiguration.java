@@ -40,7 +40,7 @@ public class TestRuntimeConfiguration {
     var configuration = new RuntimeConfiguration(Map.of());
 
     var flows = configuration.authenticationFlows();
-    assertEquals(Set.of(XlbMtlsClientCredentialsFlow.NAME), flows);
+    assertEquals(Set.of(), flows);
   }
 
   @Test

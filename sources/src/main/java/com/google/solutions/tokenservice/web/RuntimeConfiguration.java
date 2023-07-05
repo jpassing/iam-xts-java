@@ -46,10 +46,12 @@ public class RuntimeConfiguration {
 
   /**
    * List of enabled authentication flows.
+   *
+   * By default, all flows are disabled.
    */
   private final StringSetting authenticationFlows = new StringSetting(
     List.of("AUTH_FLOWS"),
-    XlbMtlsClientCredentialsFlow.NAME); //TODO: Disable all flows by default.
+    "");
 
   /**
    * Project number of the project that contains the workload identity pool.
