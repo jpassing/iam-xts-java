@@ -86,7 +86,8 @@ public class RuntimeEnvironment {
     var validClientIdHeaders = Set.of(
       this.configuration.mtlsClientCertSpiffeIdHeader.getValue(),
       this.configuration.mtlsClientCertDnsSansHeader.getValue(),
-      this.configuration.mtlsClientCertUriSansHeader.getValue());
+      this.configuration.mtlsClientCertUriSansHeader.getValue(),
+      this.configuration.mtlsClientCertHashHeader.getValue());
 
     if (!validClientIdHeaders.contains(this.configuration.mtlsClientIdHeader.getValue())) {
       throw new RuntimeException(
