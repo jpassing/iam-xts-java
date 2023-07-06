@@ -158,7 +158,7 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
     }
 
     this.logAdapter
-      .newErrorEntry(
+      .newInfoEntry(
         LogEvents.API_TOKEN,
         "The client certificate was verified by the load balancer")
       .addLabels(this::addHeaderLabels)
