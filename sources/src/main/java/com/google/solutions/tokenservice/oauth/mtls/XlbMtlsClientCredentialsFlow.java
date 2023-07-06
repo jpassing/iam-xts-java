@@ -157,6 +157,13 @@ public class XlbMtlsClientCredentialsFlow extends MtlsClientCredentialsFlow {
       throw new ForbiddenException("The client certificate did not pass verification");
     }
 
+    this.logAdapter
+      .newErrorEntry(
+        LogEvents.API_TOKEN,
+        "The client certificate was verified by the load balancer")
+      .addLabels(this::addHeaderLabels)
+      .write();
+
     //
     // The load balancer verified the certificate, and we can now read the other
     // headers to obtain the certificate attributes.
