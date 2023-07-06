@@ -133,9 +133,11 @@ public class OAuthResource {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getRoot() throws URISyntaxException {
+  public Response getRoot() throws MalformedURLException, URISyntaxException {
+    var metadataUrl = new URL(this.tokenIssuer.id(), "/.well-known/openid-configuration");
+
     return Response
-      .temporaryRedirect(new URI("/.well-known/openid-configuration"))
+      .temporaryRedirect(metadataUrl.toURI())
       .build();
   }
 
@@ -146,8 +148,8 @@ public class OAuthResource {
   @Path(".well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
   public ProviderMetadata getMetadata(
-    @Context UriInfo uriInfo) throws MalformedURLException {
-
+    @Context UriInfo uriInfo
+  ) throws MalformedURLException {
     var tokenUrl = new URL(this.tokenIssuer.id(), "/token");
 
     return new ProviderMetadata(
